@@ -79,11 +79,31 @@ keyLink.text = Label(keyLink, T.ONB_KEY, "GameFontNormalSmall", "LEFT", keyLink.
 keyLink:SetWidth(keyLink.text:GetStringWidth() + 34)
 keyLink:SetScript("OnEnter", function(self) self.text:SetTextColor(1, 1, 1) end)
 keyLink:SetScript("OnLeave", function(self) self.text:SetTextColor(1, 0.82, 0) end)
-keyLink:SetScript("OnClick", function()
-  if Settings and Settings.OpenToCategory and Settings.KEYBINDINGS_CATEGORY_ID then
-    Settings.OpenToCategory(Settings.KEYBINDINGS_CATEGORY_ID, _G.BINDING_HEADER_AUTOGROUPFINDER)
+-- Tastaturbelegung öffnen, zu unserem Abschnitt scrollen und ihn aufklappen (wie ein Klick aufs Plus)
+local function ExpandBindingSection()
+  local list = SettingsPanel and SettingsPanel.GetSettingsList and SettingsPanel:GetSettingsList()
+  local box = list and list.ScrollBox
+  if not (box and box.EnumerateFrames) then return false end
+  for _, frame in box:EnumerateFrames() do
+    local element = frame.GetElementData and frame:GetElementData()
+    local data = element and element.data
+    if data and data.name == _G.BINDING_HEADER_AUTOGROUPFINDER then
+      if not data.expanded and frame.Button then frame.Button:Click() end
+      return true
+    end
   end
-end)
+  return false
+end
+function OpenHotkeys()
+  if not (Settings and Settings.OpenToCategory and Settings.KEYBINDINGS_CATEGORY_ID) then return end
+  Settings.OpenToCategory(Settings.KEYBINDINGS_CATEGORY_ID, _G.BINDING_HEADER_AUTOGROUPFINDER)
+  -- die Liste baut ihre Zeilen erst in den nächsten Bildern auf; falls noch nicht da, später nochmal
+  C_Timer.After(0.05, function()
+    local ok, found = pcall(ExpandBindingSection)
+    if ok and not found then C_Timer.After(0.3, function() pcall(ExpandBindingSection) end) end
+  end)
+end
+keyLink:SetScript("OnClick", OpenHotkeys)
 
 onboarding.go = CreateFrame("Button", nil, card, "UIPanelButtonTemplate")
 onboarding.go:SetSize(160, 26)
