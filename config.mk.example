@@ -1,0 +1,6 @@
+# Kopieren nach config.mk und anpassen (config.mk ist nicht im Git).
+# Spielrechner per SSH und dessen AddOns-Ordner:
+REMOTE_HOST = my-gaming-pc
+REMOTE_ADDONS = /path/to/World of Warcraft/_forever_/Interface/AddOns
+# Lokaler AddOns-Ordner (für make install):
+LOCAL_ADDONS = /Applications/BattleNet/World of Warcraft/_forever_/Interface/AddOns

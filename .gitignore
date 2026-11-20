@@ -1,3 +1,5 @@
 .DS_Store
 luac.out
 *.zip
+config.mk
+dist/

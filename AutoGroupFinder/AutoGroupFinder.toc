@@ -10,6 +10,11 @@
 
 Locales\enUS.lua
 Locales\deDE.lua
+Locales\frFR.lua
+Locales\esES.lua
+Locales\itIT.lua
+Locales\ptBR.lua
+Locales\ruRU.lua
 Locales\Locales.lua
 Core.lua
 Activities.lua

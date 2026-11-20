@@ -5,8 +5,6 @@ ns.L = ns.L or {}
 ns.L.enUS = {
   TITLE = "Auto Group Finder",
   LOADED = "loaded. %s opens the window; set a key under Key Bindings → AddOns.",
-  LOAD_FAILED = "could not start:",
-  LOAD_FAILED_HINT = "– type %s for details.",
 
   BIND_NEXT = "Find group / search now",
   BIND_REFRESH = "Search now",

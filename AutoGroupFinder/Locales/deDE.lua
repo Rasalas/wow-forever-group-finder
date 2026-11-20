@@ -3,8 +3,6 @@ ns.L = ns.L or {}
 
 ns.L.deDE = {
   LOADED = "geladen. %s öffnet das Fenster, die Taste legst du unter Tastaturbelegung → AddOns fest.",
-  LOAD_FAILED = "konnte nicht starten:",
-  LOAD_FAILED_HINT = "– %s zeigt Details.",
 
   BIND_NEXT = "Gruppe suchen / jetzt suchen",
   BIND_REFRESH = "Jetzt suchen",
@@ -153,4 +151,5 @@ ns.L.deDE = {
   TEST_RUNNING = "[Test] Läuft schon.",
   TEST_STOP_REAL = "Erst die echte Suche beenden.",
   TEST_NO_DUNGEON = "[Test] Braucht mindestens einen Dungeon für deine Stufe.",
+  HELP = "%s · %s config · %s whisper <Text> · %s testinvite [simple|listing] · %s test · %s test shots · %s start · %s stop · %s minimap · %s sound · %s interval 8 · %s reset · %s diag · %s dump",
 }
