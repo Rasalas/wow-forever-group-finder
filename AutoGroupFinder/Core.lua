@@ -67,7 +67,20 @@ ROLE_TEXCOORD = {
 }
 ICON = "Interface\\Icons\\INV_Misc_GroupNeedMore"
 -- Blizzard filtert nach Client-Sprache; es gibt genau diese elf
-LANGUAGES = { "deDE", "enUS", "frFR", "esES", "esMX", "itIT", "ruRU", "ptBR", "koKR", "zhCN", "zhTW" }
+-- Spielsprachen je Region (Korea, Taiwan, China haben eigene Server und kommen in Forever nicht vor)
+local REGION_LANGUAGES = {
+  [1] = { "enUS", "esMX", "ptBR" },                                   -- Amerika
+  [3] = { "deDE", "enUS", "esES", "frFR", "itIT", "ptBR", "ruRU" },   -- Europa
+}
+LANGUAGES = REGION_LANGUAGES[GetCurrentRegion and GetCurrentRegion() or 0]
+  or { "deDE", "enUS", "esES", "esMX", "frFR", "itIT", "ptBR", "ruRU" }
+
+-- Name einer Spielsprache, wie Blizzard ihn anzeigt; sonst unsere Übersetzung
+function LangName(loc)
+  local name = LocaleUtil and LocaleUtil.GetLocaleDisplayName and LocaleUtil.GetLocaleDisplayName(loc)
+  if name and name ~= loc:upper() then return name end
+  return T["LANG_" .. loc] or loc
+end
 COMM_PREFIX = "AutoGrpFinder" -- versteckte Addon-Nachrichten zwischen Nutzern
 TAB_ICONS = { "Interface\\ICONS\\INV_SideTab_GroupFinder_c60", "Interface\\ICONS\\INV_SideTab_GroupBrowsing_c60",
   "Interface\\ICONS\\INV_Misc_Book_09" }

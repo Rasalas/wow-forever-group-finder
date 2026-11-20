@@ -21,30 +21,6 @@ function RegisterSettings()
   if CreateSettingsButtonInitializer and layout and layout.AddInitializer then
     layout:AddInitializer(CreateSettingsButtonInitializer(T.OPT_WHISPER_TEXT, T.EDIT, EditWhisper, T.WHISPER_EDIT_PROMPT, true))
   end
-  header(T.SETTINGS_LANGUAGES)
-  local myLocale = GetLocale() == "enGB" and "enUS" or GetLocale()
-  if myLocale == "enUS" and db.languageMode == "mineEnglish" then db.languageMode = "mine" end
-  local modeSetting = Settings.RegisterAddOnSetting(category, "AUTOGROUPFINDER_LANGMODE", "languageMode", db,
-    Settings.VarType.String, T.LANG_MODE, "all")
-  local modeInit = Settings.CreateDropdown(category, modeSetting, function()
-    local c = Settings.CreateControlTextContainer()
-    c:Add("all", T.LANG_ALL)
-    c:Add("mine", T.LANG_MINE:format(T["LANG_" .. myLocale] or myLocale))
-    if myLocale ~= "enUS" then
-      c:Add("mineEnglish", T.LANG_MINE_EN:format(T["LANG_" .. myLocale] or myLocale))
-    end
-    c:Add("custom", T.LANG_CUSTOM)
-    return c:GetData()
-  end, T.LANG_TIP)
-  for _, loc in ipairs(LANGUAGES) do
-    local setting = Settings.RegisterAddOnSetting(category, "AUTOGROUPFINDER_LANG_" .. loc, loc, db.languages,
-      Settings.VarType.Boolean, T["LANG_" .. loc], false)
-    local init = Settings.CreateCheckbox(category, setting, T.LANG_TIP)
-    -- nur bei „Eigene Auswahl“ bedienbar
-    if init and init.SetParentInitializer and modeInit then
-      init:SetParentInitializer(modeInit, function() return db.languageMode == "custom" end)
-    end
-  end
   for _, size in ipairs(SIZES) do
     header((size == 5 and T.SIZE_PARTY or T.SIZE_RAID):format(size))
     for _, role in ipairs(ROLES) do
@@ -56,6 +32,31 @@ function RegisterSettings()
         options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(v) return tostring(math.floor(v + 0.5)) end)
       end
       Settings.CreateSlider(category, setting, options, T.COMPOSITION_TIP)
+    end
+  end
+  -- Sprachen ganz unten: selten gebraucht
+  header(T.SETTINGS_LANGUAGES)
+  local myLocale = GetLocale() == "enGB" and "enUS" or GetLocale()
+  if myLocale == "enUS" and db.languageMode == "mineEnglish" then db.languageMode = "mine" end
+  local modeSetting = Settings.RegisterAddOnSetting(category, "AUTOGROUPFINDER_LANGMODE", "languageMode", db,
+    Settings.VarType.String, T.LANG_MODE, "all")
+  local modeInit = Settings.CreateDropdown(category, modeSetting, function()
+    local c = Settings.CreateControlTextContainer()
+    c:Add("all", T.LANG_ALL)
+    c:Add("mine", T.LANG_MINE:format(LangName(myLocale)))
+    if myLocale ~= "enUS" then
+      c:Add("mineEnglish", T.LANG_MINE_EN:format(LangName(myLocale)))
+    end
+    c:Add("custom", T.LANG_CUSTOM)
+    return c:GetData()
+  end, T.LANG_TIP)
+  for _, loc in ipairs(LANGUAGES) do
+    local setting = Settings.RegisterAddOnSetting(category, "AUTOGROUPFINDER_LANG_" .. loc, loc, db.languages,
+      Settings.VarType.Boolean, LangName(loc), false)
+    local init = Settings.CreateCheckbox(category, setting)
+    -- nur bei „Eigene Auswahl“ bedienbar
+    if init and init.SetParentInitializer and modeInit then
+      init:SetParentInitializer(modeInit, function() return db.languageMode == "custom" end)
     end
   end
   settingsCategory = category
