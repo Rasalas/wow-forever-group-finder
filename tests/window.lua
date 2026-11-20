@@ -107,6 +107,10 @@ local function res(id, name, roles, age, extra)
 end
 local ns = {}
 -- Fenster: Ziehen löst es aus Blizzards Verwaltung, nahe am Standardplatz rastet es ein, Schließen vergisst die Position
+-- Blizzards Fensterverwaltung: zählt Aufrufe, das Add-on selbst darf sie nie aufrufen
+blizzCalls = 0
+function ShowUIPanel(f) blizzCalls = blizzCalls + 1 end
+function HideUIPanel(f) blizzCalls = blizzCalls + 1 end
 for line in io.lines(arg[1] .. "/AutoGroupFinder.toc") do
   local file = line:match("^%s*([^#%s][^%s]*%.lua)%s*$")
   if file then assert(loadfile(arg[1] .. "/" .. (file:gsub("\\", "/"))))("AutoGroupFinder", ns) end
@@ -125,9 +129,6 @@ rawset(win, "GetTop", function() return Tp end)
 rawset(UIParent, "GetTop", function() return 816 end) -- Standardplatz: oben 816 - 116 = 700
 local point
 rawset(win, "SetPoint", function(_, ...) point = table.concat({ select(1, ...) == nil and "" or tostring((...)), tostring(select(4, ...)), tostring(select(5, ...)) }, ",") end)
-local blizzCalls = 0
-ShowUIPanel = function() blizzCalls = blizzCalls + 1 end
-HideUIPanel = ShowUIPanel
 
 E.OpenWindow()
 check("Offen am Standardplatz:", point, "TOPLEFT,16,-116")
@@ -198,3 +199,19 @@ E.OpenSettings()
 SlashCmdList.AUTOGROUPFINDER("config")
 E.ShowOnboarding()
 check("Kein Öffnen durch das Add-on:", opened, 0)
+
+print("== Neben Blizzards Fenstern")
+local spell = CreateFrame("Frame")
+rawset(spell, "GetRight", function() return 400 end)
+local panels = {}
+GetUIPanel = function(a) return panels[a] end
+E.CloseWindow(); E.OpenWindow()
+panels.left = spell
+_G.ShowUIPanel(spell)
+check("Zauberbuch links: unseres rückt daneben:", point, "TOPLEFT,400,-116")
+panels.left = nil
+_G.HideUIPanel(spell)
+check("Zauberbuch zu: zurück an den Standardplatz:", point, "TOPLEFT,16,-116")
+WorldMapFrame = CreateFrame("Frame")
+_G.ShowUIPanel(WorldMapFrame)
+check("Karte schließt unser Fenster:", win:IsShown(), false)

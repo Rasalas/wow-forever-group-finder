@@ -26,12 +26,37 @@ function ApplyWindowMode()
 end
 ApplyWindowMode()
 
+-- Wie ein Blizzard-Fenster neben den anderen: offene linke/mittlere Fenster schieben unseres nach rechts
+function FitBesideBlizzard()
+  if state.winPos or not GetUIPanel then return end
+  local x = HOME_X
+  for _, area in ipairs({ "left", "center" }) do
+    local f = GetUIPanel(area)
+    if f and f ~= win and f:IsShown() and f:GetRight() then x = math.max(x, f:GetRight() - (UIParent:GetLeft() or 0)) end
+  end
+  win:ClearAllPoints()
+  win:SetPoint("TOPLEFT", UIParent, "TOPLEFT", x, HOME_Y)
+end
+
 function OpenWindow()
   ApplyWindowMode()
+  FitBesideBlizzard()
   win:Show()
   win:Raise()
 end
 function CloseWindow() win:Hide() end
+
+-- Sichere Hooks: laufen nach Blizzards Code und bewegen nur unser Fenster, Blizzards Ablauf bleibt sauber.
+-- Die Karte schließt es, wie Blizzards eigene Fenster.
+local function AfterPanel(frame)
+  if not win:IsShown() then return end
+  if frame and frame == _G.WorldMapFrame then win:Hide() return end
+  FitBesideBlizzard()
+end
+if hooksecurefunc then
+  if ShowUIPanel then hooksecurefunc("ShowUIPanel", AfterPanel) end
+  if HideUIPanel then hooksecurefunc("HideUIPanel", function() AfterPanel() end) end
+end
 
 -- Ziehen verschiebt (Titelleiste und freie Stellen), Doppelklick auf die Titelleiste setzt zurück.
 -- Wie die Karte: nach dem Schließen wieder am Standardplatz.
@@ -57,10 +82,12 @@ function StopMoveWindow()
     state.winPos = { x = x, y = y }
   end
   ApplyWindowMode()
+  FitBesideBlizzard()
 end
 function ResetWindow()
   state.winPos = nil
   ApplyWindowMode()
+  FitBesideBlizzard()
 end
 win:SetScript("OnDragStart", StartMoveWindow)
 win:SetScript("OnDragStop", StopMoveWindow)
