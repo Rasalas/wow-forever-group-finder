@@ -6,10 +6,12 @@ setfenv(1, ns.env) -- gemeinsamer, privater Namensraum aller Module (siehe Core.
 -------------------------------------------------------------------------
 REPO_URL = "https://github.com/Rasalas/wow-forever-group-finder"
 -- Weitersagen: Text nur vorausfüllen, abgeschickt wird mit Enter. In der Gruppe an die Gruppe.
+-- Immer Englisch: in Zufallsgruppen sprechen nicht alle die eigene Sprache.
+SHARE_TEXT = "I use Auto Group Finder, it invites tanks, healers and DPS automatically: %s"
 function ShareAddon()
   local prefix = IsInRaid() and "/ra " or IsInGroup() and "/p " or ""
   local open = (ChatFrameUtil and ChatFrameUtil.OpenChat) or ChatFrame_OpenChat
-  if open then open(prefix .. T.SHARE_TEXT:format(REPO_URL)) end
+  if open then open(prefix .. SHARE_TEXT:format(REPO_URL)) end
 end
 
 function AddonVersion()

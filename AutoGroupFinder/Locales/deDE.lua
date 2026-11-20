@@ -249,7 +249,6 @@ ns.L.deDE = {
   ABOUT_TEXT = "Findet automatisch Tanks, Heiler und Schaden für deine Gruppe – ähnlich dem Dungeon-Finder in Retail, aber über Blizzards Gruppensuche in WoW Forever. Kostenlos und quelloffen (MIT-Lizenz).",
   ABOUT_CODE = "Quellcode, Fragen und Fehler melden:",
   SHARE = "Weitersagen",
-  SHARE_TIP = "Schreibt einen kurzen Hinweis aufs Add-on in den Chat, in der Gruppe an die Gruppe. Abschicken mit Enter.",
-  SHARE_TEXT = "Ich nutze Auto Group Finder, das lädt Tanks, Heiler und Schaden automatisch ein: %s",
+  SHARE_TIP = "Schreibt einen kurzen englischen Hinweis aufs Add-on in den Chat, in der Gruppe an die Gruppe. Abschicken mit Enter.",
   ABOUT_COPY = "Klicken, dann Strg+C zum Kopieren",
 }

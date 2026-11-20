@@ -250,6 +250,5 @@ ns.L.ptBR = {
   ABOUT_CODE = "Código-fonte, dúvidas e relatos de erro:",
   SHARE = "Recomendar",
   SHARE_TIP = "Escreve uma nota curta sobre o addon no chat, para o grupo se estiver em um. Envie com Enter.",
-  SHARE_TEXT = "Uso o Auto Group Finder, ele convida tanques, curadores e dano automaticamente: %s",
   ABOUT_COPY = "Clique e depois Ctrl+C para copiar",
 }

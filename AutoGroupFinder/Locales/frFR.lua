@@ -250,6 +250,5 @@ ns.L.frFR = {
   ABOUT_CODE = "Code source, questions et signalement de bugs :",
   SHARE = "Faire connaître",
   SHARE_TIP = "Écrit un court message sur l'add-on dans le chat, au groupe si vous en avez un. Envoyez avec Entrée.",
-  SHARE_TEXT = "J'utilise Auto Group Finder, il invite tanks, soigneurs et dégâts automatiquement : %s",
   ABOUT_COPY = "Cliquez puis Ctrl+C pour copier",
 }
