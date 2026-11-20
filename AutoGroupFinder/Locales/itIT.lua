@@ -4,7 +4,7 @@ ns.L = ns.L or {}
 ns.L.itIT = {
   LOADED = "caricato. %s apre la finestra; assegna un tasto in Comandi → AddOn.",
 
-  BIND_NEXT = "Cerca gruppo / cerca ora",
+  BIND_NEXT = "Apri finestra / cerca ora",
   BIND_REFRESH = "Cerca ora",
   BIND_TOGGLE = "Mostra/nascondi finestra",
 
@@ -58,7 +58,7 @@ ns.L.itIT = {
   WHISPER_EDIT_PROMPT = "Sussurro inviato con ogni invito.\n{dungeon} e {role} vengono sostituiti.",
   EDIT = "Modifica",
   DEFAULT = "Predefinito",
-  CHAT_BACKFILL = "Il tuo gruppo non è più completo – manca: %s. Clic destro sull'icona della minimappa o premi il tuo tasto per riempire il posto.",
+  CHAT_BACKFILL = "Il tuo gruppo non è più completo – manca: %s. Apri la finestra per riempire il posto.",
   NOTIFY_BACKFILL = "Gruppo incompleto – manca: %s",
   CHAT_LIST_FAILED = "Impossibile iscrivere il tuo gruppo: %s",
   PICK_ACTIVITY = "Spunta almeno una voce.",
@@ -116,7 +116,6 @@ ns.L.itIT = {
   AGE_S = "%ds", AGE_M = "%dmin",
 
   MM_LEFT = "Clic sinistro: finestra",
-  MM_RIGHT_START = "Clic destro: cerca gruppo",
   MM_RIGHT_SEARCH = "Clic destro: cerca ora",
   MM_SHIFT_RIGHT = "Maiusc-clic destro: interrompi ricerca",
   MM_DRAG = "Trascina: sposta lungo la minimappa · Maiusc-trascina: posiziona liberamente",
@@ -144,7 +143,7 @@ ns.L.itIT = {
   CHAT_RESET = "Giocatori saltati e invitati dimenticati.",
   CHAT_NO_RESULTS = "Nessun risultato di ricerca.",
   ON = "attivo", OFF = "disattivo",
-  HELP = "%s · %s config · %s whisper <testo> · %s testinvite [simple|listing] · %s test · %s test shots · %s start · %s stop · %s minimap [reset] · %s sound · %s interval 8 · %s reset · %s diag · %s dump",
+  HELP = "%s · %s config · %s whisper <testo> · %s test · %s start · %s stop · %s minimap [reset] · %s sound · %s interval 8 · %s reset · %s diag · %s dump",
 
   TEST_START = "[Test] In corso con giocatori inventati – nessuno viene invitato davvero.",
   TEST_SEARCH = "[Test] Ricerca …",
@@ -153,4 +152,10 @@ ns.L.itIT = {
   TEST_RUNNING = "[Test] Già in corso.",
   TEST_STOP_REAL = "Interrompi prima la ricerca vera.",
   TEST_NO_DUNGEON = "[Test] Serve almeno una spedizione per il tuo livello.",
+  TEST_LIST = "Test (non succede nulla di reale): %s test search · %s test search shots · %s test invite [simple|listing] · %s test minimap",
+  TEST_MM_RIM = "[Test] Icona della minimappa: sul bordo della minimappa.",
+  TEST_MM_FREE = "[Test] Icona della minimappa: posizionata liberamente sullo schermo.",
+  TEST_MM_COLLECTED = "[Test] Icona della minimappa: raccolta da un altro addon (ad es. MinimapButtonButton) – guarda nel suo menu.",
+  TEST_MM_HIDDEN = "[Test] L'icona della minimappa è nascosta – %s minimap la mostra di nuovo.",
+  TEST_MM_ANIM = "[Test] Ora l'icona mostra «ricerca» per 6 secondi, poi «gruppo trovato».",
 }

@@ -3,6 +3,8 @@ setfenv(1, ns.env) -- gemeinsamer, privater Namensraum aller Module (siehe Core.
 
 -- Zeigt, was der Client an Group-Finder-Schnittstellen hat.
 function Diag()
+  Print(("Lua errors: %d"):format(#errors))
+  for _, e in ipairs(errors) do print("  " .. e) end
   Print("Client: " .. tostring(select(4, GetBuildInfo())) .. " / " .. tostring((GetBuildInfo())))
   local api = C_LFGList
   Print("C_LFGList: " .. tostring(api ~= nil))
@@ -39,10 +41,14 @@ function _G.AutoGroupFinder_Slash(msg, raw)
     Print(T.CHAT_WHISPER_SET:format(db.whisperText or T.WHISPER_DEFAULT))
   elseif msg == "config" or msg == "settings" then
     OpenSettings()
-  elseif msg:match("^testinvite") then
-    InviteInfo.Demo(msg:match("^testinvite%s+(%a+)"))
-  elseif msg == "test" or msg == "test shots" then
-    RunTest(msg == "test shots")
+  elseif msg == "test" then
+    Print((T.TEST_LIST:gsub("%%s", SLASH)))
+  elseif msg == "test search" or msg == "test search shots" then
+    RunTest(msg == "test search shots")
+  elseif msg:match("^test invite") then
+    InviteInfo.Demo(msg:match("^test invite%s+(%a+)"))
+  elseif msg == "test minimap" then
+    TestMinimap()
   elseif msg == "start" then
     StartQueue()
   elseif msg == "stop" then

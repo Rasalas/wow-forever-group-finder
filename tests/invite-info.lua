@@ -1,4 +1,5 @@
 unpack = unpack or table.unpack; math.atan2 = math.atan2 or math.atan; tinsert = table.insert
+hooksecurefunc = function(t, k, f) if type(t) == "string" then t, k, f = _G, t, k end local o = t[k]; rawset(t, k, function(...) local r = { o(...) }; f(...); return unpack(r) end) end
 strsplit = function(sep, s) local t = {} for part in (s .. sep):gmatch("(.-)" .. sep) do t[#t + 1] = part end return (unpack or table.unpack)(t) end
 GetRealZoneText = function() return ZONE or "Ironforge" end
 date = os.date; GetInstanceInfo = function() return INSTANCE or "Scarlet Library" end; UnitClass = function() return "Mage", "MAGE" end; IsInInstance = function() return INSTANCE ~= nil, INSTANCE and "party" or "none" end; UnitLevel = UnitLevel or function() return 34 end
@@ -123,16 +124,16 @@ box:Hide()
 print("== Unbekannter Einladender")
 fire("PARTY_INVITE_REQUEST", "Stranger")
 print("shown:", rawget(box, "_shown"))
-print("== /gf testinvite")
+print("== /gf test invite")
 StaticPopup_Show = function(which, arg) print("popup:", which, StaticPopupDialogs[which].timeout .. "s", arg) return dialog end
-SlashCmdList.AUTOGROUPFINDER("testinvite")
+SlashCmdList.AUTOGROUPFINDER("test invite")
 print("box:", rawget(box, "_shown"), "|", rawget(box.title, "_text"), "|", rawget(box.line, "_text"))
 StaticPopupDialogs.AUTOGROUPFINDER_FAKE_INVITE.OnAccept()
 SlashCmdList.AUTOGROUPFINDER("help")
-print("== /gf testinvite (Rollenauswahl)")
+print("== /gf test invite (Rollenauswahl)")
 local timers = {}
 C_Timer.After = function(d, fn) timers[#timers + 1] = fn end
-SlashCmdList.AUTOGROUPFINDER("testinvite")
+SlashCmdList.AUTOGROUPFINDER("test invite")
 local demo = AutoGroupFinderDemoInvite
 print("demo shown:", rawget(demo, "_shown"), "box:", rawget(box, "_shown"), "|", rawget(box.title, "_text"))
 local sl = rawget(box, "slots").slots
@@ -148,8 +149,8 @@ cb:SetChecked(true); rawget(cb, "_scripts").OnClick(cb)
 print("tank checked, others:", rawget(rawget(roles[3], "checkButton"), "_checked"))
 for _, fn in ipairs(timers) do fn() end
 print("after 10s hidden:", not rawget(demo, "_shown"))
-print("== testinvite simple")
-SlashCmdList.AUTOGROUPFINDER("testinvite simple")
+print("== test invite simple")
+SlashCmdList.AUTOGROUPFINDER("test invite simple")
 print("== Gedächtnis: Gruppe nicht mehr in der letzten Suche")
 box:Hide()
 fire("LFG_LIST_SEARCH_RESULTS_RECEIVED") -- Grouper wird gesehen und gemerkt
@@ -157,8 +158,8 @@ results[9] = nil
 fire("LFG_LIST_SEARCH_RESULTS_RECEIVED")
 fire("PARTY_INVITE_REQUEST", "Grouper")
 print("shown:", rawget(box, "_shown"), "|", rawget(box.title, "_text"))
-print("== testinvite listing")
-SlashCmdList.AUTOGROUPFINDER("testinvite listing")
+print("== test invite listing")
+SlashCmdList.AUTOGROUPFINDER("test invite listing")
 local w2 = rawget(box, "slots")
 local desc = {}
 for i = 1, 5 do desc[i] = rawget(w2.empties[i], "_shown") and "leer" or (rawget(w2.slots[i], "_shown") and "rolle" or "-") end

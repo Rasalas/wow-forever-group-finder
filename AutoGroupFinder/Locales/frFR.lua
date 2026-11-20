@@ -4,7 +4,7 @@ ns.L = ns.L or {}
 ns.L.frFR = {
   LOADED = "chargé. %s ouvre la fenêtre ; choisissez une touche dans Raccourcis → AddOns.",
 
-  BIND_NEXT = "Chercher un groupe / chercher maintenant",
+  BIND_NEXT = "Ouvrir la fenêtre / chercher maintenant",
   BIND_REFRESH = "Chercher maintenant",
   BIND_TOGGLE = "Afficher/masquer la fenêtre",
 
@@ -58,7 +58,7 @@ ns.L.frFR = {
   WHISPER_EDIT_PROMPT = "Chuchotement envoyé avec chaque invitation.\n{dungeon} et {role} sont remplacés.",
   EDIT = "Modifier",
   DEFAULT = "Par défaut",
-  CHAT_BACKFILL = "Votre groupe n'est plus complet – il manque : %s. Clic droit sur l'icône de la minicarte ou votre touche pour compléter.",
+  CHAT_BACKFILL = "Votre groupe n'est plus complet – il manque : %s. Ouvrez la fenêtre pour compléter.",
   NOTIFY_BACKFILL = "Groupe incomplet – il manque : %s",
   CHAT_LIST_FAILED = "Impossible d'inscrire votre groupe : %s",
   PICK_ACTIVITY = "Cochez au moins une entrée.",
@@ -116,7 +116,6 @@ ns.L.frFR = {
   AGE_S = "%ds", AGE_M = "%dmin",
 
   MM_LEFT = "Clic gauche : fenêtre",
-  MM_RIGHT_START = "Clic droit : chercher un groupe",
   MM_RIGHT_SEARCH = "Clic droit : chercher maintenant",
   MM_SHIFT_RIGHT = "Maj-clic droit : arrêter la recherche",
   MM_DRAG = "Glisser : déplacer autour de la minicarte · Maj-glisser : placer librement",
@@ -144,7 +143,7 @@ ns.L.frFR = {
   CHAT_RESET = "Joueurs ignorés et invités oubliés.",
   CHAT_NO_RESULTS = "Aucun résultat de recherche.",
   ON = "activé", OFF = "désactivé",
-  HELP = "%s · %s config · %s whisper <texte> · %s testinvite [simple|listing] · %s test · %s test shots · %s start · %s stop · %s minimap [reset] · %s sound · %s interval 8 · %s reset · %s diag · %s dump",
+  HELP = "%s · %s config · %s whisper <texte> · %s test · %s start · %s stop · %s minimap [reset] · %s sound · %s interval 8 · %s reset · %s diag · %s dump",
 
   TEST_START = "[Test] Lancé avec des joueurs inventés – personne n'est vraiment invité.",
   TEST_SEARCH = "[Test] Recherche …",
@@ -153,4 +152,10 @@ ns.L.frFR = {
   TEST_RUNNING = "[Test] Déjà en cours.",
   TEST_STOP_REAL = "Arrêtez d'abord la vraie recherche.",
   TEST_NO_DUNGEON = "[Test] Il faut au moins un donjon pour votre niveau.",
+  TEST_LIST = "Tests (rien de réel ne se passe) : %s test search · %s test search shots · %s test invite [simple|listing] · %s test minimap",
+  TEST_MM_RIM = "[Test] Icône de la minicarte : sur le bord de la minicarte.",
+  TEST_MM_FREE = "[Test] Icône de la minicarte : placée librement à l'écran.",
+  TEST_MM_COLLECTED = "[Test] Icône de la minicarte : récupérée par un autre add-on (par ex. MinimapButtonButton) – regardez dans son menu.",
+  TEST_MM_HIDDEN = "[Test] L'icône de la minicarte est masquée – %s minimap l'affiche à nouveau.",
+  TEST_MM_ANIM = "[Test] L'icône affiche maintenant « recherche » pendant 6 secondes, puis « groupe trouvé ».",
 }

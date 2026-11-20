@@ -13,6 +13,8 @@ end
 
 function StartQueue()
   if InCombatLockdown() then Print(T.CHAT_IN_COMBAT) return end
+  local reason = BlockReason()
+  if reason then Print(reason); win:Show() return end
   if not CanInvite() then Print(T.CHAT_LEADER_ONLY) return end
   local _, ids = SearchActivities()
   if #ids == 0 then Print(T.PICK_ACTIVITY) return end
@@ -60,7 +62,8 @@ function _G.AutoGroupFinder_Next()
   elseif state.queued then
     DoSearch(true)
   else
-    StartQueue()
+    -- Starten nur über den Knopf im Fenster, wo Rollen, Dungeons und Spielstil zu sehen sind
+    win:Show()
   end
 end
 function _G.AutoGroupFinder_Refresh() DoSearch(true) end

@@ -1,4 +1,5 @@
 unpack = unpack or table.unpack; math.atan2 = math.atan2 or math.atan; tinsert = table.insert
+hooksecurefunc = function(t, k, f) if type(t) == "string" then t, k, f = _G, t, k end local o = t[k]; rawset(t, k, function(...) local r = { o(...) }; f(...); return unpack(r) end) end
 strsplit = function(sep, s) local t = {} for part in (s .. sep):gmatch("(.-)" .. sep) do t[#t + 1] = part end return (unpack or table.unpack)(t) end
 GetRealZoneText = function() return ZONE or "Ironforge" end
 date = os.date; GetInstanceInfo = function() return INSTANCE or "Scarlet Library" end; UnitClass = function() return "Mage", "MAGE" end; IsInInstance = function() return INSTANCE ~= nil, INSTANCE and "party" or "none" end; UnitLevel = UnitLevel or function() return 34 end
@@ -119,10 +120,10 @@ res(3, "Fresh", { tank = true }, 2, { generalPlaystyle = 2 })
 res(4, "Heal", { healer = true }, 50, { generalPlaystyle = 2 })
 print("== Kampf: Start wird nicht suchen")
 COMBAT = true
-AutoGroupFinder_Next()
+ns.env.StartQueue()
 COMBAT = false
 print("== Start")
-AutoGroupFinder_Next()
+ns.env.StartQueue()
 fire("LFG_LIST_SEARCH_RESULTS_RECEIVED")
 print("invites:", table.concat(invites, ","), "(Lowbie übersprungen, Freund Buddy vor Fresh)")
 print("whispers before click:", #whispers)

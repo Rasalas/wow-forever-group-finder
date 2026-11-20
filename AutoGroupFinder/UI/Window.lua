@@ -19,7 +19,7 @@ win:Hide()
 tinsert(UISpecialFrames, "AutoGroupFinderFrame") -- Esc schließt
 if win.SetTitle then win:SetTitle(T.TITLE) end
 -- Porträt wie in Blizzards Gruppensuche: das große Auge, animiert während der Suche
-portraitEye = Eye.Create(win, true, win:GetFrameLevel() + 20)
+portraitEye = Eye.Create(win, true, win:GetFrameLevel() + 600) -- über Rahmen (500) und Titel (510)
 if portraitEye then
   portraitEye:SetSize(64, 64)
   portraitEye:SetPoint("CENTER", win, "TOPLEFT", 25, -22)

@@ -6,7 +6,7 @@ ns.L.enUS = {
   TITLE = "Auto Group Finder",
   LOADED = "loaded. %s opens the window; set a key under Key Bindings → AddOns.",
 
-  BIND_NEXT = "Find group / search now",
+  BIND_NEXT = "Open window / search now",
   BIND_REFRESH = "Search now",
   BIND_TOGGLE = "Show/hide window",
 
@@ -63,7 +63,7 @@ ns.L.enUS = {
   WHISPER_EDIT_PROMPT = "Whisper sent with each invite.\n{dungeon} and {role} are filled in.",
   EDIT = "Edit",
   DEFAULT = "Default",
-  CHAT_BACKFILL = "Your group is no longer full – missing: %s. Right-click the minimap icon or press your key to fill the spot.",
+  CHAT_BACKFILL = "Your group is no longer full – missing: %s. Open the window to fill the spot.",
   NOTIFY_BACKFILL = "Group no longer full – missing: %s",
   CHAT_LIST_FAILED = "Could not list your group: %s",
   PICK_ACTIVITY = "Tick at least one entry.",
@@ -121,7 +121,6 @@ ns.L.enUS = {
   AGE_S = "%ds", AGE_M = "%dm",
 
   MM_LEFT = "Left-click: window",
-  MM_RIGHT_START = "Right-click: find group",
   MM_RIGHT_SEARCH = "Right-click: search now",
   MM_SHIFT_RIGHT = "Shift-right-click: stop searching",
   MM_DRAG = "Drag: move along the minimap · Shift-drag: place anywhere",
@@ -149,7 +148,7 @@ ns.L.enUS = {
   CHAT_RESET = "Forgot skipped and invited players.",
   CHAT_NO_RESULTS = "No search results.",
   ON = "on", OFF = "off",
-  HELP = "%s · %s config · %s whisper <text> · %s testinvite [simple|listing] · %s test · %s test shots · %s start · %s stop · %s minimap [reset] · %s sound · %s interval 8 · %s reset · %s diag · %s dump",
+  HELP = "%s · %s config · %s whisper <text> · %s test · %s start · %s stop · %s minimap [reset] · %s sound · %s interval 8 · %s reset · %s diag · %s dump",
 
   TEST_START = "[Test] Running with made-up players – nobody is really invited.",
   TEST_SEARCH = "[Test] Searching …",
@@ -158,4 +157,10 @@ ns.L.enUS = {
   TEST_RUNNING = "[Test] Already running.",
   TEST_STOP_REAL = "Stop the real search first.",
   TEST_NO_DUNGEON = "[Test] Needs at least one dungeon for your level.",
+  TEST_LIST = "Tests (nothing real happens): %s test search · %s test search shots · %s test invite [simple|listing] · %s test minimap",
+  TEST_MM_RIM = "[Test] Minimap icon: on the edge of the minimap.",
+  TEST_MM_FREE = "[Test] Minimap icon: placed freely on the screen.",
+  TEST_MM_COLLECTED = "[Test] Minimap icon: collected by another add-on (e.g. MinimapButtonButton) – look in its menu.",
+  TEST_MM_HIDDEN = "[Test] The minimap icon is hidden – %s minimap shows it again.",
+  TEST_MM_ANIM = "[Test] The icon now shows “searching” for 6 seconds, then “group found”.",
 }

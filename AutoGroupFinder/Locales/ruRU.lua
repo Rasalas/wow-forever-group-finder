@@ -4,7 +4,7 @@ ns.L = ns.L or {}
 ns.L.ruRU = {
   LOADED = "загружен. %s открывает окно; клавишу можно назначить в разделе «Назначение клавиш → Модификации».",
 
-  BIND_NEXT = "Искать группу / искать сейчас",
+  BIND_NEXT = "Открыть окно / искать сейчас",
   BIND_REFRESH = "Искать сейчас",
   BIND_TOGGLE = "Показать/скрыть окно",
 
@@ -58,7 +58,7 @@ ns.L.ruRU = {
   WHISPER_EDIT_PROMPT = "Шепот, отправляемый с каждым приглашением.\n{dungeon} и {role} подставляются.",
   EDIT = "Изменить",
   DEFAULT = "По умолчанию",
-  CHAT_BACKFILL = "Ваша группа больше не полная – не хватает: %s. Щелкните правой кнопкой по значку у миникарты или нажмите свою клавишу, чтобы найти замену.",
+  CHAT_BACKFILL = "Ваша группа больше не полная – не хватает: %s. Откройте окно, чтобы найти замену.",
   NOTIFY_BACKFILL = "Группа неполная – не хватает: %s",
   CHAT_LIST_FAILED = "Не удалось разместить заявку группы: %s",
   PICK_ACTIVITY = "Отметьте хотя бы один пункт.",
@@ -116,7 +116,6 @@ ns.L.ruRU = {
   AGE_S = "%dс", AGE_M = "%dмин",
 
   MM_LEFT = "Левый щелчок: окно",
-  MM_RIGHT_START = "Правый щелчок: искать группу",
   MM_RIGHT_SEARCH = "Правый щелчок: искать сейчас",
   MM_SHIFT_RIGHT = "Shift + правый щелчок: прекратить поиск",
   MM_DRAG = "Перетаскивание: вдоль края миникарты · Shift + перетаскивание: в любое место",
@@ -144,7 +143,7 @@ ns.L.ruRU = {
   CHAT_RESET = "Пропущенные и приглашенные игроки забыты.",
   CHAT_NO_RESULTS = "Результатов поиска нет.",
   ON = "вкл.", OFF = "выкл.",
-  HELP = "%s · %s config · %s whisper <текст> · %s testinvite [simple|listing] · %s test · %s test shots · %s start · %s stop · %s minimap [reset] · %s sound · %s interval 8 · %s reset · %s diag · %s dump",
+  HELP = "%s · %s config · %s whisper <текст> · %s test · %s start · %s stop · %s minimap [reset] · %s sound · %s interval 8 · %s reset · %s diag · %s dump",
 
   TEST_START = "[Тест] Запущен с вымышленными игроками – никто по-настоящему не приглашается.",
   TEST_SEARCH = "[Тест] Поиск …",
@@ -153,4 +152,10 @@ ns.L.ruRU = {
   TEST_RUNNING = "[Тест] Уже запущен.",
   TEST_STOP_REAL = "Сначала остановите настоящий поиск.",
   TEST_NO_DUNGEON = "[Тест] Нужно хотя бы одно подземелье для вашего уровня.",
+  TEST_LIST = "Тесты (ничего не происходит по-настоящему): %s test search · %s test search shots · %s test invite [simple|listing] · %s test minimap",
+  TEST_MM_RIM = "[Тест] Значок у миникарты: на краю миникарты.",
+  TEST_MM_FREE = "[Тест] Значок у миникарты: свободно на экране.",
+  TEST_MM_COLLECTED = "[Тест] Значок у миникарты: его собрала другая модификация (например, MinimapButtonButton) – загляните в ее меню.",
+  TEST_MM_HIDDEN = "[Тест] Значок у миникарты скрыт – %s minimap снова его покажет.",
+  TEST_MM_ANIM = "[Тест] Значок 6 секунд показывает «поиск», затем «группа найдена».",
 }

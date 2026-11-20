@@ -10,6 +10,19 @@ function Print(msg)
   DEFAULT_CHAT_FRAME:AddMessage("|cff33ccff" .. T.TITLE .. ":|r " .. tostring(msg))
 end
 
+-- Eigene Lua-Fehler mitschreiben: /gf diag zeigt sie, außerdem stehen sie in den SavedVariables.
+errors = {}
+if geterrorhandler and seterrorhandler then
+  local prev = geterrorhandler()
+  seterrorhandler(function(msg, ...)
+    local text = tostring(msg)
+    if text:find("AutoGroupFinder", 1, true) and #errors < 30 then
+      errors[#errors + 1] = date("%H:%M:%S ") .. text
+    end
+    return prev(msg, ...)
+  end)
+end
+
 L = C_LFGList
 if not (L and L.Search and L.GetSearchResults and L.GetSearchResultInfo) then
   error("C_LFGList is missing in this client")

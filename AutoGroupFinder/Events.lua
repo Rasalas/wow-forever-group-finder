@@ -178,6 +178,7 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4)
     if arg1 ~= ADDON then return end
     _G.AutoGroupFinderDB = _G.AutoGroupFinderDB or {}
     db = AutoGroupFinderDB
+    db.errors = errors -- nur die Fehler dieser Sitzung
     for k, v in pairs(DEFAULTS) do
       if db[k] == nil then db[k] = type(v) == "table" and CopyTable(v) or v end
     end

@@ -10,11 +10,18 @@ function Eye.Create(parent, big, level)
   local ok, eye = pcall(CreateFrame, "Button", nil, parent, big and "LFGEyeBigTemplate" or "LFGEyeTemplate")
   if not ok or not eye or not eye.StartSearchingAnimation then return nil end
   if level then eye:SetFrameLevel(level) end
-  -- Die Animationsebenen sind in der Vorlage fest auf MEDIUM; im HIGH-Fenster lägen sie sonst dahinter.
-  for _, child in ipairs({ eye:GetChildren() }) do
-    child:SetFrameStrata(parent:GetFrameStrata())
-    child:SetFrameLevel(eye:GetFrameLevel() + 1)
+  -- Die Animationsebenen sind in der Vorlage fest auf MEDIUM. Sie folgen dem Knopf, auch wenn
+  -- ein anderes Add-on (MinimapButtonButton) ihn umhängt, sonst lägen sie dahinter.
+  local function Sync()
+    for _, child in ipairs({ eye:GetChildren() }) do
+      child:SetFrameStrata(eye:GetFrameStrata())
+      child:SetFrameLevel(eye:GetFrameLevel() + 1)
+    end
   end
+  Sync()
+  hooksecurefunc(parent, "SetFrameStrata", Sync)
+  hooksecurefunc(parent, "SetFrameLevel", Sync)
+  hooksecurefunc(parent, "SetParent", Sync)
   eye:SetStaticMode(true)
   eye:Show()
   Eye.all[#Eye.all + 1] = eye

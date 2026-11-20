@@ -110,7 +110,7 @@ do
     state.lastInviter = inviter
   end
 
-  -- /gf testinvite: Beispiel mit einem Fenster wie Blizzards Einladung, schließt nach 10 Sekunden
+  -- /gf test invite: Beispiel mit einem Fenster wie Blizzards Einladung, schließt nach 10 Sekunden
   _G.StaticPopupDialogs = _G.StaticPopupDialogs or {}
   StaticPopupDialogs.AUTOGROUPFINDER_FAKE_INVITE = {
     text = INVITATION or T.FAKE_INVITATION,

@@ -47,6 +47,8 @@ end
 
 -- Am Minimap-Rand (Winkel) oder frei auf dem Bildschirm (db.minimap.free = Mitte in UIParent)
 function PlaceMinimap()
+  local owner = mm:GetParent()
+  if owner ~= Minimap and owner ~= UIParent then return end -- ein anderes Add-on verwaltet den Knopf
   local free = db.minimap.free
   mm:ClearAllPoints()
   if free then
@@ -117,8 +119,10 @@ mm:SetScript("OnEnter", function(self)
   for _, line in ipairs(StatusLines()) do GameTooltip:AddLine(line, 1, 1, 1, true) end
   GameTooltip:AddLine(" ")
   GameTooltip:AddLine(T.MM_LEFT, 0.7, 0.7, 0.7)
-  GameTooltip:AddLine(state.queued and T.MM_RIGHT_SEARCH or T.MM_RIGHT_START, 0.7, 0.7, 0.7)
-  if state.queued then GameTooltip:AddLine(T.MM_SHIFT_RIGHT, 0.7, 0.7, 0.7) end
+  if state.queued then
+    GameTooltip:AddLine(T.MM_RIGHT_SEARCH, 0.7, 0.7, 0.7)
+    GameTooltip:AddLine(T.MM_SHIFT_RIGHT, 0.7, 0.7, 0.7)
+  end
   GameTooltip:AddLine(T.MM_DRAG, 0.7, 0.7, 0.7)
   GameTooltip:Show()
 end)

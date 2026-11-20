@@ -128,3 +128,15 @@ function RunTest(shots)
   after(22, Shot)
   after(24, EndTest)
 end
+
+-- /gf test minimap: wo steckt das Symbol, und spielt es die Animationen ab?
+function TestMinimap()
+  if db.minimap.hide then Print(T.TEST_MM_HIDDEN:format(SLASH)) return end
+  local p = mm:GetParent()
+  Print(p == Minimap and T.TEST_MM_RIM or p == UIParent and T.TEST_MM_FREE or T.TEST_MM_COLLECTED)
+  Print(T.TEST_MM_ANIM)
+  if not mmEye then mmGlow:Show(); pulse:Play() end
+  Eye.Set("search")
+  C_Timer.After(6, function() Eye.Set("found") end)
+  C_Timer.After(9, UpdateMinimap)
+end

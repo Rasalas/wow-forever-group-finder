@@ -4,7 +4,7 @@ ns.L = ns.L or {}
 ns.L.deDE = {
   LOADED = "geladen. %s öffnet das Fenster, die Taste legst du unter Tastaturbelegung → AddOns fest.",
 
-  BIND_NEXT = "Gruppe suchen / jetzt suchen",
+  BIND_NEXT = "Fenster öffnen / jetzt suchen",
   BIND_REFRESH = "Jetzt suchen",
   BIND_TOGGLE = "Fenster ein/aus",
 
@@ -58,7 +58,7 @@ ns.L.deDE = {
   WHISPER_EDIT_PROMPT = "Flüsternachricht bei jeder Einladung.\n{dungeon} und {role} werden ersetzt.",
   EDIT = "Ändern",
   DEFAULT = "Standard",
-  CHAT_BACKFILL = "Deine Gruppe ist nicht mehr voll – es fehlt: %s. Rechtsklick auf das Minimap-Symbol oder Taste zum Nachbesetzen.",
+  CHAT_BACKFILL = "Deine Gruppe ist nicht mehr voll – es fehlt: %s. Öffne das Fenster zum Nachbesetzen.",
   NOTIFY_BACKFILL = "Gruppe nicht mehr voll – es fehlt: %s",
   CHAT_LIST_FAILED = "Gruppe konnte nicht eingetragen werden: %s",
   PICK_ACTIVITY = "Mindestens einen Eintrag anhaken.",
@@ -116,7 +116,6 @@ ns.L.deDE = {
   AGE_S = "%ds", AGE_M = "%dm",
 
   MM_LEFT = "Linksklick: Fenster",
-  MM_RIGHT_START = "Rechtsklick: Gruppe suchen",
   MM_RIGHT_SEARCH = "Rechtsklick: jetzt suchen",
   MM_SHIFT_RIGHT = "Shift-Rechtsklick: Suche beenden",
   MM_DRAG = "Ziehen: am Minimap-Rand verschieben · Shift-Ziehen: frei platzieren",
@@ -152,5 +151,11 @@ ns.L.deDE = {
   TEST_RUNNING = "[Test] Läuft schon.",
   TEST_STOP_REAL = "Erst die echte Suche beenden.",
   TEST_NO_DUNGEON = "[Test] Braucht mindestens einen Dungeon für deine Stufe.",
-  HELP = "%s · %s config · %s whisper <Text> · %s testinvite [simple|listing] · %s test · %s test shots · %s start · %s stop · %s minimap [reset] · %s sound · %s interval 8 · %s reset · %s diag · %s dump",
+  TEST_LIST = "Tests (es passiert nichts Echtes): %s test search · %s test search shots · %s test invite [simple|listing] · %s test minimap",
+  TEST_MM_RIM = "[Test] Minimap-Symbol: am Rand der Minimap.",
+  TEST_MM_FREE = "[Test] Minimap-Symbol: frei auf dem Bildschirm.",
+  TEST_MM_COLLECTED = "[Test] Minimap-Symbol: von einem anderen Add-on eingesammelt (z. B. MinimapButtonButton) – schau in dessen Menü.",
+  TEST_MM_HIDDEN = "[Test] Das Minimap-Symbol ist ausgeblendet – %s minimap zeigt es wieder.",
+  TEST_MM_ANIM = "[Test] Das Symbol zeigt jetzt 6 Sekunden lang „Suche“, danach „Gruppe gefunden“.",
+  HELP = "%s · %s config · %s whisper <Text> · %s test · %s start · %s stop · %s minimap [reset] · %s sound · %s interval 8 · %s reset · %s diag · %s dump",
 }

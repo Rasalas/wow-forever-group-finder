@@ -22,7 +22,7 @@ Neue Dateien in der `.toc` brauchen einen Neustart von WoW, sonst reicht `/reloa
 
 ## Im Spiel
 
-`/gf` öffnet das Fenster, `/gf test` spielt einen Ablauf mit erfundenen Spielern durch, `/gf testinvite [simple|listing]` zeigt die Einladungs-Info, `/gf diag` prüft die Schnittstellen.
+`/gf` öffnet das Fenster, `/gf test` listet die Testbefehle (`test search`, `test invite`, `test minimap`), bei denen nichts Echtes passiert, `/gf diag` prüft die Schnittstellen.
 
 ## Sprachen
 

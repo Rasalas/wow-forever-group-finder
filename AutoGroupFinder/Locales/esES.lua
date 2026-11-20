@@ -5,7 +5,7 @@ ns.L = ns.L or {}
 ns.L.esES = {
   LOADED = "cargado. %s abre la ventana; asigna una tecla en Asignación de teclas → AddOns.",
 
-  BIND_NEXT = "Buscar grupo / buscar ahora",
+  BIND_NEXT = "Abrir ventana / buscar ahora",
   BIND_REFRESH = "Buscar ahora",
   BIND_TOGGLE = "Mostrar/ocultar ventana",
 
@@ -59,7 +59,7 @@ ns.L.esES = {
   WHISPER_EDIT_PROMPT = "Susurro enviado con cada invitación.\n{dungeon} y {role} se rellenan.",
   EDIT = "Cambiar",
   DEFAULT = "Predeterminado",
-  CHAT_BACKFILL = "Tu grupo ya no está completo – falta: %s. Clic derecho en el icono del minimapa o pulsa tu tecla para cubrir el hueco.",
+  CHAT_BACKFILL = "Tu grupo ya no está completo – falta: %s. Abre la ventana para cubrir el hueco.",
   NOTIFY_BACKFILL = "Grupo incompleto – falta: %s",
   CHAT_LIST_FAILED = "No se pudo inscribir tu grupo: %s",
   PICK_ACTIVITY = "Marca al menos una entrada.",
@@ -117,7 +117,6 @@ ns.L.esES = {
   AGE_S = "%ds", AGE_M = "%dmin",
 
   MM_LEFT = "Clic izquierdo: ventana",
-  MM_RIGHT_START = "Clic derecho: buscar grupo",
   MM_RIGHT_SEARCH = "Clic derecho: buscar ahora",
   MM_SHIFT_RIGHT = "Mayús-clic derecho: dejar de buscar",
   MM_DRAG = "Arrastrar: mover por el borde del minimapa · Mayús-arrastrar: colocar libremente",
@@ -145,7 +144,7 @@ ns.L.esES = {
   CHAT_RESET = "Se han olvidado los jugadores omitidos e invitados.",
   CHAT_NO_RESULTS = "No hay resultados de búsqueda.",
   ON = "activado", OFF = "desactivado",
-  HELP = "%s · %s config · %s whisper <texto> · %s testinvite [simple|listing] · %s test · %s test shots · %s start · %s stop · %s minimap [reset] · %s sound · %s interval 8 · %s reset · %s diag · %s dump",
+  HELP = "%s · %s config · %s whisper <texto> · %s test · %s start · %s stop · %s minimap [reset] · %s sound · %s interval 8 · %s reset · %s diag · %s dump",
 
   TEST_START = "[Prueba] En marcha con jugadores inventados – no se invita a nadie de verdad.",
   TEST_SEARCH = "[Prueba] Buscando …",
@@ -154,4 +153,10 @@ ns.L.esES = {
   TEST_RUNNING = "[Prueba] Ya está en marcha.",
   TEST_STOP_REAL = "Detén primero la búsqueda real.",
   TEST_NO_DUNGEON = "[Prueba] Hace falta al menos una mazmorra para tu nivel.",
+  TEST_LIST = "Pruebas (no pasa nada de verdad): %s test search · %s test search shots · %s test invite [simple|listing] · %s test minimap",
+  TEST_MM_RIM = "[Prueba] Icono del minimapa: en el borde del minimapa.",
+  TEST_MM_FREE = "[Prueba] Icono del minimapa: colocado libremente en la pantalla.",
+  TEST_MM_COLLECTED = "[Prueba] Icono del minimapa: recogido por otro addon (p. ej. MinimapButtonButton) – mira en su menú.",
+  TEST_MM_HIDDEN = "[Prueba] El icono del minimapa está oculto – %s minimap lo vuelve a mostrar.",
+  TEST_MM_ANIM = "[Prueba] El icono muestra ahora «buscando» durante 6 segundos y después «grupo encontrado».",
 }
