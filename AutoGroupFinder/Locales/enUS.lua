@@ -156,6 +156,8 @@ ns.L.enUS = {
   MM_RIGHT_SEARCH = "Right-click: search now",
   MM_SHIFT_RIGHT = "Shift-right-click: stop searching",
   MM_DRAG = "Drag: move along the minimap · Shift-drag: place anywhere",
+  WIN_MOVE_TIP = "Shift + drag: move the window freely",
+  WIN_RESET_TIP = "Double-click the title bar: back to the default place",
 
   CHAT_STARTED = "Search started. Looking for: %s.",
   CHAT_STOPPED = "Search stopped.",
