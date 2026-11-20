@@ -127,18 +127,6 @@ do
     state.lastInviter = inviter
   end
 
-  -- /gf test invite: Beispiel mit einem Fenster wie Blizzards Einladung, schließt nach 10 Sekunden
-  _G.StaticPopupDialogs = _G.StaticPopupDialogs or {}
-  StaticPopupDialogs.AUTOGROUPFINDER_FAKE_INVITE = {
-    text = INVITATION or T.FAKE_INVITATION,
-    button1 = ACCEPT,
-    button2 = DECLINE,
-    OnAccept = function() Print(T.TEST_INVITE_BUTTON) end,
-    OnCancel = function() Print(T.TEST_INVITE_BUTTON) end,
-    timeout = 10,
-    whileDead = 1,
-    hideOnEscape = 1,
-  }
   -- Nachbau von Blizzards Einladung mit Rollenauswahl (LFGInvitePopup). Das echte Fenster
   -- rufen wir nicht auf: Add-on-Code darin könnte das nächste echte Annehmen blockieren (Taint).
   local function DemoRolePopup()
@@ -217,17 +205,16 @@ do
     local simple = variant == "simple"
     local inviter = "Ulgrim Steinfaust"
     local dialog
-    if simple then
-      dialog = StaticPopup_Show and StaticPopup_Show("AUTOGROUPFINDER_FAKE_INVITE", inviter)
-    else
-      dialog = DemoRolePopup()
-      dialog.text:SetFormattedText(INVITATION or T.FAKE_INVITATION, inviter)
-      dialog:Show()
-      local token = {}
-      dialog.token = token
-      C_Timer.After(10, function() if dialog.token == token then dialog:Hide() end end)
-    end
-    if not dialog then return end
+    -- Beide Varianten im eigenen Nachbau; Blizzards StaticPopup bleibt unberührt (Taint)
+    dialog = DemoRolePopup()
+    for _, b in ipairs(dialog.roles) do b:SetShown(not simple) end
+    dialog:SetHeight(simple and 100 or 180)
+    dialog.text:SetFormattedText(INVITATION or T.FAKE_INVITATION, inviter)
+    dialog:Show()
+    if simple then dialog.accept:SetEnabled(true) end
+    local token = {}
+    dialog.token = token
+    C_Timer.After(10, function() if dialog.token == token then dialog:Hide() end end)
     local _, ids = SearchActivities()
     if variant == "listing" then
       -- Ohne Add-on beim Einladenden: nur, was seine Gruppe in der Suche zeigt

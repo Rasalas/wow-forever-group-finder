@@ -119,38 +119,37 @@ local function check(label, got, want)
   print(label, got, got == want and "ok" or ("FEHLER, erwartet " .. want))
   if got ~= want then error(label .. ": " .. got .. " statt " .. want) end
 end
-local attrs, L, Tp = {}, 16, 700
-rawset(win, "SetAttribute", function(_, k, v) attrs[k] = v end)
+local L, Tp = 16, 700
 rawset(win, "GetLeft", function() return L end)
 rawset(win, "GetTop", function() return Tp end)
-GetUIPanel = function(area) return area == "left" and win:IsShown() and not E.state.winPos and win or nil end
-ShowUIPanel = function(f) f:Show() end
-HideUIPanel = function(f) f:Hide() end
+rawset(UIParent, "GetTop", function() return 816 end) -- Standardplatz: oben 816 - 116 = 700
+local point
+rawset(win, "SetPoint", function(_, ...) point = table.concat({ select(1, ...) == nil and "" or tostring((...)), tostring(select(4, ...)), tostring(select(5, ...)) }, ",") end)
+local blizzCalls = 0
+ShowUIPanel = function() blizzCalls = blizzCalls + 1 end
+HideUIPanel = ShowUIPanel
 
 E.OpenWindow()
-check("Von Blizzard verwaltet:", attrs["UIPanelLayout-area"], "left")
+check("Offen am Standardplatz:", point, "TOPLEFT,16,-116")
 E.StartMoveWindow()
 check("Während des Ziehens bleibt das Fenster offen:", win:IsShown(), true)
-check("Während des Ziehens noch verwaltet:", attrs["UIPanelLayout-area"], "left")
-check("Standardplatz gemerkt:", db.winHome and (db.winHome.x .. "," .. db.winHome.y), "16,700")
 L, Tp = 400, 500
 E.StopMoveWindow()
-check("Nach dem Loslassen gelöst:", attrs["UIPanelLayout-area"], nil)
 check("Und sichtbar:", win:IsShown(), true)
 check("Neue Position gespeichert:", E.state.winPos and (E.state.winPos.x .. "," .. E.state.winPos.y), "400,500")
+check("Dort angeheftet:", point, "TOPLEFT,400,500")
 E.CloseWindow(); E.OpenWindow()
-L, Tp = 16, 700 -- Blizzards Verwaltung setzt es wieder an den Standardplatz
-check("Nach Schließen wieder am Standardplatz:", attrs["UIPanelLayout-area"], "left")
+check("Nach Schließen wieder am Standardplatz:", point, "TOPLEFT,16,-116")
 check("Verschiebung vergessen:", E.state.winPos, nil)
 E.StartMoveWindow()
 L, Tp = 30, 690
 E.StopMoveWindow()
 check("Nahe am Standardplatz eingerastet:", E.state.winPos, nil)
-check("Wieder verwaltet:", attrs["UIPanelLayout-area"], "left")
 E.StartMoveWindow(); L, Tp = 500, 300; E.StopMoveWindow()
 rawget(E.titleHandle, "_scripts").OnDoubleClick(E.titleHandle)
 check("Doppelklick setzt zurück:", E.state.winPos, nil)
 check("Fenster wieder offen:", win:IsShown(), true)
+check("Blizzards Fensterverwaltung nie benutzt:", blizzCalls, 0)
 
 print("== Ausblenden mitten im Ziehen")
 local stopped = 0

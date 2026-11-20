@@ -156,12 +156,12 @@ fire("GROUP_ROSTER_UPDATE")
 fire("GROUP_ROSTER_UPDATE")
 print("notices after tank left:", table.concat(notices, " | "))
 print("== whisper dialog")
-local d = StaticPopupDialogs.AUTOGROUPFINDER_WHISPER
-local eb = { text = "", SetMaxLetters = function() end, SetText = function(self, t) self.text = t end, HighlightText = function() end, GetText = function(self) return self.text end }
-local dialog = { GetEditBox = function() return eb end }
-d.OnShow(dialog); print("dialog shows:", eb.text)
-eb.text = "Moin {role} – {dungeon}?"; d.OnAccept(dialog); print("saved:", AutoGroupFinderDB.whisperText)
-d.OnAlt(dialog); print("after default:", tostring(AutoGroupFinderDB.whisperText))
+local d = AutoGroupFinderWhisperDialog
+local eb = d.edit
+d:Show(); print("dialog shows:", rawget(eb, "_text"))
+rawset(eb, "GetText", function() return "Moin {role} – {dungeon}?" end)
+rawget(eb, "_scripts").OnEnterPressed(eb); print("saved:", AutoGroupFinderDB.whisperText)
+ns.env.SaveWhisper(""); print("after default:", tostring(AutoGroupFinderDB.whisperText))
 print("== skip list survives reload")
 sys("Fresh declines your group invitation.")
 local saved = db.skipUntil["Fresh"]

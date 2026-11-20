@@ -299,11 +299,11 @@ function Estimate.OnNet(msg, sender)
   Add(f)
 end
 
--- Versteckter Kanal: beitreten, aus allen Chatfenstern nehmen, Beitrittsmeldung unterdrücken; abgeschaltet verlassen
+-- Versteckter Kanal: beitreten, Beitrittsmeldung unterdrücken; abgeschaltet verlassen
 local function MentionsChannel(...)
   for i = 1, select("#", ...) do
     local v = select(i, ...)
-    if type(v) == "string" and v:find(SHARE_CHANNEL, 1, true) then return true end
+    if Readable(v) and type(v) == "string" and v:find(SHARE_CHANNEL, 1, true) then return true end
   end
 end
 local filterAdded
@@ -317,12 +317,8 @@ function Estimate.UpdateChannel()
   local joinedNow = GetChannelName and GetChannelName(SHARE_CHANNEL) or 0
   if db.shareStats and joinedNow == 0 then
     local join = JoinTemporaryChannel or JoinChannelByName
+    -- Chatfenster bleiben unangetastet (Taint); dort erscheint nichts, Add-on-Nachrichten sind unsichtbar
     if join then pcall(join, SHARE_CHANNEL) end
-    for i = 1, (NUM_CHAT_WINDOWS or 10) do
-      local frame = _G["ChatFrame" .. i]
-      if frame and frame.RemoveChannel then pcall(frame.RemoveChannel, frame, SHARE_CHANNEL)
-      elseif frame and ChatFrame_RemoveChannel then pcall(ChatFrame_RemoveChannel, frame, SHARE_CHANNEL) end
-    end
   elseif not db.shareStats and joinedNow ~= 0 and LeaveChannelByName then
     pcall(LeaveChannelByName, SHARE_CHANNEL)
   end

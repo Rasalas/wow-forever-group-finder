@@ -7,91 +7,64 @@ WIN_W, WIN_H = 458, 535 -- Maße von Blizzards Gruppensuche
 ok, win = pcall(CreateFrame, "Frame", "AutoGroupFinderFrame", UIParent, "PortraitFrameTemplate")
 if not ok then win = CreateFrame("Frame", "AutoGroupFinderFrame", UIParent, "BasicFrameTemplateWithInset") end
 win:SetSize(WIN_W, WIN_H)
-win:SetPoint("CENTER") -- nur ohne Blizzards Fensterverwaltung
 win:SetFrameStrata("MEDIUM")
 win:SetToplevel(true)
 win:EnableMouse(true)
 win:Hide()
--- Ein Fenster wie Blizzards Gruppensuche: links platziert, weicht anderen Fenstern aus, die Karte schließt es, Esc auch.
-win:SetAttribute("UIPanelLayout-defined", true)
-win:SetAttribute("UIPanelLayout-enabled", true)
-win:SetAttribute("UIPanelLayout-area", "left")
-win:SetAttribute("UIPanelLayout-pushable", 1)
-win:SetAttribute("UIPanelLayout-whileDead", 1)
+-- Eigene Platzierung statt Blizzards Fensterverwaltung (ShowUIPanel): deren Aufruf aus Add-on-Code
+-- färbt sie ein, danach laufen Zauberbuch und Aktionsleisten „unsicher“ (Cooldown-Fehler im Kampf).
+HOME_X, HOME_Y = 16, -116 -- Platz von Blizzards linken Fenstern
+tinsert(UISpecialFrames, "AutoGroupFinderFrame") -- Esc schließt
 
-tinsert(UISpecialFrames, "AutoGroupFinderFrame") -- Esc schließt auch das frei verschobene Fenster
-
--- Verschoben (state.winPos) gehört das Fenster nicht mehr zu Blizzards Verwaltung: ohne Bereich zeigen
--- ShowUIPanel/HideUIPanel es einfach an bzw. blenden es aus. Wie die Karte: nach dem Schließen wieder am Standardplatz.
 function ApplyWindowMode()
+  win:ClearAllPoints()
   if state.winPos then
-    win:SetAttribute("UIPanelLayout-area", nil)
-    win:ClearAllPoints()
     win:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", state.winPos.x, state.winPos.y)
   else
-    win:SetAttribute("UIPanelLayout-area", "left")
+    win:SetPoint("TOPLEFT", UIParent, "TOPLEFT", HOME_X, HOME_Y)
   end
 end
+ApplyWindowMode()
 
--- Im Kampf tut ShowUIPanel nichts, dann einfach an der letzten Stelle zeigen
 function OpenWindow()
   ApplyWindowMode()
-  if ShowUIPanel and not InCombatLockdown() then ShowUIPanel(win) else win:Show() end
+  win:Show()
+  win:Raise()
 end
-function CloseWindow()
-  if HideUIPanel and not InCombatLockdown() then HideUIPanel(win) else win:Hide() end
-end
+function CloseWindow() win:Hide() end
 
--- Ziehen verschiebt (Titelleiste und freie Stellen), Doppelklick auf die Titelleiste setzt zurück
+-- Ziehen verschiebt (Titelleiste und freie Stellen), Doppelklick auf die Titelleiste setzt zurück.
+-- Wie die Karte: nach dem Schließen wieder am Standardplatz.
 win:SetMovable(true)
 win:SetClampedToScreen(true)
 win:RegisterForDrag("LeftButton")
--- Während des Ziehens darf das Fenster nicht aus- und eingeblendet werden, sonst verliert WoW den
--- Ziehvorgang und das Loslassen kommt nie an. Aus Blizzards Verwaltung gelöst wird erst danach.
 function StartMoveWindow()
   if not db or winMoving then return end
-  if not state.winPos and GetUIPanel and GetUIPanel("left") == win and win:GetLeft() then
-    db.winHome = { x = win:GetLeft(), y = win:GetTop() }
-  end
   winMoving = true
   win:StartMoving()
 end
--- Standardplatz merken, solange Blizzard das Fenster links platziert
 SNAP = 40 -- so nah (Pixel) am Standardplatz rastet es beim Loslassen wieder ein
-win:HookScript("OnShow", function()
-  C_Timer.After(0, function()
-    if db and not state.winPos and GetUIPanel and GetUIPanel("left") == win and win:GetLeft() then
-      db.winHome = { x = win:GetLeft(), y = win:GetTop() }
-    end
-  end)
-end)
-
 function StopMoveWindow()
   if not winMoving then return end
   winMoving = false
   win:StopMovingOrSizing()
   win:SetUserPlaced(false) -- Position steht in state, nicht in WoWs Layout-Speicher
-  local x, y, home = win:GetLeft(), win:GetTop(), db.winHome
-  if home and math.abs(x - home.x) < SNAP and math.abs(y - home.y) < SNAP then
-    if state.winPos then ResetWindow() else CloseWindow() OpenWindow() end -- zurück an den Standardplatz
-    return
+  local x, y = win:GetLeft(), win:GetTop()
+  local homeY = (UIParent:GetTop() or 0) + HOME_Y
+  if x and math.abs(x - HOME_X) < SNAP and math.abs(y - homeY) < SNAP then
+    state.winPos = nil
+  elseif x then
+    state.winPos = { x = x, y = y }
   end
-  if not state.winPos then CloseWindow() end -- jetzt erst aus Blizzards Verwaltung lösen
-  state.winPos = { x = x, y = y }
   ApplyWindowMode()
-  if not win:IsShown() then win:Show() end
 end
 function ResetWindow()
-  if not state.winPos then return end
   state.winPos = nil
-  win:Hide()
-  win:ClearAllPoints()
-  win:SetPoint("CENTER")
-  OpenWindow()
+  ApplyWindowMode()
 end
 win:SetScript("OnDragStart", StartMoveWindow)
 win:SetScript("OnDragStop", StopMoveWindow)
--- Geschlossen = Verschiebung vergessen; beim Lösen aus der Verwaltung wird kurz geschlossen, das ist vorher.
+-- Geschlossen = Verschiebung vergessen
 win:HookScript("OnHide", function()
   if winMoving then -- Sicherung: ausgeblendet mitten im Ziehen, dann Ziehen beenden
     winMoving = false

@@ -6,11 +6,16 @@ setfenv(1, ns.env) -- gemeinsamer, privater Namensraum aller Module (siehe Core.
 -------------------------------------------------------------------------
 BLIZZ_LFG = "Blizzard_GroupFinder_VanillaStyle" -- lädt erst beim ersten Öffnen
 
--- Blizzards Fenster schließen, unseres nimmt über die Fensterverwaltung denselben Platz ein
+-- Unser Fenster genau über Blizzards. Blizzards Fenster schließen wir nicht selbst: HideUIPanel
+-- aus Add-on-Code färbt Blizzards Fensterverwaltung ein (Taint), siehe Window.lua.
 function OpenFromBlizzard()
   local blizz = _G.LFGParentFrame
-  if blizz and blizz:IsShown() then HideUIPanel(blizz) end
+  local x, y = blizz and blizz:IsShown() and blizz:GetLeft(), blizz and blizz:GetTop()
   OpenWindow()
+  if x and y then
+    state.winPos = { x = x, y = y }
+    ApplyWindowMode()
+  end
 end
 
 local function AddTab()

@@ -134,10 +134,9 @@ print("== Unbekannter Einladender")
 fire("PARTY_INVITE_REQUEST", "Stranger")
 print("shown:", rawget(box, "_shown"))
 print("== /gf test invite")
-StaticPopup_Show = function(which, arg) print("popup:", which, StaticPopupDialogs[which].timeout .. "s", arg) return dialog end
-SlashCmdList.AUTOGROUPFINDER("test invite")
+StaticPopup_Show = function() error("Blizzards StaticPopup darf nicht benutzt werden") end
+SlashCmdList.AUTOGROUPFINDER("test invite simple")
 print("box:", rawget(box, "_shown"), "|", rawget(box.title, "_text"), "|", rawget(box.line, "_text"))
-StaticPopupDialogs.AUTOGROUPFINDER_FAKE_INVITE.OnAccept()
 SlashCmdList.AUTOGROUPFINDER("help")
 print("== /gf test invite (Rollenauswahl)")
 local timers = {}

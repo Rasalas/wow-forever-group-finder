@@ -528,39 +528,45 @@ function ToggleOption(o)
   db[o[1]] = not db[o[1]]
   if o[4] then o[4]() end
 end
--- Flüstertext in Blizzards Eingabefenster ändern; leer = Standardtext
-function DialogEditBox(d) return d.GetEditBox and d:GetEditBox() or d.editBox end
+-- Flüstertext ändern; leer = Standardtext. Eigenes Fenster statt Blizzards StaticPopup (Taint).
 function SaveWhisper(text)
   text = strtrim(text or "")
   db.whisperText = text ~= "" and text or nil
   Print(T.CHAT_WHISPER_SET:format(db.whisperText or T.WHISPER_DEFAULT))
 end
-_G.StaticPopupDialogs = _G.StaticPopupDialogs or {}
-StaticPopupDialogs.AUTOGROUPFINDER_WHISPER = {
-  text = T.WHISPER_EDIT_PROMPT,
-  button1 = ACCEPT or OKAY,
-  button2 = CANCEL,
-  button3 = DEFAULT or T.DEFAULT,
-  hasEditBox = 1,
-  editBoxWidth = 350,
-  OnShow = function(d)
-    local eb = DialogEditBox(d)
-    eb:SetMaxLetters(200)
-    eb:SetText(db.whisperText or T.WHISPER_DEFAULT)
-    eb:HighlightText()
-  end,
-  OnAccept = function(d) SaveWhisper(DialogEditBox(d):GetText()) end,
-  OnAlt = function() SaveWhisper("") end,
-  EditBoxOnEnterPressed = function(eb)
-    SaveWhisper(eb:GetText())
-    eb:GetParent():Hide()
-  end,
-  EditBoxOnEscapePressed = function(eb) eb:GetParent():Hide() end,
-  hideOnEscape = 1,
-  timeout = 0,
-  whileDead = 1,
-}
-function EditWhisper() if StaticPopup_Show then StaticPopup_Show("AUTOGROUPFINDER_WHISPER") end end
+whisperDlg = CreateFrame("Frame", "AutoGroupFinderWhisperDialog", UIParent, "BackdropTemplate")
+whisperDlg:SetSize(420, 130)
+whisperDlg:SetPoint("TOP", UIParent, "TOP", 0, -135)
+whisperDlg:SetFrameStrata("DIALOG")
+whisperDlg:EnableMouse(true)
+if whisperDlg.SetBackdrop and BACKDROP_DARK_DIALOG_32_32 then whisperDlg:SetBackdrop(BACKDROP_DARK_DIALOG_32_32) end
+whisperDlg.text = Label(whisperDlg, T.WHISPER_EDIT_PROMPT, "GameFontHighlight", "TOP", whisperDlg, "TOP", 0, -20)
+whisperDlg.text:SetWidth(380)
+whisperDlg.edit = CreateFrame("EditBox", nil, whisperDlg, "InputBoxTemplate")
+whisperDlg.edit:SetSize(350, 22)
+whisperDlg.edit:SetPoint("TOP", whisperDlg.text, "BOTTOM", 0, -10)
+whisperDlg.edit:SetAutoFocus(true)
+whisperDlg.edit:SetMaxLetters(200)
+local function WhisperButton(label, x, fn)
+  local b = CreateFrame("Button", nil, whisperDlg, "UIPanelButtonTemplate")
+  b:SetSize(110, 22)
+  b:SetPoint("BOTTOM", whisperDlg, "BOTTOM", x, 18)
+  b:SetText(label)
+  b:SetScript("OnClick", function() fn() whisperDlg:Hide() end)
+  return b
+end
+WhisperButton(ACCEPT or OKAY or "OK", -118, function() SaveWhisper(whisperDlg.edit:GetText()) end)
+WhisperButton(DEFAULT or T.DEFAULT, 0, function() SaveWhisper("") end)
+WhisperButton(CANCEL or "Cancel", 118, function() end)
+whisperDlg.edit:SetScript("OnEnterPressed", function(self) SaveWhisper(self:GetText()) whisperDlg:Hide() end)
+whisperDlg.edit:SetScript("OnEscapePressed", function() whisperDlg:Hide() end)
+whisperDlg:SetScript("OnShow", function()
+  whisperDlg.edit:SetText(db.whisperText or T.WHISPER_DEFAULT)
+  whisperDlg.edit:HighlightText()
+end)
+whisperDlg:Hide()
+tinsert(UISpecialFrames, "AutoGroupFinderWhisperDialog")
+function EditWhisper() whisperDlg:Show() whisperDlg:Raise() end
 
 -- Blizzards Einstellungsfenster öffnet das Add-on bewusst nicht selbst: Das Öffnen läuft dann im Namen des
 -- Add-ons, Blizzard markiert das Fenster als „unsicher“ und blockiert beim Schließen SpellStopCasting.
