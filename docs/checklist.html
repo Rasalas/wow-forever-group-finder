@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Auto Group Finder – Testliste</title>
+<style>
+  @page { size: A4; margin: 14mm 13mm 14mm 13mm; }
+  :root { --ink: #1d1d1f; --muted: #6b6b70; --line: #c9c9ce; --accent: #8a5a00; }
+  * { box-sizing: border-box; }
+  body { font: 9.6pt/1.35 "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--ink); margin: 0; }
+  header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1.5pt solid var(--ink); padding-bottom: 4pt; margin-bottom: 8pt; }
+  h1 { font-size: 16pt; margin: 0; letter-spacing: -0.2pt; }
+  .meta { color: var(--muted); font-size: 8.5pt; text-align: right; }
+  .intro { color: var(--muted); margin: 0 0 8pt; }
+  h2 { font-size: 11pt; margin: 10pt 0 3pt; color: var(--accent); break-after: avoid; }
+  table { width: 100%; border-collapse: collapse; }
+  tr { break-inside: avoid; }
+  td { vertical-align: top; padding: 3pt 4pt 2pt 0; border-top: 0.5pt solid var(--line); }
+  td.box { width: 13pt; padding-top: 4pt; }
+  td.box span { display: inline-block; width: 9pt; height: 9pt; border: 0.9pt solid var(--ink); border-radius: 1.5pt; }
+  td.step { width: 52%; }
+  td.exp { color: var(--muted); }
+  tr.note td { border-top: none; padding: 0 0 4pt 13pt; }
+  tr.note div { border-bottom: 0.5pt dotted var(--muted); height: 12pt; }
+  code { font: 8.8pt Menlo, Consolas, monospace; background: #f1f1f3; padding: 0 2pt; border-radius: 2pt; }
+  .notes { break-before: page; }
+  .notes div { border-bottom: 0.5pt dotted var(--muted); height: 19pt; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Auto Group Finder – Testliste im Spiel</h1>
+  <div class="meta">Version {{VERSION}} · Stand {{DATE}}<br>Charakter: ____________________</div>
+</header>
+<p class="intro">Abhaken, was wie erwartet läuft. Unter jedem Punkt ist Platz für Anmerkungen. Bei Lua-Fehlern reicht <code>/reload</code> und eine kurze Nachricht – die Fehler liest Claude selbst auf dem Spielrechner aus.</p>
+
+<h2>0 · Vorbereitung</h2>
+<table>
+<tr><td class="box"><span></span></td><td class="step">WoW komplett neu starten (nicht nur <code>/reload</code>)</td><td class="exp">Nötig wegen neuer Dateien und neuer Add-ons</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Nach dem Einloggen Chat und BugSack-Symbol ansehen</td><td class="exp">Keine rote Zeile „… Lua-Fehler“, BugSack nicht rot</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step"><code>/gf diag</code> nach der ersten Suche</td><td class="exp">„Lua errors: 0“; Zeile <code>areaName</code> zeigt, ob Forever Zonen liefert (Zahl &gt; 0)</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+</table>
+
+<h2>1 · Fenster</h2>
+<table>
+<tr><td class="box"><span></span></td><td class="step"><code>/gf</code> öffnen, Esc schließen</td><td class="exp">Fenster links wie Blizzards Gruppensuche; Esc schließt</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Fenster offen lassen, Karte (M) öffnen</td><td class="exp">Fenster liegt nicht über der Karte (schließt oder weicht aus)</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Zusätzlich Charakterfenster (C) öffnen</td><td class="exp">Beide Fenster nebeneinander</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Porträt und Seitenreiter ansehen</td><td class="exp">Großes Auge oben links; Reiter: Gruppe suchen · Gefundene Spieler · Verlauf</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Blizzards Gruppensuche öffnen, unterster Seitenreiter</td><td class="exp">Wechselt zu Auto Group Finder an derselben Stelle</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Maus über die Fahne (neue Spieler willkommen)</td><td class="exp">Tooltip bricht um, läuft nicht aus dem Bildschirm</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+</table>
+
+<h2>2 · Auswahl</h2>
+<table>
+<tr><td class="box"><span></span></td><td class="step">Kategorie-Karte wählen, dann „Zurück“</td><td class="exp">Dungeonliste erscheint; Zurück führt zu den Karten</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Gruppen ein-/ausklappen, „Alle Stufen“ umschalten</td><td class="exp">Liste ändert sich ohne Sprünge</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Mehrere eigene Rollen wählen; mit zweitem Charakter einloggen</td><td class="exp">Rollen werden je Charakter gespeichert</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Ohne Spielstil „Gruppe suchen“ ansehen</td><td class="exp">Knopf gesperrt, Tooltip nennt den Grund</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Spielstil- und Sprachchat-Auswahl öffnen</td><td class="exp">Gewählter Wert steht im Feld (nicht leer)</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Beliebtheitsbalken nach einigen Suchen</td><td class="exp">Balken rechts neben den Dungeons; Tooltip mit Zahlen</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Zahnrad-Menü durchsehen</td><td class="exp">Alle Optionen inkl. „Seltene Rollen zuerst“, „Spieler am Dungeon bevorzugen“, „Minimap-Symbol einzeln lassen“</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+</table>
+
+<h2>3 · Echte Suche</h2>
+<table>
+<tr><td class="box"><span></span></td><td class="step">Ohne laufende Suche: Rechtsklick aufs Minimap-Symbol, Taste drücken</td><td class="exp">Öffnet nur das Fenster, trägt nichts ein</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">„Gruppe suchen“ klicken</td><td class="exp">Eintrag in Blizzards Liste und Suche im selben Klick; Fenster schließt</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Minimap und Fußleiste ansehen</td><td class="exp">Auge animiert; Fußleiste: Uhr und ein Rollensymbol je offenem Platz</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Einladungen beobachten (viele Schadens-Kandidaten)</td><td class="exp">Ohne Klick; erst Tank/Heiler, Schaden nach deren Beitritt; Tooltip „Erst …, dann …“</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Spieler am Dungeon in der Liste</td><td class="exp">Merkmal „Am Dungeon“, werden vor anderen derselben Rolle eingeladen</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Während der Suche: Rechtsklick Minimap / Klick in die Welt</td><td class="exp">Neue Suche (höchstens alle 8 Sekunden)</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Ablehnung bzw. keine Antwort</td><td class="exp">Nächster Spieler sofort bzw. nach ca. 65 Sekunden</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Flüstern beim Einladen (Option an)</td><td class="exp">Nachricht geht beim nächsten Klick raus</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Rollen der Beigetretenen</td><td class="exp">Werden beim nächsten Klick gesetzt</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Gruppe voll</td><td class="exp">Ton, Bildschirmmeldung, Taskleiste blinkt, Auge „gefunden“, Knopf „Bereitschaftscheck“</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Bereitschaftscheck per Knopf oder Taste</td><td class="exp">Check startet</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Jemand verlässt die volle Gruppe</td><td class="exp">Hinweis zum Nachbesetzen</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Shift + Rechtsklick Minimap während der Suche</td><td class="exp">Suche beendet, Eintrag entfernt</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+</table>
+
+<h2>4 · Gefundene Spieler</h2>
+<table>
+<tr><td class="box"><span></span></td><td class="step">Karten ansehen, Maus darüber</td><td class="exp">Nach Rolle sortiert; Freund/Gilde/Am Dungeon; Tooltip mit Zone</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Rechtsklick auf eine Karte</td><td class="exp">Flüstern, Einladen als …, Freund, überspringen, sperren</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Shift-Klick auf Name bzw. Dungeon</td><td class="exp">Landet im Chat-Eingabefeld</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Klicken, während die Liste sich aktualisiert</td><td class="exp">Kein Fehlklick auf eine nachgerutschte Karte</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+</table>
+
+<h2>5 · Schlachtzug</h2>
+<table>
+<tr><td class="box"><span></span></td><td class="step">Raid wählen (10/20/40), Gruppe erreicht 5</td><td class="exp">Hinweis zum Umwandeln; Klick/Taste macht Schlachtzug; es geht weiter</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+</table>
+
+<h2>6 · Einladungs-Info</h2>
+<table>
+<tr><td class="box"><span></span></td><td class="step"><code>/gf test invite</code>, <code>… simple</code>, <code>… listing</code></td><td class="exp">Karte unter der Einladung: Dungeonbild, Rollen, eigener Platz pulsiert</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Echte Einladung von jemandem mit dem Add-on</td><td class="exp">Karte und Chatzeile „lädt dich ein“</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Echte Einladung ohne Add-on (Gruppe aus der Liste)</td><td class="exp">Karte mit „laut Eintrag in der Gruppensuche“</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+</table>
+
+<h2>7 · Verlauf</h2>
+<table>
+<tr><td class="box"><span></span></td><td class="step">Gruppe in einer Instanz und eine außerhalb</td><td class="exp">Beide im Verlauf, pro Charakter; Eintrag löschbar</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+</table>
+
+<h2>8 · Minimap-Symbol</h2>
+<table>
+<tr><td class="box"><span></span></td><td class="step"><code>/gf test minimap</code></td><td class="exp">Sagt, wo das Symbol steckt; 6 s Suche, dann „gefunden“</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Im Menü von MinimapButtonButton ansehen</td><td class="exp">Auge so groß wie die anderen, ein Ring</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Option „einzeln lassen“, <code>/reload</code>, ziehen / Shift-ziehen</td><td class="exp">Am Rand verschiebbar; mit Shift frei; <code>/gf minimap reset</code> holt es zurück</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+</table>
+
+<h2>9 · Filter und Tests</h2>
+<table>
+<tr><td class="box"><span></span></td><td class="step">Sprachmodus wechseln (alle / meine / meine + Englisch / eigene)</td><td class="exp">Suche liefert passend weniger/mehr Spieler</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Spieler sperren und wieder freigeben (Zahnrad → Gesperrte Spieler)</td><td class="exp">Gesperrte werden nie eingeladen</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step"><code>/gf test</code>, dann <code>/gf test search</code></td><td class="exp">Liste der Tests; Ablauf mit erfundenen Spielern, niemand wird eingeladen</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+<tr><td class="box"><span></span></td><td class="step">Zum Schluss <code>/reload</code></td><td class="exp">Danach Bescheid geben – Fehler und Zonen-Stichprobe werden ausgelesen</td></tr>
+<tr class="note"><td colspan="3"><div></div></td></tr>
+</table>
+
+<section class="notes">
+  <h2>Notizen</h2>
+  <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+  <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+  <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+</section>
+</body>
+</html>
