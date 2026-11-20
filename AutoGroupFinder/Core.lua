@@ -195,6 +195,29 @@ end
 function Atlas(tex, name)
   if HasAtlas(name) then tex:SetAtlas(name) return true end
 end
+-- Rollensymbol als Text-Markierung, z. B. für Tooltips
+function RoleIconText(role, size)
+  size = size or 16
+  if HasAtlas(ROLE_SMALL[role]) then return ("|A:%s:%d:%d|a"):format(ROLE_SMALL[role], size, size) end
+  local c = ROLE_TEXCOORD[role]
+  return ("|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES:%d:%d:0:0:64:64:%d:%d:%d:%d|t"):format(
+    size, size, c[1] * 64, c[2] * 64, c[3] * 64, c[4] * 64)
+end
+
+-- Offene Plätze als Symbole: eines je Platz, bei vielen „Symbol ×N“
+function NeedIcons(rem)
+  local parts = {}
+  for _, r in ipairs(ROLES) do
+    local n = rem[r] or 0
+    if n > 0 and n <= 5 then
+      for _ = 1, n do parts[#parts + 1] = RoleIconText(r) end
+    elseif n > 5 then
+      parts[#parts + 1] = RoleIconText(r) .. "×" .. n
+    end
+  end
+  return table.concat(parts, " ")
+end
+
 function SetRoleTexture(tex, role, big)
   if not Atlas(tex, (big and ROLE_BIG or ROLE_SMALL)[role]) then
     tex:SetTexture("Interface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES")

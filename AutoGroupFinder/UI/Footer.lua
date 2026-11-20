@@ -72,47 +72,14 @@ Clock = function(sec)
   return ("%d:%02d"):format(math.floor(sec / 60), sec % 60)
 end
 
--- Noch offene Rollen als kleine Icons mit Anzahl, während der Suche mit Uhr davor
+-- Während der Suche die Uhr in der Mitte; welche Rollen fehlen, steht im Tooltip des Knopfs
 need = CreateFrame("Frame", nil, footer)
 need:SetSize(150, 24)
 need:SetPoint("BOTTOM", win, "BOTTOM", 0, 18)
-need.clock = Label(need, "", "GameFontHighlightSmall", "LEFT", need, "LEFT", 0, 0)
--- Ein Symbol je offenem Platz; bei großen Raids höchstens MAX_NEED_ICONS, der Rest als „+N“
-MAX_NEED_ICONS = 7
-need.pool = {}
-need.more = Label(need, "", "GameFontHighlightSmall", "LEFT", need, "LEFT", 0, 0)
+need.clock = Label(need, "", "GameFontHighlightSmall", "CENTER", need, "CENTER", 0, 0)
 
 function UpdateNeed()
-  local rem = Slots()
-  local x, n, hidden = 0, 0, 0
   need.clock:SetText(state.queued and Clock(GetTime() - state.queuedAt) or "")
-  if state.queued then x = need.clock:GetStringWidth() + 8 end
-  for _, role in ipairs(ROLES) do
-    for _ = 1, rem[role] do
-      if n < MAX_NEED_ICONS then
-        n = n + 1
-        local t = need.pool[n]
-        if not t then
-          t = need:CreateTexture(nil, "ARTWORK")
-          t:SetSize(20, 20)
-          need.pool[n] = t
-        end
-        SetRoleTexture(t, role, false)
-        t:ClearAllPoints()
-        t:SetPoint("LEFT", need, "LEFT", x, 0)
-        t:Show()
-        x = x + 22
-      else
-        hidden = hidden + 1
-      end
-    end
-  end
-  for i = n + 1, #need.pool do need.pool[i]:Hide() end
-  need.more:SetText(hidden > 0 and ("+" .. hidden) or "")
-  need.more:ClearAllPoints()
-  need.more:SetPoint("LEFT", need, "LEFT", x, 0)
-  if hidden > 0 then x = x + need.more:GetStringWidth() + 2 end
-  need:SetWidth(math.max(1, x))
 end
 
 mainBtn = CreateFrame("Button", "AutoGroupFinderStartButton", footer, "UIPanelButtonTemplate")
@@ -141,8 +108,8 @@ end
 function StatusLines()
   local lines = {}
   if state.queued then lines[#lines + 1] = T.SEARCHING_FOR:format(Clock(GetTime() - state.queuedAt)) end
-  local needText = NeedText((Slots()))
-  lines[#lines + 1] = needText ~= "" and T.STATUS_NEED:format(needText) or T.GROUP_COMPLETE
+  local needIcons = NeedIcons((Slots()))
+  lines[#lines + 1] = needIcons ~= "" and T.STATUS_NEED:format(needIcons) or T.GROUP_COMPLETE
   local waiting = {}
   for k, p in pairs(pending) do waiting[#waiting + 1] = Short(k) .. " (" .. ROLE_NAME[p.role] .. ")" end
   if #waiting > 0 then lines[#lines + 1] = T.WAITING_FOR:format(table.concat(waiting, ", ")) end
