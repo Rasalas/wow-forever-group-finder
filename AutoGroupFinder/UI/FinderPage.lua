@@ -179,7 +179,7 @@ function Dropdown(parent, width, options, placeholder, get, set, ...)
     dd:SetWidth(width)
     dd:SetPoint(...)
     if placeholder and dd.SetDefaultText then dd:SetDefaultText(placeholder) end
-    dd:SetupMenu(function(_, root)
+    SetupMenuLater(dd, function(_, root)
       for _, o in ipairs(type(options) == "function" and options() or options) do
         root:CreateRadio(o[2], function(v) return get() == v end, function(v) set(v) end, o[1])
       end
@@ -524,7 +524,7 @@ end)
 
 fallbackChecks = {}
 if menuOk then
-  gear:SetupMenu(function(_, root)
+  SetupMenuLater(gear, function(_, root)
     for _, o in ipairs(OPTIONS) do
       local item = root:CreateCheckbox(o[2], function() return db[o[1]] end, function() ToggleOption(o) end)
       if o[3] and item and item.SetTooltip then

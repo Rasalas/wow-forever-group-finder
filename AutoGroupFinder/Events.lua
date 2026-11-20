@@ -205,6 +205,7 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4)
       if next(seenBy) == nil then db.popular[a] = nil end
     end
     pcall(RegisterSettings)
+    RefreshMenus()
     return
   end
   if not db then return end

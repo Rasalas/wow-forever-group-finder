@@ -30,7 +30,7 @@ end
 okAct, actDd = pcall(CreateFrame, "DropdownButton", nil, found, "WowStyle1DropdownTemplate")
 if okAct and actDd and actDd.SetupMenu then
   actDd:SetWidth(170)
-  actDd:SetupMenu(function(_, root)
+  SetupMenuLater(actDd, function(_, root)
     local t = ActivityTree()
     local multi = #t.groups > 1 or (#t.groups > 0 and #t.loose > 0)
     local function add(e)

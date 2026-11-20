@@ -30,6 +30,17 @@ elseif win.SetPortraitToAsset then
   pcall(win.SetPortraitToAsset, win, ICON)
 end
 
+-- Blizzards Dropdowns bauen ihr Menü schon bei SetupMenu auf, vor ADDON_LOADED gibt es db aber noch nicht.
+-- Nach dem Laden erzeugt Events.lua alle Menüs neu (RefreshMenus).
+menus = {}
+function SetupMenuLater(button, gen)
+  button:SetupMenu(function(owner, root) if db then gen(owner, root) end end)
+  menus[#menus + 1] = button
+end
+function RefreshMenus()
+  for _, m in ipairs(menus) do if m.GenerateMenu then m:GenerateMenu() end end
+end
+
 function Label(parent, text, font, ...)
   local fs = parent:CreateFontString(nil, "OVERLAY", font or "GameFontNormal")
   fs:SetPoint(...)
