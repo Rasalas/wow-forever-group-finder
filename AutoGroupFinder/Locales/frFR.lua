@@ -71,6 +71,8 @@ ns.L.frFR = {
   OPTIONS = "Options",
   OPT_AUTOINVITE = "Inviter automatiquement",
   OPT_AUTOINVITE_TIP = "Invite tout seul les joueurs qui conviennent. Si quelqu'un refuse, est déjà en groupe ou ne répond pas, le suivant est invité aussitôt.",
+  OPT_SCARCE = "Rôles rares d'abord",
+  OPT_SCARCE_TIP = "Les rôles avec peu de candidats (souvent tanks et soigneurs) sont invités en premier. Les rôles abondants suivent une fois ceux-ci arrivés, pour que personne n'attende longtemps dans un groupe à moitié vide. Si un rôle rare n'a aucun candidat pendant %d minutes, les autres sont invités quand même. Désactivé : toutes les places libres sont invitées en même temps.",
   OPT_CLICKSEARCH = "Relancer la recherche aux clics de souris",
   OPT_CLICKSEARCH_TIP = "Blizzard n'autorise les add-ons à chercher que juste après un clic ou une touche. Activé, vos clics habituels dans le monde (par ex. tourner la caméra) relancent une recherche, au plus toutes les %d secondes. Le clic fonctionne normalement. Désactivé, la recherche ne se fait que par clic droit sur l'icône de la minicarte ou par la touche.",
   OPT_OLDEST = "Les plus anciens d'abord",
@@ -87,6 +89,7 @@ ns.L.frFR = {
   STATUS_NEED = "Recherché : %s",
   GROUP_COMPLETE = "Groupe complet",
   WAITING_FOR = "En attente de %s",
+  STATUS_SCARCE = "D'abord %s, puis %s",
   NEED_CONVERT = "Groupe complet – cliquez ou appuyez sur votre touche pour le transformer en raid",
 
   TAB_FINDER = "Chercher un groupe",

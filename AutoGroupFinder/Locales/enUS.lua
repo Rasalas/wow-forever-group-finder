@@ -76,6 +76,8 @@ ns.L.enUS = {
   OPTIONS = "Options",
   OPT_AUTOINVITE = "Invite automatically",
   OPT_AUTOINVITE_TIP = "Invites matching players by itself. If someone declines, is already in a group or does not answer, the next one is invited right away.",
+  OPT_SCARCE = "Rare roles first",
+  OPT_SCARCE_TIP = "Roles with few candidates (usually tanks and healers) are invited first. Plentiful roles follow once those have joined, so nobody waits long in a half-empty group. If a rare role has no candidate at all for %d minutes, the others are invited anyway. Off: all open spots are invited at once.",
   OPT_CLICKSEARCH = "Search again on mouse clicks",
   OPT_CLICKSEARCH_TIP = "Blizzard only lets add-ons search right after a click or key press. When on, your normal clicks into the game world (e.g. turning the camera) trigger a new search, at most every %d seconds. The click itself works as usual. When off, it only searches when you right-click the minimap icon or press the key.",
   OPT_OLDEST = "Longest waiting first",
@@ -92,6 +94,7 @@ ns.L.enUS = {
   STATUS_NEED = "Looking for: %s",
   GROUP_COMPLETE = "Group complete",
   WAITING_FOR = "Waiting for %s",
+  STATUS_SCARCE = "First %s, then %s",
   NEED_CONVERT = "Party is full – click or press your key to turn it into a raid",
 
   TAB_FINDER = "Find Group",

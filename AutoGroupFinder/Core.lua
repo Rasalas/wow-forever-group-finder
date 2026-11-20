@@ -113,11 +113,12 @@ DEFAULTS = {
   declineCooldown = 900, -- wer ablehnt oder nicht antwortet, wird so lange übersprungen
   need = {},
   minimap = { angle = 200, hide = false },
+  scarceFirst = true,        -- seltene Rollen zuerst einladen
   minimapStandalone = false, -- true: nicht von Sammel-Add-ons einsammeln lassen
 }
 
 state = { queued = false, queuedAt = 0, lastSearchAt = 0, demand = {},
-  trees = {}, treeVersion = 0, listings = {} }
+  trees = {}, treeVersion = 0, listings = {}, lastSupply = {} }
 History = {} -- Verlauf: Aufzeichnen und Seite 3
 pending = {}   -- key -> { role, t, confirmed }
 joined = {}    -- key -> Rolle, für die wir eingeladen haben

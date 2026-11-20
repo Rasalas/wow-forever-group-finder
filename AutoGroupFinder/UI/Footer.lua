@@ -143,6 +143,13 @@ function StatusLines()
   local waiting = {}
   for k, p in pairs(pending) do waiting[#waiting + 1] = Short(k) .. " (" .. ROLE_NAME[p.role] .. ")" end
   if #waiting > 0 then lines[#lines + 1] = T.WAITING_FOR:format(table.concat(waiting, ", ")) end
+  local held, scarce = HeldRoles()
+  if next(held) then
+    local first, later = {}, {}
+    for _, r in ipairs(scarce) do first[#first + 1] = ROLE_PLURAL[r] end
+    for _, r in ipairs(ROLES) do if held[r] then later[#later + 1] = ROLE_PLURAL[r] end end
+    lines[#lines + 1] = T.STATUS_SCARCE:format(table.concat(first, ", "), table.concat(later, ", "))
+  end
   if state.queued and NeedsRaid() then lines[#lines + 1] = "|cffffd100" .. T.NEED_CONVERT .. "|r" end
   return lines
 end

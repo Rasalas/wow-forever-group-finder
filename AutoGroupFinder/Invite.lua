@@ -83,9 +83,11 @@ end
 
 function AutoInvite()
   if not (state.queued and db.autoInvite and CanInvite()) or InCombatLockdown() then return end
+  local held = HeldRoles()
   for _, c in ipairs(candidates) do
     if RoomLeft() <= 0 then break end
     local _, open = Slots()
+    for r in pairs(held) do open[r] = 0 end
     local role = not pending[c.key] and RoleFor(c, open)
     if role then Invite(c, role) end
   end

@@ -22,6 +22,7 @@ function StartQueue()
   local rem = Slots()
   if not AnyLeft(rem) then Print(T.CHAT_NO_ROLE) return end
   state.queued, state.queuedAt, state.lastSearchAt = true, GetTime(), 0
+  wipe(state.lastSupply)
   local okList, err = api.list({
     activityIDs = ids,
     generalPlaystyle = db.playstyle,

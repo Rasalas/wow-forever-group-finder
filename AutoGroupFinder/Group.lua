@@ -89,6 +89,37 @@ function RoleFor(c, open)
   end
 end
 
+-- Seltene Rollen zuerst: reichlich vorhandene Rollen warten, bis die knappen beigetreten sind.
+SCARCE_RATIO = 3  -- ab so vielen Kandidaten je offenem Platz gilt eine Rolle als reichlich vorhanden
+SCARCE_WAIT = 180 -- so lange hält eine knappe Rolle ohne jeden Kandidaten die anderen höchstens auf
+
+function Supply()
+  local s = { TANK = 0, HEALER = 0, DAMAGER = 0 }
+  for _, c in ipairs(candidates) do
+    for _, r in ipairs(ROLES) do if c.roles[r] then s[r] = s[r] + 1 end end
+  end
+  return s
+end
+
+-- held = Rollen, die gerade nicht eingeladen werden; waiting = knappe Rollen, auf die sie warten
+function HeldRoles()
+  local held, waiting = {}, {}
+  if not db.scarceFirst or not state.queued then return held, waiting end
+  local rem, supply, now = Slots(), Supply(), GetTime()
+  for _, r in ipairs(ROLES) do
+    if rem[r] > 0 and supply[r] < SCARCE_RATIO * rem[r] then
+      local last = math.max(state.lastSupply[r] or 0, state.queuedAt)
+      if now - last < SCARCE_WAIT then waiting[#waiting + 1] = r end
+    end
+  end
+  if #waiting > 0 then
+    for _, r in ipairs(ROLES) do
+      if rem[r] > 0 and supply[r] >= SCARCE_RATIO * rem[r] then held[r] = true end
+    end
+  end
+  return held, waiting
+end
+
 -------------------------------------------------------------------------
 -- Kandidaten aus den Suchergebnissen
 -------------------------------------------------------------------------
@@ -236,6 +267,7 @@ function Rebuild()
     if db.oldestFirst then return a.listedAt < b.listedAt end
     return a.listedAt > b.listedAt
   end)
+  for r, n in pairs(Supply()) do if n > 0 then state.lastSupply[r] = GetTime() end end
   if UpdateUI then UpdateUI() end
 end
 

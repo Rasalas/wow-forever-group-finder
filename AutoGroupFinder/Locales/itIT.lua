@@ -71,6 +71,8 @@ ns.L.itIT = {
   OPTIONS = "Opzioni",
   OPT_AUTOINVITE = "Invita automaticamente",
   OPT_AUTOINVITE_TIP = "Invita da solo i giocatori adatti. Se qualcuno rifiuta, è già in un gruppo o non risponde, viene invitato subito il successivo.",
+  OPT_SCARCE = "Prima i ruoli rari",
+  OPT_SCARCE_TIP = "I ruoli con pochi candidati (di solito difensori e guaritori) vengono invitati per primi. I ruoli abbondanti seguono quando questi si sono uniti, così nessuno aspetta a lungo in un gruppo a metà. Se per %d minuti un ruolo raro non ha nessun candidato, gli altri vengono invitati comunque. Disattivo: tutti i posti liberi vengono invitati insieme.",
   OPT_CLICKSEARCH = "Cerca di nuovo ai clic del mouse",
   OPT_CLICKSEARCH_TIP = "Blizzard permette agli addon di cercare solo subito dopo un clic o un tasto. Se attivo, i tuoi normali clic nel mondo di gioco (ad es. ruotare la visuale) avviano una nuova ricerca, al massimo ogni %d secondi. Il clic funziona normalmente. Se disattivo, si cerca solo con clic destro sull'icona della minimappa o con il tasto.",
   OPT_OLDEST = "Prima chi aspetta da più tempo",
@@ -87,6 +89,7 @@ ns.L.itIT = {
   STATUS_NEED = "Si cerca: %s",
   GROUP_COMPLETE = "Gruppo completo",
   WAITING_FOR = "In attesa di %s",
+  STATUS_SCARCE = "Prima %s, poi %s",
   NEED_CONVERT = "Il gruppo è pieno – clicca o premi il tuo tasto per trasformarlo in incursione",
 
   TAB_FINDER = "Cerca gruppo",

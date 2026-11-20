@@ -71,6 +71,8 @@ ns.L.deDE = {
   OPTIONS = "Optionen",
   OPT_AUTOINVITE = "Automatisch einladen",
   OPT_AUTOINVITE_TIP = "Lädt passende Spieler selbst ein. Sagt jemand ab, ist schon in einer Gruppe oder antwortet nicht, wird sofort der Nächste eingeladen.",
+  OPT_SCARCE = "Seltene Rollen zuerst",
+  OPT_SCARCE_TIP = "Rollen mit wenigen Kandidaten (meist Tanks und Heiler) werden zuerst eingeladen. Reichlich vorhandene Rollen folgen, sobald diese beigetreten sind – so wartet niemand lange in einer halben Gruppe. Gibt es für eine seltene Rolle %d Minuten lang gar keinen Kandidaten, werden die anderen trotzdem eingeladen. Aus: alle offenen Plätze werden gleichzeitig eingeladen.",
   OPT_CLICKSEARCH = "Bei Mausklicks neu suchen",
   OPT_CLICKSEARCH_TIP = "Blizzard lässt Add-ons nur direkt nach einem Klick oder Tastendruck suchen. Ist das an, lösen deine normalen Klicks in die Spielwelt (z. B. Kamera drehen) eine neue Suche aus, höchstens alle %d Sekunden. Der Klick selbst funktioniert ganz normal. Ist es aus, wird nur per Rechtsklick auf das Minimap-Symbol oder per Taste gesucht.",
   OPT_OLDEST = "Längste Wartezeit zuerst",
@@ -87,6 +89,7 @@ ns.L.deDE = {
   STATUS_NEED = "Gesucht: %s",
   GROUP_COMPLETE = "Gruppe komplett",
   WAITING_FOR = "Warte auf %s",
+  STATUS_SCARCE = "Erst %s, dann %s",
   NEED_CONVERT = "Gruppe voll – klicken oder Taste drücken, um sie in einen Schlachtzug umzuwandeln",
 
   TAB_FINDER = "Gruppe suchen",

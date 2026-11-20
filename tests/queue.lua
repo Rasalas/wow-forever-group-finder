@@ -114,7 +114,7 @@ print("== window open, page", AutoGroupFinderDB.page); f:Show(); ticker()
 print("status:", rawget(AutoGroupFinderStartButton, "_text"))
 print("== real queue")
 AutoGroupFinderDB.playstyle = 2; AutoGroupFinderDB.view = "activities"; AutoGroupFinderDB.samePlaystyle = true
-AutoGroupFinder_Next()
+ns.env.StartQueue()
 res(1, "OldTank", { tank = true }, 600)
 res(2, "NewTank", { tank = true, dps = true }, 5)
 res(3, "Heal", { healer = true }, 30)

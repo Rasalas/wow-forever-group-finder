@@ -71,6 +71,8 @@ ns.L.ptBR = {
   OPTIONS = "Opções",
   OPT_AUTOINVITE = "Convidar automaticamente",
   OPT_AUTOINVITE_TIP = "Convida sozinho os jogadores adequados. Se alguém recusa, já está em um grupo ou não responde, o próximo é convidado na hora.",
+  OPT_SCARCE = "Funções raras primeiro",
+  OPT_SCARCE_TIP = "Funções com poucos candidatos (geralmente tanques e curadores) são convidadas primeiro. Funções abundantes vêm depois que essas entrarem, assim ninguém espera muito num grupo pela metade. Se uma função rara ficar %d minutos sem nenhum candidato, as outras são convidadas mesmo assim. Desligado: todas as vagas abertas são convidadas ao mesmo tempo.",
   OPT_CLICKSEARCH = "Procurar de novo nos cliques do mouse",
   OPT_CLICKSEARCH_TIP = "A Blizzard só deixa addons procurarem logo após um clique ou tecla. Ligado, seus cliques normais no mundo (p. ex. girar a câmera) iniciam uma nova busca, no máximo a cada %d segundos. O clique funciona normalmente. Desligado, só procura com clique direito no ícone do minimapa ou com a tecla.",
   OPT_OLDEST = "Quem espera há mais tempo primeiro",
@@ -87,6 +89,7 @@ ns.L.ptBR = {
   STATUS_NEED = "Procura-se: %s",
   GROUP_COMPLETE = "Grupo completo",
   WAITING_FOR = "Aguardando %s",
+  STATUS_SCARCE = "Primeiro %s, depois %s",
   NEED_CONVERT = "O grupo está cheio – clique ou aperte sua tecla para transformá-lo em raide",
 
   TAB_FINDER = "Procurar grupo",
