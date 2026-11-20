@@ -32,6 +32,7 @@ UI\HistoryPage.lua
 UI\Footer.lua
 Settings.lua
 UI\Minimap.lua
+UI\BlizzardLink.lua
 Events.lua
 TestMode.lua
 Commands.lua

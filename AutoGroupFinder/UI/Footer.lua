@@ -11,9 +11,9 @@ function ShowPage(i)
   Rebuild()
 end
 
-for i, iconPath in ipairs(TAB_ICONS) do
-  local tip = ({ T.TAB_FINDER, T.TAB_FOUND, T.TAB_HISTORY })[i]
-  local okTab, tab = pcall(CreateFrame, "Frame", nil, win, "LargeSideTabButtonTemplate")
+-- Seitenreiter wie bei Blizzard (LargeSideTabButtonTemplate), sonst ein schlichter Knopf
+function MakeSideTab(parent, iconPath, tip, onClick)
+  local okTab, tab = pcall(CreateFrame, "Frame", nil, parent, "LargeSideTabButtonTemplate")
   if okTab and tab and tab.Icon and tab.SetCustomOnMouseUpHandler then
     tab.Icon:SetTexture(iconPath)
     if tab.SetFillToInterior then
@@ -23,17 +23,23 @@ for i, iconPath in ipairs(TAB_ICONS) do
     end
     tab.tooltipText = tip
     tab:SetCustomOnMouseUpHandler(function(_, button, upInside)
-      if button == "LeftButton" and upInside then ShowPage(i) end
+      if button == "LeftButton" and upInside then onClick() end
     end)
   else
-    tab = CreateFrame("Button", nil, win)
+    tab = CreateFrame("Button", nil, parent)
     tab:SetSize(40, 40)
     tab.Icon = tab:CreateTexture(nil, "ARTWORK")
     tab.Icon:SetAllPoints()
     tab.Icon:SetTexture(iconPath)
-    tab:SetScript("OnClick", function() ShowPage(i) end)
+    tab:SetScript("OnClick", onClick)
     Tooltip(tab, tip)
   end
+  return tab
+end
+
+for i, iconPath in ipairs(TAB_ICONS) do
+  local tip = ({ T.TAB_FINDER, T.TAB_FOUND, T.TAB_HISTORY })[i]
+  local tab = MakeSideTab(win, iconPath, tip, function() ShowPage(i) end)
   if i == 1 then
     tab:SetPoint("TOPLEFT", win, "TOPRIGHT", 0, -60)
   else
