@@ -105,6 +105,7 @@ function Scroller(parent, anchor, left, top, right, bottom)
     sf:SetPoint("BOTTOMRIGHT", anchor, "BOTTOMRIGHT", r, bottom)
   end
   place(right)
+  function sf:SetTopInset(t) top = t; place(self.barShown and right - 22 or right) end
   local child = CreateFrame("Frame", nil, sf)
   child:SetSize(WIN_W - 40, 10)
   sf:SetScrollChild(child)

@@ -50,6 +50,14 @@ function _G.AutoGroupFinder_Slash(msg, raw)
     InviteInfo.Demo(msg:match("^test invite%s+(%a+)"))
   elseif msg == "test minimap" then
     TestMinimap()
+  elseif msg == "test here" then
+    state.here = HereDungeon()
+    if state.here then
+      Print(T.TEST_HERE_FOUND:format(state.here.name, #state.here.ids))
+    else
+      Print(T.TEST_HERE_NONE:format(GetSubZoneText() or "", GetRealZoneText() or ""))
+    end
+    Rebuild()
   elseif msg == "start" then
     StartQueue()
   elseif msg == "stop" then

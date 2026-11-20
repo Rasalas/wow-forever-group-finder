@@ -6,6 +6,7 @@ setfenv(1, ns.env) -- gemeinsamer, privater Namensraum aller Module (siehe Core.
 tabs = {}
 function ShowPage(i)
   db.page = i
+  if i == 1 then state.here = HereDungeon() end
   for j, p in ipairs(pages) do p:SetShown(j == i) end
   for j, t in ipairs(tabs) do if t.SetChecked then t:SetChecked(j == i) end end
   Rebuild()

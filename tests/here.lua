@@ -1,4 +1,5 @@
 unpack = unpack or table.unpack; math.atan2 = math.atan2 or math.atan; tinsert = table.insert
+GetSubZoneText = GetSubZoneText or function() return "" end; IsInInstance = IsInInstance or function() return false, "none" end
 hooksecurefunc = function(t, k, f) if type(t) == "string" then t, k, f = _G, t, k end local o = t[k]; rawset(t, k, function(...) local r = { o(...) }; f(...); return unpack(r) end) end
 strsplit = function(sep, s) local t = {} for part in (s .. sep):gmatch("(.-)" .. sep) do t[#t + 1] = part end return (unpack or table.unpack)(t) end
 GetRealZoneText = function() return ZONE or "Ironforge" end
@@ -145,7 +146,11 @@ SUB = "Kharanos"; fire("ZONE_CHANGED")
 check("Woanders keine Karte:", E.state.here, nil)
 INSIDE = true; SUB = ""; fire("ZONE_CHANGED_NEW_AREA")
 check("Drinnen erkannt:", E.state.here and E.state.here.name, "Gnomeregan")
+db.view = "activities"; AutoGroupFinderFrame:Show(); E.UpdateUI()
+check("Leiste über der Dungeon-Liste:", E.hereBar:IsShown(), true)
+SlashCmdList.AUTOGROUPFINDER("test here")
 db.hereSuggest = false; db.view = "categories"; AutoGroupFinderFrame:Show(); E.UpdateUI()
+check("Leiste weg bei Option aus:", (function() db.view = "activities"; E.UpdateUI() return E.hereBar:IsShown() end)(), false)
 check("Option aus, Karte weg:", E.hereCard:IsShown(), false)
 
 print("== Anvisieren")

@@ -290,6 +290,33 @@ Label(actView, VOICE_CHAT or T.VOICE_CHAT, "GameFontNormalSmall", "RIGHT", voice
 
 -- Aktivitäten als Baum wie bei Blizzard: Gruppe mit Plus/Minus, Einträge eine Stufe eingerückt
 tree = Scroller(actView, actView, 22, -48, -12, 52)
+
+-- Leiste „Du bist hier“ über der Liste, wenn man an oder in einem Dungeon steht
+hereBar = CreateFrame("Frame", nil, actView)
+hereBar:SetPoint("TOPLEFT", actView, "TOPLEFT", 14, -46)
+hereBar:SetPoint("RIGHT", actView, "RIGHT", -12, 0)
+hereBar:SetHeight(28)
+hereBar.bg = hereBar:CreateTexture(nil, "BACKGROUND")
+hereBar.bg:SetAllPoints()
+hereBar.bg:SetColorTexture(1, 0.82, 0, 0.08)
+hereBar.go = CreateFrame("Button", nil, hereBar, "UIPanelButtonTemplate")
+hereBar.go:SetSize(120, 22)
+hereBar.go:SetPoint("RIGHT", -4, 0)
+hereBar.go:SetText(T.HERE_GO)
+hereBar.go:SetScript("OnClick", function() if state.here then QuickStart(state.here) end end)
+Tooltip(hereBar.go, T.HERE_GO, T.HERE_TIP)
+hereBar.text = Label(hereBar, "", "GameFontNormal", "LEFT", hereBar, "LEFT", 8, 0)
+hereBar.text:SetPoint("RIGHT", hereBar.go, "LEFT", -8, 0)
+hereBar.text:SetJustifyH("LEFT")
+hereBar.text:SetWordWrap(false)
+hereBar:Hide()
+
+function UpdateHereBar()
+  local here = db.hereSuggest and not state.queued and state.here
+  hereBar:SetShown(here and true or false)
+  if here then hereBar.text:SetText((NearIcon and NearIcon(2) or "") .. " " .. T.HERE_BAR:format(here.name)) end
+  tree:SetTopInset(here and -78 or -48)
+end
 treeRows = {}
 ROW = 22
 
@@ -464,6 +491,7 @@ end
 
 function UpdateFinder()
   local showActs = db.view == "activities"
+  UpdateHereBar()
   catView:SetShown(not showActs)
   actView:SetShown(showActs)
   for _, b in ipairs(myRoleBtns) do b.check:SetChecked(char.myRoles[b.role] and true or false) end

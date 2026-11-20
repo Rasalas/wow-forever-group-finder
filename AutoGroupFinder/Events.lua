@@ -228,6 +228,9 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4)
     History.Track() -- nach /reload in der laufenden Gruppe weitermachen
     if C_ChatInfo and C_ChatInfo.RegisterAddonMessagePrefix then pcall(C_ChatInfo.RegisterAddonMessagePrefix, COMM_PREFIX) end
     Print(T.LOADED:format(SLASH))
+  elseif event == "LFG_LIST_AVAILABILITY_UPDATE" then
+    state.here = HereDungeon() -- Dungeon-Liste ist da, Standort neu prüfen
+    Rebuild()
   elseif event == "LFG_LIST_SEARCH_RESULTS_RECEIVED" then
     if not test then OnResults() end
   elseif event == "LFG_LIST_SEARCH_FAILED" then
