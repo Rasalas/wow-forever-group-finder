@@ -79,29 +79,12 @@ keyLink.text = Label(keyLink, T.ONB_KEY, "GameFontNormalSmall", "LEFT", keyLink.
 keyLink:SetWidth(keyLink.text:GetStringWidth() + 34)
 keyLink:SetScript("OnEnter", function(self) self.text:SetTextColor(1, 1, 1) end)
 keyLink:SetScript("OnLeave", function(self) self.text:SetTextColor(1, 0.82, 0) end)
--- Tastaturbelegung öffnen, zu unserem Abschnitt scrollen und ihn aufklappen (wie ein Klick aufs Plus)
-local function ExpandBindingSection()
-  local list = SettingsPanel and SettingsPanel.GetSettingsList and SettingsPanel:GetSettingsList()
-  local box = list and list.ScrollBox
-  if not (box and box.EnumerateFrames) then return false end
-  for _, frame in box:EnumerateFrames() do
-    local element = frame.GetElementData and frame:GetElementData()
-    local data = element and element.data
-    if data and data.name == _G.BINDING_HEADER_AUTOGROUPFINDER then
-      if not data.expanded and frame.Button then frame.Button:Click() end
-      return true
-    end
-  end
-  return false
-end
+-- Tastaturbelegung öffnen und zu unserem Abschnitt scrollen. Bewusst nicht selbst aufklappen: Ein Klick des
+-- Add-ons auf Blizzards Plus färbt das Einstellungsfenster ein, beim Schließen wird dann SpellStopCasting blockiert.
 function OpenHotkeys()
-  if not (Settings and Settings.OpenToCategory and Settings.KEYBINDINGS_CATEGORY_ID) then return end
-  Settings.OpenToCategory(Settings.KEYBINDINGS_CATEGORY_ID, _G.BINDING_HEADER_AUTOGROUPFINDER)
-  -- die Liste baut ihre Zeilen erst in den nächsten Bildern auf; falls noch nicht da, später nochmal
-  C_Timer.After(0.05, function()
-    local ok, found = pcall(ExpandBindingSection)
-    if ok and not found then C_Timer.After(0.3, function() pcall(ExpandBindingSection) end) end
-  end)
+  if Settings and Settings.OpenToCategory and Settings.KEYBINDINGS_CATEGORY_ID then
+    Settings.OpenToCategory(Settings.KEYBINDINGS_CATEGORY_ID, _G.BINDING_HEADER_AUTOGROUPFINDER)
+  end
 end
 keyLink:SetScript("OnClick", OpenHotkeys)
 
@@ -170,14 +153,7 @@ function RegisterAboutPage()
   ptext:SetWidth(560)
   ptext:SetJustifyH("LEFT")
   ptext:SetSpacing(2)
-  local again = CreateFrame("Button", nil, page, "UIPanelButtonTemplate")
-  again:SetSize(180, 24)
-  again:SetPoint("TOPLEFT", ptext, "BOTTOMLEFT", 0, -20)
-  again:SetText(T.ONB_SHOW)
-  again:SetScript("OnClick", function()
-    if SettingsPanel and SettingsPanel:IsShown() and HideUIPanel then HideUIPanel(SettingsPanel) end
-    ShowOnboarding()
-  end)
+  -- Kein Knopf, der das Einstellungsfenster selbst schließt: das färbt Blizzards Fenster ein (siehe OpenHotkeys).
   aboutCategory = Settings.RegisterCanvasLayoutSubcategory(settingsCategory, page, T.ABOUT)
 end
 

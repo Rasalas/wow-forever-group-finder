@@ -191,23 +191,12 @@ check("Teilen abgeschaltet:", db.shareStats, false)
 check("Minimap-Symbol einzeln:", db.minimapStandalone, true)
 check("Neu geladen:", reloads, 1)
 
-print("== Tastenkürzel: Abschnitt aufklappen")
-local clicks = {}
-local function section(name, expanded)
-  local f = { data = { name = name, expanded = expanded } }
-  f.GetElementData = function() return { data = f.data } end
-  f.Button = { Click = function() clicks[#clicks + 1] = name end }
-  return f
-end
-local frames2 = { section("AddOns", false), section(_G.BINDING_HEADER_AUTOGROUPFINDER, false) }
-SettingsPanel = { GetSettingsList = function() return { ScrollBox = { EnumerateFrames = function() return ipairs(frames2) end } } end }
+print("== Tastenkürzel")
 local opened
 Settings = { KEYBINDINGS_CATEGORY_ID = 7, OpenToCategory = function(id, name) opened = id .. ":" .. name end }
+local touched = false
+SettingsPanel = setmetatable({}, { __index = function() touched = true return function() end end })
 E.OpenHotkeys()
 advance(1)
 check("Tastaturbelegung bei unserem Abschnitt geöffnet:", opened, "7:" .. _G.BINDING_HEADER_AUTOGROUPFINDER)
-check("Nur unser Abschnitt aufgeklappt:", table.concat(clicks, ","), _G.BINDING_HEADER_AUTOGROUPFINDER)
-frames2[2].data.expanded = true
-E.OpenHotkeys()
-advance(1)
-check("Schon offen: nicht wieder zugeklappt:", #clicks, 1)
+check("Blizzards Einstellungsfenster nicht angefasst:", touched, false)
