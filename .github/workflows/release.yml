@@ -1,0 +1,68 @@
+# Tests bei jedem Push; bei einem Tag v* zusätzlich Zip bauen, GitHub-Release anlegen und zu CurseForge hochladen.
+# Einmalig nötig: Secret CF_API_KEY (CurseForge > API Tokens) und Variable CF_PROJECT_ID (Projekt-ID).
+name: Test & Release
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq luajit zsh
+      - run: make test
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    # Secrets gehen nicht direkt in if:, darum über die Umgebung des Jobs
+    env:
+      CF_API_KEY: ${{ secrets.CF_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq luajit zsh
+
+      - name: Version im Tag und in der .toc gleich?
+        id: meta
+        run: |
+          toc=AutoGroupFinder/AutoGroupFinder.toc
+          version=$(sed -n 's/^## Version: *//p' "$toc" | tr -d '\r')
+          [ "v$version" = "$GITHUB_REF_NAME" ] || { echo "Tag $GITHUB_REF_NAME passt nicht zu Version $version in der .toc"; exit 1; }
+          # Interface 16001 -> Spielversion 1.60.1
+          iface=$(sed -n 's/^## Interface: *//p' "$toc" | tr -d '\r' | cut -d, -f1)
+          game="$((iface / 10000)).$(( (iface / 100) % 100 )).$((iface % 100))"
+          prev=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || true)
+          { echo "## $version"; echo; git log --format='- %s' ${prev:+$prev..}HEAD | head -40; } > changelog.md
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "game=$game" >> "$GITHUB_OUTPUT"
+
+      - run: make zip
+
+      - name: GitHub-Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" "dist/AutoGroupFinder-${{ steps.meta.outputs.version }}.zip" --title "$GITHUB_REF_NAME" --notes-file changelog.md
+
+      - name: CurseForge
+        if: env.CF_API_KEY != '' && vars.CF_PROJECT_ID != ''
+        env:
+          PROJECT: ${{ vars.CF_PROJECT_ID }}
+          GAME: ${{ steps.meta.outputs.game }}
+        run: |
+          api=https://wow.curseforge.com/api
+          ids=$(curl -sf -H "X-Api-Token: $CF_API_KEY" "$api/game/versions" | jq -c --arg v "$GAME" '[.[] | select(.name == $v) | .id]')
+          [ "$ids" != "[]" ] || { echo "CurseForge kennt die Spielversion $GAME nicht"; exit 1; }
+          meta=$(jq -n --rawfile log changelog.md --argjson ids "$ids" \
+            '{changelog: $log, changelogType: "markdown", gameVersions: $ids, releaseType: "release"}')
+          curl -sf -H "X-Api-Token: $CF_API_KEY" \
+            -F "metadata=$meta" -F "file=@dist/AutoGroupFinder-${{ steps.meta.outputs.version }}.zip" \
+            "$api/projects/$PROJECT/upload-file"
