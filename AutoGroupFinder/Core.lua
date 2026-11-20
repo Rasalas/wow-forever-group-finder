@@ -22,6 +22,17 @@ if geterrorhandler and seterrorhandler then
     return prev(msg, ...)
   end)
 end
+-- Unabhängig vom restlichen Add-on: beim Einloggen melden, beim Ausloggen/Reload speichern
+local errFrame = CreateFrame("Frame")
+errFrame:RegisterEvent("PLAYER_LOGIN")
+errFrame:RegisterEvent("PLAYER_LOGOUT")
+errFrame:SetScript("OnEvent", function(_, event)
+  if event == "PLAYER_LOGOUT" then
+    if type(_G.AutoGroupFinderDB) == "table" then _G.AutoGroupFinderDB.errors = errors end
+  elseif #errors > 0 then
+    Print(("|cffff4040%d Lua-Fehler|r – %s diag: %s"):format(#errors, SLASH, errors[1]:sub(1, 200)))
+  end
+end)
 
 L = C_LFGList
 if not (L and L.Search and L.GetSearchResults and L.GetSearchResultInfo) then
