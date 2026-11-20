@@ -77,6 +77,9 @@ ns.L.itIT = {
   OPT_OLDEST_TIP = "Disattivo: chi si è appena iscritto viene invitato per primo – di solito è alla tastiera e non è ancora stato invitato da altri. Attivo: chi aspetta da più tempo viene prima.",
   OPT_SOUND = "Suono quando il gruppo è completo",
   OPT_SOUND_TIP = "Riproduce il suono dell'appello appena il gruppo è al completo.",
+  OPT_MM_STANDALONE = "Tieni separata l'icona della minimappa",
+  OPT_MM_STANDALONE_TIP = "Addon come MinimapButtonButton raccolgono le icone della minimappa in un menu. Se attivo, l'occhio resta visibile accanto alla minimappa e si può spostare liberamente. Ha effetto dopo /reload.",
+  CHAT_RELOAD_NEEDED = "Ha effetto dopo /reload.",
 
   FIND_GROUP = "Cerca gruppo",
   LEAVE_QUEUE = "Interrompi ricerca",

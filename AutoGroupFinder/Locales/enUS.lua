@@ -82,6 +82,9 @@ ns.L.enUS = {
   OPT_OLDEST_TIP = "Off: players who just signed up are invited first – they are usually at the keyboard and not yet invited by others. On: whoever waited longest comes first.",
   OPT_SOUND = "Sound when the group is complete",
   OPT_SOUND_TIP = "Plays the ready check sound once the group is full.",
+  OPT_MM_STANDALONE = "Keep the minimap icon separate",
+  OPT_MM_STANDALONE_TIP = "Add-ons like MinimapButtonButton collect minimap icons into a menu. When on, the eye stays visible at the minimap and can be moved freely. Takes effect after /reload.",
+  CHAT_RELOAD_NEEDED = "Takes effect after /reload.",
 
   FIND_GROUP = "Find Group",
   LEAVE_QUEUE = "Stop Searching",

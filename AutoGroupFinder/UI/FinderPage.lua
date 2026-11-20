@@ -454,6 +454,7 @@ OPTIONS = {
   { "notify", T.OPT_NOTIFY, T.OPT_NOTIFY_TIP },
   { "showDemand", T.OPT_DEMAND, T.OPT_DEMAND_TIP, function() Rebuild() end },
   { "sound", T.OPT_SOUND, T.OPT_SOUND_TIP },
+  { "minimapStandalone", T.OPT_MM_STANDALONE, T.OPT_MM_STANDALONE_TIP, function() Print(T.CHAT_RELOAD_NEEDED) end },
 }
 function ToggleOption(o)
   db[o[1]] = not db[o[1]]

@@ -77,6 +77,9 @@ ns.L.deDE = {
   OPT_OLDEST_TIP = "Aus: Wer sich gerade eingetragen hat, wird zuerst eingeladen – diese Spieler sind meist am Rechner und noch nicht von anderen eingeladen. An: Wer am längsten wartet, kommt zuerst dran.",
   OPT_SOUND = "Ton bei voller Gruppe",
   OPT_SOUND_TIP = "Spielt den Bereitschaftscheck-Ton, sobald die Gruppe voll ist.",
+  OPT_MM_STANDALONE = "Minimap-Symbol einzeln lassen",
+  OPT_MM_STANDALONE_TIP = "Add-ons wie MinimapButtonButton sammeln Minimap-Symbole in ein Menü. Eingeschaltet bleibt das Auge einzeln an der Minimap sichtbar und frei verschiebbar. Wirkt nach /reload.",
+  CHAT_RELOAD_NEEDED = "Wirkt nach /reload.",
 
   FIND_GROUP = "Gruppe suchen",
   LEAVE_QUEUE = "Suche beenden",

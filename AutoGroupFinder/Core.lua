@@ -113,6 +113,7 @@ DEFAULTS = {
   declineCooldown = 900, -- wer ablehnt oder nicht antwortet, wird so lange übersprungen
   need = {},
   minimap = { angle = 200, hide = false },
+  minimapStandalone = false, -- true: nicht von Sammel-Add-ons einsammeln lassen
 }
 
 state = { queued = false, queuedAt = 0, lastSearchAt = 0, demand = {},

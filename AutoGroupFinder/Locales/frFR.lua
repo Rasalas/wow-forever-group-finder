@@ -77,6 +77,9 @@ ns.L.frFR = {
   OPT_OLDEST_TIP = "Désactivé : les joueurs qui viennent de s'inscrire sont invités en premier – ils sont en général devant leur clavier et pas encore invités par d'autres. Activé : celui qui attend depuis le plus longtemps passe en premier.",
   OPT_SOUND = "Son quand le groupe est complet",
   OPT_SOUND_TIP = "Joue le son de l'appel dès que le groupe est complet.",
+  OPT_MM_STANDALONE = "Garder l'icône de la minicarte à part",
+  OPT_MM_STANDALONE_TIP = "Les add-ons comme MinimapButtonButton regroupent les icônes de la minicarte dans un menu. Activé, l'œil reste visible près de la minicarte et peut être déplacé librement. Prend effet après /reload.",
+  CHAT_RELOAD_NEEDED = "Prend effet après /reload.",
 
   FIND_GROUP = "Chercher un groupe",
   LEAVE_QUEUE = "Arrêter la recherche",

@@ -77,6 +77,9 @@ ns.L.ptBR = {
   OPT_OLDEST_TIP = "Desligado: quem acabou de se inscrever é convidado primeiro – costuma estar no teclado e ainda não foi convidado por outros. Ligado: quem espera há mais tempo vem primeiro.",
   OPT_SOUND = "Som quando o grupo estiver completo",
   OPT_SOUND_TIP = "Toca o som da verificação de prontidão assim que o grupo enche.",
+  OPT_MM_STANDALONE = "Manter o ícone do minimapa separado",
+  OPT_MM_STANDALONE_TIP = "Addons como MinimapButtonButton juntam os ícones do minimapa em um menu. Ligado, o olho continua visível no minimapa e pode ser movido livremente. Vale após /reload.",
+  CHAT_RELOAD_NEEDED = "Vale após /reload.",
 
   FIND_GROUP = "Procurar grupo",
   LEAVE_QUEUE = "Parar de procurar",

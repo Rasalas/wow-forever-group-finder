@@ -204,6 +204,7 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4)
       for k, t in pairs(seenBy) do if t < nowEpoch - 1800 then seenBy[k] = nil end end
       if next(seenBy) == nil then db.popular[a] = nil end
     end
+    BuildMinimap() -- vor PLAYER_LOGIN, dann sammeln Add-ons wie MinimapButtonButton ihn ein
     pcall(RegisterSettings)
     RefreshMenus()
     return

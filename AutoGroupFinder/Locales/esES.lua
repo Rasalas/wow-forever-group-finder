@@ -78,6 +78,9 @@ ns.L.esES = {
   OPT_OLDEST_TIP = "Desactivado: se invita primero a quien acaba de inscribirse – suele estar frente al teclado y aún no lo han invitado otros. Activado: va primero quien más tiempo lleva esperando.",
   OPT_SOUND = "Sonido cuando el grupo está completo",
   OPT_SOUND_TIP = "Reproduce el sonido de la comprobación de disponibilidad en cuanto el grupo está lleno.",
+  OPT_MM_STANDALONE = "Mantener aparte el icono del minimapa",
+  OPT_MM_STANDALONE_TIP = "Addons como MinimapButtonButton agrupan los iconos del minimapa en un menú. Activado, el ojo sigue visible junto al minimapa y se puede mover libremente. Se aplica tras /reload.",
+  CHAT_RELOAD_NEEDED = "Se aplica tras /reload.",
 
   FIND_GROUP = "Buscar grupo",
   LEAVE_QUEUE = "Dejar de buscar",
