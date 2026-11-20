@@ -52,7 +52,6 @@ DEFAULT_NEED = {
 }
 
 DEFAULTS = {
-  myRoles = { DAMAGER = true }, -- eigene Rollen, mehrere möglich
   category = nil,        -- nil = Dungeons
   activities = {},       -- activityID -> true/false (nil = noch nie angefasst)
   collapsed = {},        -- activityGroupID -> true
@@ -70,7 +69,6 @@ DEFAULTS = {
   notify = true,         -- Meldung in der Bildschirmmitte und Taskleiste blinken
   skipUntil = {},        -- key -> time(); übersteht /reload
   showDemand = true,     -- Balken: wie viele warten auf welche Aktivität
-  history = {},          -- Gruppen, in denen du warst (neueste zuerst)
   popular = {},          -- activityID -> { Anführer -> time() zuletzt gesehen }
   blocked = {},          -- key -> true: nie wieder einladen
   languageMode = "all",  -- all, mine, mineEnglish, custom

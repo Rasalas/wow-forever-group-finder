@@ -25,7 +25,7 @@ function StartQueue()
     generalPlaystyle = db.playstyle,
     voiceMode = db.voice,
     newPlayerFriendly = db.newPlayerFriendly and true or false,
-  }, { tank = db.myRoles.TANK or false, healer = db.myRoles.HEALER or false, dps = db.myRoles.DAMAGER or false })
+  }, { tank = char.myRoles.TANK or false, healer = char.myRoles.HEALER or false, dps = char.myRoles.DAMAGER or false })
   if not okList then Print(T.CHAT_LIST_FAILED:format(tostring(err))) end
   DoSearch(true)
   if win then win:Hide() end

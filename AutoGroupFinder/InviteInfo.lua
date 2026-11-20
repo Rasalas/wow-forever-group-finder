@@ -56,7 +56,7 @@ do
     if #list == 1 then return list[1] end
     for _, r in ipairs(list) do
       local c = comp and comp[r]
-      if db.myRoles[r] and (not c or c[1] < c[2]) then return r end
+      if char.myRoles[r] and (not c or c[1] < c[2]) then return r end
     end
   end
 

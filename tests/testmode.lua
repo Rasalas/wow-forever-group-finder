@@ -107,4 +107,4 @@ C_PartyInfo.InviteUnit = function(n) error("REAL INVITE in test: " .. n) end
 C_LFGList.Search = function() error("REAL SEARCH in test") end
 SlashCmdList.AUTOGROUPFINDER("test shots")
 advance(30)
-print("after test: group", GetNumGroupMembers(), "page", AutoGroupFinderDB.page, "roles", AutoGroupFinderDB.myRoles.DAMAGER and "DAMAGER")
+print("after test: group", GetNumGroupMembers(), "page", AutoGroupFinderDB.page, "roles", AutoGroupFinderCharDB.myRoles.DAMAGER and "DAMAGER")

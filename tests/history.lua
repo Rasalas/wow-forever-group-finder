@@ -140,20 +140,22 @@ IsInGroup = function() return true end
 party = { "Quester" }
 ZONE = "Duskwood"
 fire("GROUP_ROSTER_UPDATE")
-print("entry:", db.history[1].name, #db.history[1].members)
+print("entry:", AutoGroupFinderCharDB.history[1].name, #AutoGroupFinderCharDB.history[1].members)
 party = { "Quester", "T1" }
 fire("GROUP_ROSTER_UPDATE")
 INSTANCE = "Gnomeregan"; fire("PLAYER_ENTERING_WORLD")
 INSTANCE = "Scarlet Library"; fire("PLAYER_ENTERING_WORLD")
-print("entry:", db.history[1].name, "members:", #db.history[1].members, "entries:", #db.history)
+print("entry:", AutoGroupFinderCharDB.history[1].name, "members:", #AutoGroupFinderCharDB.history[1].members, "entries:", #AutoGroupFinderCharDB.history)
 print("== reload continues")
 local loaded = ns
 fire("PLAYER_LOGIN")
-print("entries after login:", #db.history)
+print("entries after login:", #AutoGroupFinderCharDB.history)
 print("== group disbands, new group")
 IsInGroup = function() return #party > 0 end
 party = {}; fire("GROUP_ROSTER_UPDATE")
 INSTANCE = nil; ZONE = "Westfall"
 party = { "Other" }; fire("GROUP_ROSTER_UPDATE")
-print("entries:", #db.history, "newest:", db.history[1].name, db.history[1].members[1].name)
+print("entries:", #AutoGroupFinderCharDB.history, "newest:", AutoGroupFinderCharDB.history[1].name, AutoGroupFinderCharDB.history[1].members[1].name)
 db.page = 3; f:Show(); ticker()
+print("== pro Charakter")
+print("history in CharDB:", AutoGroupFinderCharDB.history ~= nil, "nicht mehr im Account:", AutoGroupFinderDB.history == nil, "roles:", AutoGroupFinderCharDB.myRoles.DAMAGER)

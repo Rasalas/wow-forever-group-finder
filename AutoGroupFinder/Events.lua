@@ -75,7 +75,7 @@ end
 
 -- Nach /reload: den letzten Eintrag fortsetzen, wenn er frisch ist und jemand von damals dabei ist
 function ContinuesLast()
-  local last = db.history[1]
+  local last = char.history[1]
   if not last or time() - (last.last or last.t) > 6 * 3600 then return nil end
   local now = MemberKeys()
   for _, m in ipairs(last.members) do
@@ -91,8 +91,8 @@ function History.Track()
   local e = state.historyEntry or ContinuesLast()
   if not e then
     e = { t = time(), name = GetRealZoneText and GetRealZoneText() or "?", members = {} }
-    table.insert(db.history, 1, e)
-    while #db.history > 100 do table.remove(db.history) end
+    table.insert(char.history, 1, e)
+    while #char.history > 100 do table.remove(char.history) end
   end
   state.historyEntry = e
   local inInstance, kind = IsInInstance()
@@ -186,7 +186,17 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4)
       db.need[size] = db.need[size] or CopyTable(DEFAULT_NEED[size])
     end
     if (db.voice or 0) < 0 then db.voice = 0 end
-    if db.myRole then db.myRoles = { [db.myRole] = true }; db.myRole = nil end -- alte Einstellung übernehmen
+    -- Pro Charakter: eigene Rollen und Verlauf. Beim ersten Start die bisherigen Account-Werte übernehmen.
+    _G.AutoGroupFinderCharDB = _G.AutoGroupFinderCharDB or {}
+    char = _G.AutoGroupFinderCharDB
+    if not char.myRoles then
+      char.myRoles = db.myRoles or (db.myRole and { [db.myRole] = true }) or { DAMAGER = true }
+    end
+    if not char.history then
+      char.history = db.history or {}
+      db.history = nil -- gehört ab jetzt dem Charakter, der zuerst eingeloggt hat
+    end
+    db.myRoles, db.myRole = nil, nil
     local nowEpoch = time()
     for k, t in pairs(db.skipUntil) do if t <= nowEpoch then db.skipUntil[k] = nil end end
     for a, seenBy in pairs(db.popular) do

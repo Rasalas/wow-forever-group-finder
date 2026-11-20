@@ -31,7 +31,7 @@ do
     if not (MenuUtil and MenuUtil.CreateContextMenu) then return end
     MenuUtil.CreateContextMenu(owner, function(_, root)
       root:CreateButton(T.HISTORY_DELETE, function()
-        table.remove(db.history, index)
+        table.remove(char.history, index)
         Rebuild()
       end)
     end)
@@ -70,7 +70,7 @@ do
 
   History.Update = function()
     local n, y = 0, 0
-    for index, e in ipairs(db.history) do
+    for index, e in ipairs(char.history) do
       n = n + 1
       local row = Row(n)
       row:SetHeight(HEAD)
@@ -105,7 +105,7 @@ do
     end
     for i = n + 1, #rows do rows[i]:Hide() end
     list:SetContentHeight(y)
-    empty:SetShown(#db.history == 0)
+    empty:SetShown(#char.history == 0)
   end
 end
 

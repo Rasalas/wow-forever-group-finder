@@ -65,9 +65,9 @@ for i, role in ipairs(ROLES) do
   b.check = BlizzCheck(b, 24)
   b.check:SetPoint("BOTTOMLEFT", -5, -5)
   local function pick()
-    db.myRoles[role] = not db.myRoles[role] or nil
-    if not next(db.myRoles) then db.myRoles[role] = true end -- mindestens eine Rolle
-    CheckSound(db.myRoles[role])
+    char.myRoles[role] = not char.myRoles[role] or nil
+    if not next(char.myRoles) then char.myRoles[role] = true end -- mindestens eine Rolle
+    CheckSound(char.myRoles[role])
     Rebuild()
   end
   b:SetScript("OnClick", pick)
@@ -431,7 +431,7 @@ function UpdateFinder()
   local showActs = db.view == "activities"
   catView:SetShown(not showActs)
   actView:SetShown(showActs)
-  for _, b in ipairs(myRoleBtns) do b.check:SetChecked(db.myRoles[b.role] and true or false) end
+  for _, b in ipairs(myRoleBtns) do b.check:SetChecked(char.myRoles[b.role] and true or false) end
   npf.check:SetChecked(db.newPlayerFriendly)
   if showActs then
     levelCheck:SetChecked(db.allLevels)

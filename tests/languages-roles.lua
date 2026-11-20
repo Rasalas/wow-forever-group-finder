@@ -115,7 +115,7 @@ IsInGroup = function() return #party > 0 end
 UnitIsGroupLeader = function() return true end
 db.playstyle, db.view = 2, "activities"
 print("== mehrere Rollen: Tank + Schaden, Tank fehlt -> ich zähle als Tank")
-db.myRoles = { TANK = true, DAMAGER = true }
+AutoGroupFinderCharDB.myRoles = { TANK = true, DAMAGER = true }
 res(1, "Troll", { tank = true }, 5, { generalPlaystyle = 2 })
 res(2, "Bad", { healer = true }, 5, { generalPlaystyle = 2 })
 res(3, "Heal", { healer = true }, 6, { generalPlaystyle = 2 })

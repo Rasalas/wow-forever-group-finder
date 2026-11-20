@@ -10,6 +10,7 @@ end
 function EndTest()
   if not test then return end
   for k, v in pairs(test.saved) do db[k] = v end
+  char.myRoles = test.myRoles
   test = nil
   api = real
   state.queued = false
@@ -24,15 +25,17 @@ function RunTest(shots)
   if state.queued then Print(T.TEST_STOP_REAL) return end
   test = { results = {}, party = {}, nextId = 1, shots = shots,
     saved = { skipUntil = db.skipUntil, inviteWhisper = db.inviteWhisper,
-      myRoles = db.myRoles, inviteTimeout = db.inviteTimeout, autoInvite = db.autoInvite,
+      inviteTimeout = db.inviteTimeout, autoInvite = db.autoInvite,
       category = db.category, page = db.page, view = db.view, playstyle = db.playstyle } }
-  db.myRoles, db.inviteTimeout, db.autoInvite, db.category, db.page = { DAMAGER = true }, 10, true, 2, 1
+  test.myRoles, char.myRoles = char.myRoles, { DAMAGER = true }
+  db.inviteTimeout, db.autoInvite, db.category, db.page = 10, true, 2, 1
   db.view, db.playstyle = "activities", (db.playstyle ~= 0 and db.playstyle or 2)
   db.skipUntil = {}
   local _, ids = SearchActivities()
   local act = ids[1]
   if not act then
     for k, v in pairs(test.saved) do db[k] = v end
+    char.myRoles = test.myRoles
     test = nil
     Print(T.TEST_NO_DUNGEON)
     return

@@ -27,10 +27,10 @@ function Filled()
   local _, need = Target()
   local me
   for _, r in ipairs(ROLES) do
-    if db.myRoles[r] and (need[r] or 0) - f[r] > 0 then me = r break end
+    if char.myRoles[r] and (need[r] or 0) - f[r] > 0 then me = r break end
   end
   if not me then
-    for _, r in ipairs(ROLES) do if db.myRoles[r] then me = r break end end
+    for _, r in ipairs(ROLES) do if char.myRoles[r] then me = r break end end
   end
   me = me or "DAMAGER"
   f[me] = f[me] + 1
