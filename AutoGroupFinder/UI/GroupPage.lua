@@ -94,7 +94,7 @@ do
       b.icon:SetAllPoints()
       b.icon:SetTexture(RATE_ICON[v])
       b:SetScript("OnClick", function() if row.member then Rate(row.member, v) end end)
-      Tooltip(b, v == 1 and T.RATE_GOOD or T.RATE_BAD, T.RATE_HINT)
+      Tooltip(b, v == 1 and T.RATE_GOOD or T.RATE_BAD, v == 1 and T.RATE_GOOD_TIP or T.RATE_BAD_TIP)
       b.v = v
       row.rate[v] = b
     end
