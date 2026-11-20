@@ -2,6 +2,10 @@
 
 Like the old meeting stones, but on top of Blizzard's group finder in WoW Forever: it lists your group, searches, and invites fitting tanks, healers and damage dealers on its own.
 
+![Pick roles, dungeons and play style](https://raw.githubusercontent.com/Rasalas/wow-forever-group-finder/main/media/screenshots/finder.png) ![Players found, sorted by role](https://raw.githubusercontent.com/Rasalas/wow-forever-group-finder/main/media/screenshots/players-found.png)
+
+![Who invites you and for what](https://raw.githubusercontent.com/Rasalas/wow-forever-group-finder/main/media/screenshots/invite-card.png) ![Invites, declines and joins in the chat](https://raw.githubusercontent.com/Rasalas/wow-forever-group-finder/main/media/screenshots/invite-log.png)
+
 ## What it does
 
 - **Invites for exactly the open spots**: declines, busy and unreachable players are skipped for a while

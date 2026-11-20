@@ -4,6 +4,11 @@ A World of Warcraft **Forever** add-on that finds tanks, healers and damage deal
 
 You pick your role, the dungeons and a play style and click **Find Group**. The add-on lists your group, searches, and invites fitting players on its own: rare roles first, players already standing at the dungeon first, and nobody twice who just declined.
 
+| | |
+|---|---|
+| ![Pick roles, dungeons and play style](media/screenshots/finder.png) | ![Players found, sorted by role](media/screenshots/players-found.png) |
+| ![Who invites you and for what](media/screenshots/invite-card.png) | ![Invites, declines and joins in the chat](media/screenshots/invite-log.png) |
+
 ## Features
 
 - **Automatic invites** for exactly the open spots; declines, busy and unreachable players are skipped for a while
