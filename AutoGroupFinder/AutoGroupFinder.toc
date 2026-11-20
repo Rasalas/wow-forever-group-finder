@@ -7,5 +7,24 @@
 ## IconTexture: Interface\Icons\INV_Misc_GroupNeedMore
 ## AddonCompartmentFunc: AutoGroupFinder_OnCompartmentClick
 
-Locales.lua
-AutoGroupFinder.lua
+Locales\enUS.lua
+Locales\deDE.lua
+Locales\Locales.lua
+Core.lua
+Activities.lua
+Art.lua
+Group.lua
+Invite.lua
+InviteInfo.lua
+Messages.lua
+Queue.lua
+UI\Window.lua
+UI\FinderPage.lua
+UI\FoundPage.lua
+UI\HistoryPage.lua
+UI\Footer.lua
+Settings.lua
+UI\Minimap.lua
+Events.lua
+TestMode.lua
+Commands.lua

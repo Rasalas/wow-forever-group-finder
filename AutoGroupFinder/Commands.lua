@@ -1,0 +1,79 @@
+local _, ns = ...
+setfenv(1, ns.env) -- gemeinsamer, privater Namensraum aller Module (siehe Core.lua)
+
+-- Zeigt, was der Client an Group-Finder-Schnittstellen hat.
+function Diag()
+  Print("Client: " .. tostring(select(4, GetBuildInfo())) .. " / " .. tostring((GetBuildInfo())))
+  local api = C_LFGList
+  Print("C_LFGList: " .. tostring(api ~= nil))
+  if not api then return end
+  for _, f in ipairs({ "Search", "GetSearchResults", "GetSearchResultInfo", "GetSearchResultLeaderInfo",
+      "GetActivityInfoTable", "GetAvailableCategories", "GetAvailableActivities",
+      "GetAvailableActivityGroups", "GetActivityGroupInfo", "GetLfgCategoryInfo" }) do
+    Print("  " .. f .. ": " .. tostring(api[f] ~= nil))
+  end
+  if api.GetAvailableCategories then
+    for _, c in ipairs(api.GetAvailableCategories() or {}) do
+      local ci = api.GetLfgCategoryInfo and api.GetLfgCategoryInfo(c)
+      local acts = api.GetAvailableActivities and api.GetAvailableActivities(c) or {}
+      Print(("  %s: %s (%d)"):format(tostring(c), tostring(type(ci) == "table" and ci.name or ci), #acts))
+    end
+  end
+end
+
+_G.SLASH_AUTOGROUPFINDER1 = SLASH
+_G.SLASH_AUTOGROUPFINDER2 = "/groupfinder"
+SlashCmdList.AUTOGROUPFINDER = function(msg)
+  local raw = strtrim(msg or "")
+  msg = strlower(raw)
+  if msg == "diag" then Diag() return end
+  AutoGroupFinder_Slash(msg, raw)
+end
+
+function _G.AutoGroupFinder_Slash(msg, raw)
+  if msg == "" then
+    AutoGroupFinder_Toggle()
+  elseif msg:match("^whisper") then
+    local text = strtrim((raw or msg):sub(8))
+    db.whisperText = text ~= "" and text or nil
+    Print(T.CHAT_WHISPER_SET:format(db.whisperText or T.WHISPER_DEFAULT))
+  elseif msg == "config" or msg == "settings" then
+    OpenSettings()
+  elseif msg:match("^testinvite") then
+    InviteInfo.Demo(msg:match("^testinvite%s+(%a+)"))
+  elseif msg == "test" or msg == "test shots" then
+    RunTest(msg == "test shots")
+  elseif msg == "start" then
+    StartQueue()
+  elseif msg == "stop" then
+    StopQueue(T.CHAT_STOPPED)
+  elseif msg == "minimap" then
+    db.minimap.hide = not db.minimap.hide
+    UpdateMinimap()
+    Print(T.CHAT_MINIMAP:format(db.minimap.hide and T.OFF or T.ON))
+  elseif msg == "sound" then
+    db.sound = not db.sound
+    Print(T.CHAT_SOUND:format(db.sound and T.ON or T.OFF))
+  elseif msg:match("^interval %d+$") then
+    db.interval = math.max(3, tonumber(msg:match("%d+")))
+    Print(T.CHAT_INTERVAL:format(db.interval))
+  elseif msg == "reset" then
+    wipe(seen) wipe(db.skipUntil) wipe(pending) wipe(expired)
+    Print(T.CHAT_RESET)
+    Rebuild()
+  elseif msg == "dump" then
+    local _, ids = L.GetSearchResults()
+    local id = ids and ids[1]
+    if not id then Print(T.CHAT_NO_RESULTS) return end
+    for k, v in pairs(L.GetSearchResultInfo(id) or {}) do print("  ", k, tostring(v)) end
+    for k, v in pairs(L.GetSearchResultLeaderInfo(id) or {}) do
+      if type(v) == "table" then
+        for k2, v2 in pairs(v) do print("  ", k .. "." .. k2, tostring(v2)) end
+      else
+        print("  ", k, tostring(v))
+      end
+    end
+  else
+    Print(T.HELP:gsub("%%s", SLASH))
+  end
+end
