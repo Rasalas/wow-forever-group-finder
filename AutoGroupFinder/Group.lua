@@ -46,7 +46,7 @@ function Slots()
     rem[r] = math.max(0, (need[r] or 0) - f[r])
     open[r] = rem[r]
   end
-  for _, p in pairs(pending) do open[p.role] = math.max(0, open[p.role] - 1) end
+  for _, p in pairs(pending) do if p.role then open[p.role] = math.max(0, open[p.role] - 1) end end
   return rem, open
 end
 

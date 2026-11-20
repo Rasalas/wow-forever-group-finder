@@ -98,6 +98,7 @@ DEFAULTS = {
   fills = {},            -- fertige Gruppen: eigene und geteilte Wartezeiten
   calib = {},            -- tatsächlich / geschätzt, um den Schätzfehler zu lernen
   inviteStats = { TANK = { sent = 0, joined = 0 }, HEALER = { sent = 0, joined = 0 }, DAMAGER = { sent = 0, joined = 0 } },
+  nudge = true,          -- „Bin noch da“-Knopf, wenn länger nicht gesucht wurde
   hereSuggest = true,    -- am Dungeon eine Karte zum Sofort-Suchen anbieten
   preferNear = true,     -- Spieler am Dungeon (Zone des Eingangs oder schon drin) zuerst
   inviteWhisper = false, -- beim Einladen kurz anflüstern
@@ -122,6 +123,8 @@ DEFAULTS = {
   scarceFirst = true,        -- seltene Rollen zuerst einladen
   minimapStandalone = false, -- true: nicht von Sammel-Add-ons einsammeln lassen
 }
+
+NUDGE_AFTER = 60 -- Sekunden ohne Suche, bis „Bin noch da“ erscheint (UI/Nudge.lua)
 
 state = { queued = false, queuedAt = 0, lastSearchAt = 0, demand = {},
   trees = {}, treeVersion = 0, listings = {}, lastSupply = {},

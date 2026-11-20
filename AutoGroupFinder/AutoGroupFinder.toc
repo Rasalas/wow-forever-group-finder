@@ -35,6 +35,7 @@ Settings.lua
 UI\Minimap.lua
 UI\BlizzardLink.lua
 UI\Onboarding.lua
+UI\Nudge.lua
 Events.lua
 TestMode.lua
 Commands.lua

@@ -128,7 +128,12 @@ function OnRoster()
   local members = MemberKeys()
   for name in pairs(members) do
     local k = FindPending(name)
-    if k then
+    if k and not pending[k].role then
+      -- selbst eingeladen, Rolle unbekannt: nichts festlegen, Blizzards Rollenzuweisung zählt
+      pending[k] = nil
+      local r = api.unitRole(members[name])
+      Print(T.CHAT_JOINED:format(Short(k), ROLE_NAME[r] or ROLE_NAME.DAMAGER))
+    elseif k then
       joined[k] = pending[k].role
       state.lastJoinRole = joined[k]
       Estimate.Joined(joined[k])
@@ -190,6 +195,7 @@ function Tick()
   local full = state.ticks % 5 == 0 -- Alterangaben u. Ä. reichen alle 5 s; Änderungen zeichnen sofort über Rebuild
   if state.searching and now - state.searching > 10 then state.searching, full = nil, true end
   if state.ticks % 60 == 0 then PruneState() end
+  UpdateNudge()
   if win:IsShown() then
     if full and UpdateUI then UpdateUI() elseif UpdateNeed then UpdateNeed() end
   end

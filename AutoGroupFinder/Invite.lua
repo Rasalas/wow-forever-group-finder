@@ -97,12 +97,26 @@ function AutoInvite()
   Rebuild()
 end
 
+-- Selbst eingeladen: mitzählen, damit für diesen Platz niemand zusätzlich eingeladen wird.
+-- Rolle aus dem Eintrag in der Gruppensuche, sonst beim Beitritt die Rolle in der Gruppe.
+function ManualInvite(name)
+  local key = Key(name)
+  if pending[key] or MemberKeys()[key] then return end
+  local c
+  for _, x in ipairs(candidates) do if x.key == key then c = x break end end
+  local _, open = Slots()
+  local role = c and RoleFor(c, open)
+  pending[key] = { role = role, t = GetTime(), confirmed = true, c = c, manual = true }
+  Print(role and T.CHAT_MANUAL_ROLE:format(Short(key), ROLE_NAME[role]) or T.CHAT_MANUAL:format(Short(key)))
+  Rebuild()
+end
+
 function DropPending(k, cooldown, msg)
   local p = pending[k]
   if not p then return end
   pending[k] = nil
   expired[k] = p.role
-  db.skipUntil[k] = time() + cooldown
+  if not p.manual then db.skipUntil[k] = time() + cooldown end -- bewusst Eingeladene nicht sperren
   if msg then Print(msg:format(Short(k))) end
   Rebuild()
   AutoInvite() -- sofort den Nächsten aus den vorhandenen Ergebnissen

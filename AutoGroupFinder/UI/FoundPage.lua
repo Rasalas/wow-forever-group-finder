@@ -384,7 +384,7 @@ function UpdateFound()
   local n, y = 0, 0
   -- Laufende Einladungen zuerst, mit Countdown
   local invited = {}
-  for _, p in pairs(pending) do if p.c then invited[#invited + 1] = p end end
+  for _, p in pairs(pending) do if p.c and p.role then invited[#invited + 1] = p end end
   table.sort(invited, function(a, b) return a.t < b.t end)
   if #invited > 0 then
     n = n + 1

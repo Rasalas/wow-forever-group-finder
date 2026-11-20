@@ -21,7 +21,7 @@ function StartQueue()
   if (db.playstyle or 0) == 0 then Print(GROUP_FINDER_PLAYSTYLE_REQUIRED or T.PLAYSTYLE_REQUIRED) return end
   local rem = Slots()
   if not AnyLeft(rem) then Print(T.CHAT_NO_ROLE) return end
-  state.queued, state.queuedAt, state.lastSearchAt = true, GetTime(), 0
+  state.queued, state.queuedAt, state.lastSearchAt, state.searching = true, GetTime(), 0, nil
   wipe(state.lastSupply)
   Estimate.OnStart()
   local okList, err = api.list({

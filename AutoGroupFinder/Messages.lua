@@ -26,7 +26,8 @@ function OnSystem(msg)
   local n = MsgName(msg, PAT.invited)
   if n then
     local k = FindPending(n)
-    if k then pending[k].confirmed = true end
+    if k then pending[k].confirmed = true
+    elseif state.queued then ManualInvite(n) end -- selbst eingeladen (/inv, Menü, Blizzards Liste)
     return
   end
   local cases = {

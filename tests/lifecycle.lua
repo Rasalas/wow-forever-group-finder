@@ -171,3 +171,45 @@ for _ = 1, 3 do
 end
 check("Je Klick höchstens eine geschützte Aktion:", maxPerClick, 1)
 check("Erst Vorgemerktes (eigene Rolle), dann gesucht:", searches, 1)
+
+print("== Knopf „Bin noch da“")
+E.StopQueue(); party = {}; fire("GROUP_ROSTER_UPDATE")
+E.state.lastSearchAt = 0
+E.StartQueue()
+E.UpdateNudge()
+check("Nach dem Eintragen sichtbar:", E.nudge:IsShown(), true)
+check("Beschriftung zuerst:", rawget(E.nudge.text, "_text"), E.T.NUDGE_FIRST)
+searches = 0
+rawget(E.nudge, "_scripts").OnClick(E.nudge)
+check("Klick sucht:", searches, 1)
+check("Und verschwindet:", E.nudge:IsShown(), false)
+fire("LFG_LIST_SEARCH_RESULTS_RECEIVED")
+advance(30); E.UpdateNudge()
+check("Nach 30 s noch nicht:", E.nudge:IsShown(), false)
+advance(35); E.UpdateNudge()
+check("Nach über 60 s wieder da:", E.nudge:IsShown(), true)
+check("Wer stillsteht: „Bin noch da“:", rawget(E.nudge.text, "_text"), E.T.NUDGE)
+fire("PLAYER_STARTED_MOVING"); E.UpdateNudge()
+check("Wer läuft: „Jetzt suchen“:", rawget(E.nudge.text, "_text"), E.T.NUDGE_FIRST)
+advance(61); E.UpdateNudge()
+check("Eine Minute still: wieder „Bin noch da“:", rawget(E.nudge.text, "_text"), E.T.NUDGE)
+InCombatLockdown = function() return COMBAT end
+COMBAT = true; E.UpdateNudge()
+check("Im Kampf versteckt:", E.nudge:IsShown(), false)
+COMBAT = false
+
+print("== Selbst eingeladen")
+res(40, "Selbst", { healer = true }, 5, { generalPlaystyle = 2 })
+fire("LFG_LIST_SEARCH_RESULTS_RECEIVED")
+local _, before = E.Slots()
+sys("You have invited Selbst to join your group.")
+check("Mitgezählt mit Rolle aus der Gruppensuche:", E.pending.Selbst and E.pending.Selbst.role, "HEALER")
+local _, after = E.Slots()
+check("Heiler-Platz gilt als vergeben:", before.HEALER - after.HEALER, 1)
+sys("Selbst declines your group invitation.")
+check("Absage: nicht gesperrt:", db.skipUntil.Selbst, nil)
+sys("You have invited Fremd to join your group.")
+check("Unbekannt: ohne Rolle mitgezählt:", E.pending.Fremd ~= nil and E.pending.Fremd.role, nil)
+party = { "Fremd" }
+fire("GROUP_ROSTER_UPDATE")
+check("Beigetreten, nicht mehr offen:", E.pending.Fremd, nil)
