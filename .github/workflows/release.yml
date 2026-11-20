@@ -73,7 +73,7 @@ jobs:
           meta=$(jq -n --rawfile log changelog.md --argjson ids "$ids" \
             '{changelog: $log, changelogType: "markdown", gameVersions: $ids, releaseType: "release"}')
           code=$(curl -s -o upload.json -w '%{http_code}' -H "X-Api-Token: $CF_API_KEY" \
-            -F "metadata=$meta" -F "file=@dist/AutoGroupFinder-${{ steps.meta.outputs.version }}.zip" \
+            --form-string "metadata=$meta" -F "file=@dist/AutoGroupFinder-${{ steps.meta.outputs.version }}.zip" \
             "$api/projects/$PROJECT/upload-file")
           echo "Upload: HTTP $code"; head -c 1000 upload.json; echo
           [ "$code" = 200 ]
