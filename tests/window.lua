@@ -208,7 +208,7 @@ GetUIPanel = function(a) return panels[a] end
 E.CloseWindow(); E.OpenWindow()
 panels.left = spell
 _G.ShowUIPanel(spell)
-check("Zauberbuch links: unseres rückt daneben:", point, "TOPLEFT,400,-116")
+check("Zauberbuch links: unseres rückt mit Abstand daneben:", point, "TOPLEFT,416,-116")
 panels.left = nil
 _G.HideUIPanel(spell)
 check("Zauberbuch zu: zurück an den Standardplatz:", point, "TOPLEFT,16,-116")

@@ -14,6 +14,7 @@ win:Hide()
 -- Eigene Platzierung statt Blizzards Fensterverwaltung (ShowUIPanel): deren Aufruf aus Add-on-Code
 -- färbt sie ein, danach laufen Zauberbuch und Aktionsleisten „unsicher“ (Cooldown-Fehler im Kampf).
 HOME_X, HOME_Y = 16, -116 -- Platz von Blizzards linken Fenstern
+PANEL_GAP = HOME_X -- Abstand zu Blizzards Fenstern daneben, wie zum Bildschirmrand
 tinsert(UISpecialFrames, "AutoGroupFinderFrame") -- Esc schließt
 
 function ApplyWindowMode()
@@ -32,7 +33,7 @@ function FitBesideBlizzard()
   local x = HOME_X
   for _, area in ipairs({ "left", "center" }) do
     local f = GetUIPanel(area)
-    if f and f ~= win and f:IsShown() and f:GetRight() then x = math.max(x, f:GetRight() - (UIParent:GetLeft() or 0)) end
+    if f and f ~= win and f:IsShown() and f:GetRight() then x = math.max(x, f:GetRight() - (UIParent:GetLeft() or 0) + PANEL_GAP) end
   end
   win:ClearAllPoints()
   win:SetPoint("TOPLEFT", UIParent, "TOPLEFT", x, HOME_Y)
