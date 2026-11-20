@@ -32,6 +32,6 @@ pdf:
 	@scripts/checklist-pdf.sh
 
 # Neue Version: .toc hochsetzen, testen, Tag pushen; GitHub Actions baut und lädt zu CurseForge hoch.
-# make release  (letzte Stelle +1)  ·  make release V=0.7.0  ·  make release DRY=1
+# make release (Stufe aus Conventional Commits) · V=0.7.0 · BUMP=minor · DRY=1
 release:
-	@DRY=$(DRY) scripts/release.sh $(V)
+	@DRY=$(DRY) BUMP=$(BUMP) scripts/release.sh $(V)

@@ -65,8 +65,10 @@ make deploy    # tests, then copy to a game PC via SSH
 make zip       # tests, then dist/AutoGroupFinder-<version>.zip
 make pdf       # printable in-game test checklist (German) from docs/checklist.html
 make release   # bump the version, tag and push; GitHub Actions builds the zip and uploads to CurseForge
-               # (make release V=0.7.0 for a specific version, DRY=1 to preview)
+               # (version from Conventional Commits; V=0.7.0, BUMP=minor or DRY=1 to override/preview)
 ```
+
+Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/): `feat:` raises the minor version, `fix:` the patch version, `feat!:` or a `BREAKING CHANGE:` footer the major version (minor before 1.0). `chore:`, `ci:`, `docs:`, `test:` and `refactor:` stay out of the release notes.
 
 ## License
 
