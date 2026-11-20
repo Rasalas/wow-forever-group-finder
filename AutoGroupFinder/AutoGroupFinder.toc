@@ -1,0 +1,11 @@
+## Interface: 16001
+## Title: Auto Group Finder
+## Notes: Finds tanks, healers and damage for your group automatically – like the Retail dungeon finder.
+## Notes-deDE: Sucht automatisch Tanks, Heiler und Schaden für deine Gruppe – wie der Dungeon-Finder in Retail.
+## Version: 0.4.0
+## SavedVariables: AutoGroupFinderDB
+## IconTexture: Interface\Icons\INV_Misc_GroupNeedMore
+## AddonCompartmentFunc: AutoGroupFinder_OnCompartmentClick
+
+Locales.lua
+AutoGroupFinder.lua

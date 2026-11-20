@@ -1,0 +1,5 @@
+<Bindings>
+  <Binding name="AUTOGROUPFINDER_NEXT" header="AUTOGROUPFINDER" category="ADDONS">AutoGroupFinder_Next()</Binding>
+  <Binding name="AUTOGROUPFINDER_REFRESH" category="ADDONS">AutoGroupFinder_Refresh()</Binding>
+  <Binding name="AUTOGROUPFINDER_TOGGLE" category="ADDONS">AutoGroupFinder_Toggle()</Binding>
+</Bindings>
