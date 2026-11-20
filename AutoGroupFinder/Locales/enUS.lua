@@ -36,6 +36,7 @@ ns.L.enUS = {
   TAG_FRIEND = "Friend",
   TAG_GUILD = "Guild",
   TAG_NEAR = "At the dungeon",
+  TAG_NEAR_ZONE = "Nearby",
   CHAT_IN_INSTANCE = "You entered an instance – search stopped.",
   CHAT_IN_COMBAT = "Not during combat.",
   SETTINGS_LANGUAGES = "Languages",

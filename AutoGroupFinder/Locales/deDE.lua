@@ -34,6 +34,7 @@ ns.L.deDE = {
   TAG_FRIEND = "Freund",
   TAG_GUILD = "Gilde",
   TAG_NEAR = "Am Dungeon",
+  TAG_NEAR_ZONE = "In der Nähe",
   CHAT_IN_INSTANCE = "Instanz betreten – Suche beendet.",
   CHAT_IN_COMBAT = "Nicht während eines Kampfes.",
   SETTINGS_LANGUAGES = "Sprachen",

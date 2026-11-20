@@ -35,6 +35,7 @@ ns.L.esES = {
   TAG_FRIEND = "Amigo",
   TAG_GUILD = "Hermandad",
   TAG_NEAR = "En la mazmorra",
+  TAG_NEAR_ZONE = "Cerca",
   CHAT_IN_INSTANCE = "Has entrado en una instancia – búsqueda detenida.",
   CHAT_IN_COMBAT = "No durante el combate.",
   SETTINGS_LANGUAGES = "Idiomas",

@@ -174,18 +174,19 @@ DUNGEON_ZONES = {
   [509] = { 1451 }, [531] = { 1451 }, [533] = { 1423 }, -- AQ20, AQ40, Naxx
 }
 local nearCache = {}
--- Zonennamen, in denen ein Spieler „am Dungeon“ ist: die Instanz selbst und die Zone(n) des Eingangs
+-- Gebietsnamen je Nähe: 2 = Gebiet heißt wie der Dungeon (direkt am Eingang oder drin), 1 = Zone des Eingangs.
+-- areaName ist das Gebiet wie auf der Minimap, vor Gnomeregan also „Gnomeregan“, in Kharanos „Kharanos“.
 function NearNames(activityID)
   if nearCache[activityID] then return nearCache[activityID] end
   local names = {}
   local a = L.GetActivityInfoTable(activityID)
   if a and a.mapID then
     local inst = GetRealZoneText(a.mapID)
-    if inst and inst ~= "" then names[inst] = true end
     for _, ui in ipairs(DUNGEON_ZONES[a.mapID] or {}) do
       local info = C_Map and C_Map.GetMapInfo and C_Map.GetMapInfo(ui)
-      if info and info.name then names[info.name] = true end
+      if info and info.name then names[info.name] = 1 end
     end
+    if inst and inst ~= "" then names[inst] = 2 end
   end
   nearCache[activityID] = names
   return names
@@ -284,7 +285,8 @@ function Rebuild()
             area = p.areaName ~= "" and p.areaName or nil,
           }
           for _, e in ipairs(matches) do
-            if c.area and NearNames(e.id)[c.area] then c.near = true break end
+            local n = c.area and NearNames(e.id)[c.area]
+            if n and n > (c.near or 0) then c.near = n end
           end
           c.role = RoleFor(c, open)
           if c.role then
@@ -303,7 +305,7 @@ function Rebuild()
       local af, bf = a.friend or a.guild, b.friend or b.guild
       if af ~= bf then return af end
     end
-    if db.preferNear and (a.near or false) ~= (b.near or false) then return a.near or false end
+    if db.preferNear and (a.near or 0) ~= (b.near or 0) then return (a.near or 0) > (b.near or 0) end
     if db.oldestFirst then return a.listedAt < b.listedAt end
     return a.listedAt > b.listedAt
   end)

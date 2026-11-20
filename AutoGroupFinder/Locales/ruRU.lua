@@ -34,6 +34,7 @@ ns.L.ruRU = {
   TAG_FRIEND = "Друг",
   TAG_GUILD = "Гильдия",
   TAG_NEAR = "У подземелья",
+  TAG_NEAR_ZONE = "Рядом",
   CHAT_IN_INSTANCE = "Вы вошли в подземелье – поиск остановлен.",
   CHAT_IN_COMBAT = "Не во время боя.",
   SETTINGS_LANGUAGES = "Языки",

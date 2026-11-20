@@ -34,6 +34,7 @@ ns.L.ptBR = {
   TAG_FRIEND = "Amigo",
   TAG_GUILD = "Guilda",
   TAG_NEAR = "Na masmorra",
+  TAG_NEAR_ZONE = "Por perto",
   CHAT_IN_INSTANCE = "Você entrou em uma instância – busca encerrada.",
   CHAT_IN_COMBAT = "Não durante o combate.",
   SETTINGS_LANGUAGES = "Idiomas",

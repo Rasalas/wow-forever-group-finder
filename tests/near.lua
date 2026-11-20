@@ -130,10 +130,10 @@ res(2, "Eingang", { dps = true }, 50, { generalPlaystyle = 2 }); results[2].p.ar
 res(3, "Drinnen", { dps = true }, 90, { generalPlaystyle = 2 }); results[3].p.areaName = "Scarlet Monastery"
 res(4, "Unbekannt", { dps = true }, 1, { generalPlaystyle = 2 })
 fire("LFG_LIST_SEARCH_RESULTS_RECEIVED")
-check("Am Dungeon zuerst, sonst die Neuesten:", order(), "Eingang,Drinnen,Unbekannt,Fern")
+check("Am Eingang/drin vor Zone, sonst die Neuesten:", order(), "Drinnen,Eingang,Unbekannt,Fern")
 local near = {}
 for _, c in ipairs(E.candidates) do if c.near then near[#near + 1] = c.name end end
-check("Markiert als am Dungeon:", table.concat(near, ","), "Eingang,Drinnen")
+check("Markiert als am Dungeon:", table.concat(near, ","), "Drinnen,Eingang")
 db.preferNear = false
 E.Rebuild()
 check("Option aus, nur nach Alter:", order(), "Unbekannt,Fern,Eingang,Drinnen")

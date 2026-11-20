@@ -253,7 +253,8 @@ function UpdateFound()
     local tags = {}
     if c.friend then tags[#tags + 1] = "|cff82c5ff" .. T.TAG_FRIEND .. "|r" end
     if c.guild then tags[#tags + 1] = "|cff40ff40" .. T.TAG_GUILD .. "|r" end
-    if c.near then tags[#tags + 1] = "|cffffd100" .. T.TAG_NEAR .. "|r" end
+    if c.near == 2 then tags[#tags + 1] = "|cffffd100" .. T.TAG_NEAR .. "|r" end
+    if c.near == 1 then tags[#tags + 1] = "|cffd9c08c" .. T.TAG_NEAR_ZONE .. "|r" end
     if #tags > 0 then title = title .. "  " .. table.concat(tags, " ") end
     row.name:SetText(title)
     row.name:Show()

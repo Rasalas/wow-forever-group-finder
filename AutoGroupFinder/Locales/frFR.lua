@@ -34,6 +34,7 @@ ns.L.frFR = {
   TAG_FRIEND = "Ami",
   TAG_GUILD = "Guilde",
   TAG_NEAR = "Au donjon",
+  TAG_NEAR_ZONE = "À proximité",
   CHAT_IN_INSTANCE = "Vous êtes entré dans une instance – recherche arrêtée.",
   CHAT_IN_COMBAT = "Pas pendant un combat.",
   SETTINGS_LANGUAGES = "Langues",

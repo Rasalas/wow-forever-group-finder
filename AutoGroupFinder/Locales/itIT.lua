@@ -34,6 +34,7 @@ ns.L.itIT = {
   TAG_FRIEND = "Amico",
   TAG_GUILD = "Gilda",
   TAG_NEAR = "Alla spedizione",
+  TAG_NEAR_ZONE = "Nelle vicinanze",
   CHAT_IN_INSTANCE = "Sei entrato in un'istanza – ricerca interrotta.",
   CHAT_IN_COMBAT = "Non durante il combattimento.",
   SETTINGS_LANGUAGES = "Lingue",
