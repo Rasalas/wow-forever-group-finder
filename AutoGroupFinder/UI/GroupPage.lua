@@ -6,21 +6,6 @@ setfenv(1, ns.env) -- gemeinsamer, privater Namensraum aller Module (siehe Core.
 -------------------------------------------------------------------------
 GroupPage = {}
 
--- Bewertung: 1 = gerne wieder (wird bevorzugt), -1 = nicht wieder (wird nicht mehr eingeladen)
-function Rate(name, v)
-  local k = Key(name)
-  local cur = db.ratings[k]
-  db.ratings[k] = (not cur or cur.v ~= v) and { v = v, t = time() } or nil
-  Rebuild()
-end
-function Rating(name) local r = db.ratings[Key(name)] return r and r.v end
-
-RATE_ICON = { [1] = "Interface\\RaidFrame\\ReadyCheck-Ready", [-1] = "Interface\\RaidFrame\\ReadyCheck-NotReady" }
-function RateTag(v, size)
-  size = size or 14
-  return v and ("|T%s:%d:%d|t"):format(RATE_ICON[v], size, size) or ""
-end
-
 -- Eingang eines Dungeons auf der Karte: Zone (uiMapID) und Position, sofern die Karte ihn kennt
 function DungeonEntrance(activityID)
   local a = activityID and L.GetActivityInfoTable(activityID)

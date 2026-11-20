@@ -5,7 +5,7 @@ setfenv(1, ns.env) -- gemeinsamer, privater Namensraum aller Module (siehe Core.
 -------------------------------------------------------------------------
 tabs = {}
 function ShowPage(i)
-  if i == 4 and not IsInGroup() then i = 1 end -- Gruppenseite nur in einer Gruppe
+  if i == 4 and not (IsInGroup() and GroupPage) then i = 1 end -- Gruppenseite nur in einer Gruppe
   db.page = i
   if i == 1 then state.here = HereDungeon() end
   for j, p in ipairs(pages) do p:SetShown(j == i) end
@@ -150,9 +150,9 @@ UpdateUI = function()
   elseif db.page == 3 then
     History.Update()
   else
-    GroupPage.Update()
+    if GroupPage then GroupPage.Update() end
   end
-  if tabs[4] then tabs[4]:SetShown(IsInGroup()) end
+  if tabs[4] then tabs[4]:SetShown(IsInGroup() and GroupPage ~= nil) end
   if win.SetTitle then
     win:SetTitle(({ T.TITLE, T.FOUND_TITLE:format(#candidates), T.TAB_HISTORY, T.TAB_GROUP })[db.page] or T.TITLE)
   end

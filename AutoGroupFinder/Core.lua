@@ -234,6 +234,21 @@ function RoleIconText(role, size)
     size, size, c[1] * 64, c[2] * 64, c[3] * 64, c[4] * 64)
 end
 
+-- Bewertung: 1 = gerne wieder (wird bevorzugt), -1 = nicht wieder (wird nicht mehr eingeladen)
+function Rate(name, v)
+  local k = Key(name)
+  local cur = db.ratings[k]
+  db.ratings[k] = (not cur or cur.v ~= v) and { v = v, t = time() } or nil
+  Rebuild()
+end
+function Rating(name) local r = db.ratings[Key(name)] return r and r.v end
+
+RATE_ICON = { [1] = "Interface\\RaidFrame\\ReadyCheck-Ready", [-1] = "Interface\\RaidFrame\\ReadyCheck-NotReady" }
+function RateTag(v, size)
+  size = size or 14
+  return v and ("|T%s:%d:%d|t"):format(RATE_ICON[v], size, size) or ""
+end
+
 -- Offene Plätze als Symbole: eines je Platz, bei vielen „Symbol ×N“
 function NeedIcons(rem)
   local parts = {}
