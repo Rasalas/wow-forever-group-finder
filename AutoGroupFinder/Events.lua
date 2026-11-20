@@ -132,8 +132,29 @@ end
 
 RESUME_AUTO_WINDOW = 180 -- Sekunden nach dem Vollwerden, in denen ein Abgang automatisch weitersuchen lässt
 
+-- Lauf vorbei? Letzter Boss laut Dungeon-Journal besiegt, sonst nach langer Zeit im Dungeon.
+-- Dann gehen Leute absichtlich; Nachbesetzen nur noch leise anbieten.
+RUN_DONE_AFTER = 1500
+function LastBossID()
+  if not (GetInstanceInfo and C_EncounterJournal and C_EncounterJournal.GetInstanceForGameMap and EJ_GetEncounterInfoByIndex) then return end
+  local ok, jid = pcall(C_EncounterJournal.GetInstanceForGameMap, (select(8, GetInstanceInfo())))
+  if not (ok and jid) then return end
+  local last
+  for i = 1, 40 do
+    local ok2, name, _, _, _, _, _, encounterID = pcall(EJ_GetEncounterInfoByIndex, i, jid)
+    if not (ok2 and name) then break end
+    last = encounterID or last
+  end
+  return last
+end
+function RunDone()
+  if state.runDone then return true end
+  local inside = IsInInstance and IsInInstance()
+  return (inside and char.instanceSince and time() - char.instanceSince > RUN_DONE_AFTER) and true or false
+end
+
 function OnRoster()
-  if not IsInGroup() then state.selfRole = nil else state.inGroupAt = GetTime() end
+  if not IsInGroup() then state.selfRole, state.runDone = nil, nil else state.inGroupAt = GetTime() end
   if state.resume and IsInGroup() and not CanInvite() then state.resume = nil end
   local members = MemberKeys()
   for name in pairs(members) do
@@ -169,13 +190,18 @@ function OnRoster()
     local rem = Slots()
     if AnyLeft(rem) and not state.backfillNoted then
       state.backfillNoted = true
+      local link = " |cff71d5ff|Haddon:AutoGroupFinder:backfill|h[" .. T.BACKFILL_LINK .. "]|h|r"
+      if RunDone() then
+        Print(T.CHAT_BACKFILL:format(NeedText(rem)) .. link) -- nach dem Lauf: kein Knopf, keine Meldung
+        return
+      end
       -- Kurz nach dem Vollwerden und noch draußen: beim nächsten Klick automatisch weitersuchen
       local auto = char.lastFill and time() - char.lastFill.t < RESUME_AUTO_WINDOW and not (IsInInstance and IsInInstance())
       state.resume = { auto = auto, t = GetTime() }
       if auto then
         Print(T.CHAT_BACKFILL:format(NeedText(rem)) .. " " .. T.RESUME_NEXT)
       else
-        Print(T.CHAT_BACKFILL:format(NeedText(rem)) .. " |cff71d5ff|Haddon:AutoGroupFinder:backfill|h[" .. T.BACKFILL_LINK .. "]|h|r")
+        Print(T.CHAT_BACKFILL:format(NeedText(rem)) .. link)
       end
       Notify(T.NOTIFY_BACKFILL:format(NeedText(rem)))
     elseif not AnyLeft(rem) then
@@ -224,12 +250,12 @@ end
 ev = CreateFrame("Frame")
 for _, e in ipairs({ "ADDON_LOADED", "PLAYER_LOGIN", "PLAYER_LEVEL_UP", "PLAYER_REGEN_ENABLED", "CHAT_MSG_ADDON",
     "PARTY_INVITE_REQUEST",
-    "PLAYER_ENTERING_WORLD", "ZONE_CHANGED", "ZONE_CHANGED_INDOORS", "ZONE_CHANGED_NEW_AREA",
+    "PLAYER_ENTERING_WORLD", "ZONE_CHANGED", "ZONE_CHANGED_INDOORS", "ZONE_CHANGED_NEW_AREA", "ENCOUNTER_END",
     "LFG_LIST_SEARCH_RESULTS_RECEIVED", "LFG_LIST_SEARCH_RESULT_UPDATED", "LFG_LIST_SEARCH_FAILED",
     "LFG_LIST_AVAILABILITY_UPDATE", "LFG_LIST_ACTIVE_ENTRY_UPDATE", "GROUP_ROSTER_UPDATE", "CHAT_MSG_SYSTEM" }) do
   pcall(ev.RegisterEvent, ev, e)
 end
-ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4)
+ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4, arg5)
   if event == "ADDON_LOADED" then
     if arg1 ~= ADDON then return end
     _G.AutoGroupFinderDB = _G.AutoGroupFinderDB or {}
@@ -288,6 +314,11 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4)
       local since = state.queuedAt
       StopQueue(dissolved and T.CHAT_DISSOLVED or T.CHAT_LISTING_GONE)
       if dissolved then state.resume = { auto = true, since = since, t = GetTime() } end
+    end
+  elseif event == "ENCOUNTER_END" then
+    -- encounterID, name, difficulty, size, success; in Instanzen evtl. geheim
+    if Readable(arg1) and Readable(arg5) and (arg5 == 1 or arg5 == true) and arg1 == LastBossID() then
+      state.runDone = true
     end
   elseif event == "LFG_LIST_AVAILABILITY_UPDATE" then
     InvalidateHere()

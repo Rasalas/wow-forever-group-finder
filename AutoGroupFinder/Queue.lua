@@ -23,7 +23,7 @@ function StartQueue(resume)
   local rem = Slots()
   if not AnyLeft(rem) then Print(T.CHAT_NO_ROLE) return end
   state.queued, state.queuedAt, state.lastSearchAt, state.searching = true, resume and resume.since or GetTime(), 0, nil
-  state.resume = nil
+  state.resume, state.runDone = nil, nil
   wipe(state.lastSupply)
   Estimate.OnStart()
   char.groupActivityID = ids[1]

@@ -225,3 +225,23 @@ AutoGroupFinderCharDB.lastFill = { s = 60, t = os.time() - 3600 }
 E.state.resume, E.state.backfillNoted = nil, false
 fire("GROUP_ROSTER_UPDATE")
 check("19) später nur angeboten:", E.state.resume and E.state.resume.auto, false)
+
+print("== Nach dem Lauf: jemand geht")
+reset()
+E.state.resume, E.state.backfillNoted = nil, false
+GetInstanceInfo = function() return "Gnomeregan", "party", 1, "", 5, 0, false, 90 end
+C_EncounterJournal = { GetInstanceForGameMap = function(m) return m == 90 and 231 or nil end }
+local bosses = { { "Grubbis", 2898 }, { "Mekgineer Thermaplugg", 2902 } }
+EJ_GetEncounterInfoByIndex = function(i) local b = bosses[i] if b then return b[1], "", 0, 0, "", 231, b[2], 90 end end
+fire("ENCOUNTER_END", 2898, "Grubbis", 1, 5, 1)
+check("20) erster Boss: Lauf läuft noch:", E.state.runDone, nil)
+fire("ENCOUNTER_END", 2902, "Mekgineer Thermaplugg", 1, 5, 1)
+check("21) letzter Boss: Lauf vorbei:", E.state.runDone, true)
+E.state.completed = true
+AutoGroupFinderCharDB.lastFill = { s = 60, t = os.time() } -- auch kurz nach dem Vollwerden nichts automatisch
+party = { "T", "H", "D1", "D2" }
+fire("GROUP_ROSTER_UPDATE")
+party = { "T", "H", "D1" }
+fire("GROUP_ROSTER_UPDATE")
+check("22) kein Weitersuchen, kein Knopf:", E.state.resume, nil)
+check("23) Gemeldet, nur leise:", E.state.backfillNoted, true)
