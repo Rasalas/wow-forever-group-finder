@@ -164,20 +164,24 @@ real = {
     if IsInRaid() then
       for i = 1, GetNumGroupMembers() do
         local unit = "raid" .. i
-        if not UnitIsUnit(unit, "player") then
+        local self = UnitIsUnit(unit, "player")
+        if Readable(self) and not self then
           local n = GetUnitName(unit, true)
-          if n then t[#t + 1] = { unit = unit, name = n } end
+          if n and Readable(n) then t[#t + 1] = { unit = unit, name = n } end
         end
       end
     else
       for i = 1, 4 do
         local n = GetUnitName("party" .. i, true)
-        if n then t[#t + 1] = { unit = "party" .. i, name = n } end
+        if n and Readable(n) then t[#t + 1] = { unit = "party" .. i, name = n } end
       end
     end
     return t
   end,
-  unitRole = function(unit) return UnitGroupRolesAssigned(unit) end,
+  unitRole = function(unit)
+    local r = UnitGroupRolesAssigned(unit)
+    return Readable(r) and r or nil -- in Instanzen evtl. geheim
+  end,
   groupSize = function() return GetNumGroupMembers() end,
   isRaid = function() return IsInRaid() end,
   convertToRaid = function() C_PartyInfo.ConvertToRaid() end,

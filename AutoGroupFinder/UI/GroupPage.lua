@@ -46,10 +46,12 @@ end
 
 -- Wo ist ein Mitglied? 2 = im/am Dungeon, 1 = Zone des Eingangs, 0 = woanders, nil = offline
 local function Place(unit, near)
-  if UnitIsConnected and not UnitIsConnected(unit) then return nil, nil, true end
+  local conn = UnitIsConnected and UnitIsConnected(unit)
+  if Readable(conn) and conn == false then return nil, nil, true end
   local map = C_Map and C_Map.GetBestMapForUnit and C_Map.GetBestMapForUnit(unit)
+  if not Readable(map) then map = nil end
   local info = map and C_Map.GetMapInfo(map)
-  local zone = info and info.name
+  local zone = info and Readable(info.name) and info.name or nil
   if unit == "player" then zone = IsInInstance() and GetRealZoneText() or zone end
   return zone, zone and near[zone] or 0
 end
@@ -121,13 +123,16 @@ do
       local row = Row(i)
       -- Einheiten-Werte können in Instanzen geheim sein; dann bleibt die Zeile schlicht
       local name = unit == "player" and MyName() or GetUnitName(unit, true)
+      if not Readable(name) or type(name) ~= "string" then name = "?" end
       local _, class = UnitClass and UnitClass(unit)
+      if not Readable(class) then class = nil end
       local color = class and RAID_CLASS_COLORS[class]
       local role = unit == "player" and select(2, Filled()) or joined[Key(name)] or api.unitRole(unit)
-      if role ~= "TANK" and role ~= "HEALER" then role = "DAMAGER" end
+      if not Readable(role) or (role ~= "TANK" and role ~= "HEALER") then role = "DAMAGER" end
       SetRoleTexture(row.role, role, false)
       row.name:SetText(color and color:WrapTextInColorCode(Short(name)) or Short(name))
       local lvl = UnitLevel(unit)
+      if not Readable(lvl) then lvl = nil end
       local low = a and a.minLevelSuggestion and lvl and lvl > 0 and lvl < a.minLevelSuggestion
       row.level:SetText(lvl and lvl > 0 and ((low and "|cffffd100" or "") .. lvl .. (low and "|r" or "")) or "")
       local zone, level, offline = Place(unit, near)
