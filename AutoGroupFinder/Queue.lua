@@ -23,6 +23,7 @@ function StartQueue()
   if not AnyLeft(rem) then Print(T.CHAT_NO_ROLE) return end
   state.queued, state.queuedAt, state.lastSearchAt = true, GetTime(), 0
   wipe(state.lastSupply)
+  Estimate.OnStart()
   local okList, err = api.list({
     activityIDs = ids,
     generalPlaystyle = db.playstyle,
@@ -45,6 +46,7 @@ function StopQueue(msg)
 end
 
 function FinishQueue()
+  Estimate.RecordFill(GetTime() - state.queuedAt, state.lastJoinRole)
   state.completed, state.backfillNoted = true, false
   StopQueue(T.CHAT_COMPLETE)
   Eye.Set("found")

@@ -36,7 +36,8 @@ end
 -- Ein Klick: genau diesen Dungeon wählen und suchen. Fehlt etwas (z. B. Spielstil), zeigt StartQueue den Grund.
 function QuickStart(here)
   db.category, db.view = here.cat, "activities"
-  for _, id in ipairs(L.GetAvailableActivities(here.cat) or {}) do db.activities[id] = nil end
+  -- false = abgewählt; nil hieße „gewählt, wenn die Stufe passt“
+  for _, id in ipairs(L.GetAvailableActivities(here.cat) or {}) do db.activities[id] = false end
   for _, id in ipairs(here.ids) do db.activities[id] = true end
   Rebuild()
   StartQueue()

@@ -63,6 +63,7 @@ end
 function Invite(c, role, byClick)
   -- Ohne Bestätigungstext im Client lässt sich ein fehlgeschlagener Invite nicht erkennen.
   pending[c.key] = { role = role, t = GetTime(), confirmed = PAT.invited == nil }
+  Estimate.Invited(role)
   expired[c.key] = nil
   api.invite(c.name)
   Print(T.CHAT_INVITING:format(Short(c.name), ROLE_NAME[role]))

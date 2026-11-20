@@ -290,7 +290,7 @@ function Rebuild()
           end
           c.role = RoleFor(c, open)
           if c.role then
-            seen[k] = seen[k] or now
+            if not seen[k] then seen[k] = now; Estimate.Arrived(c) end
             c.listedAt = info.age and (now - info.age) or seen[k]
             candidates[#candidates + 1] = c
           end

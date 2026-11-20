@@ -113,6 +113,7 @@ function StatusLines()
   local waiting = {}
   for k, p in pairs(pending) do waiting[#waiting + 1] = Short(k) .. " (" .. ROLE_NAME[p.role] .. ")" end
   if #waiting > 0 then lines[#lines + 1] = T.WAITING_FOR:format(table.concat(waiting, ", ")) end
+  for _, line in ipairs(Estimate.Lines()) do lines[#lines + 1] = line end
   local held, scarce = HeldRoles()
   if next(held) then
     local first, later = {}, {}

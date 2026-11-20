@@ -4,6 +4,7 @@ setfenv(1, ns.env) -- gemeinsamer, privater Namensraum aller Module (siehe Core.
 -- Hat der Einladende das Add-on auch, schickt er mit, wofür er einlädt.
 function OnAddonMessage(prefix, message, _, sender)
   if prefix ~= COMM_PREFIX or not message or not sender then return end
+  if message:sub(1, 2) == "v=" then Estimate.OnNet(message, sender) return end -- Format mit benannten Feldern
   local kind, activity, role, _, _, playstyle, enc, activityID = strsplit("\t", message)
   if kind == "INV" then
     local comp, i = {}, 0

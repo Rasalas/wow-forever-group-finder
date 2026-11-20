@@ -6,8 +6,10 @@ setfenv(1, ns.env) -- gemeinsamer, privater Namensraum aller Module (siehe Core.
 
 function OnResults()
   state.searching = nil
+  Estimate.OnResults()
   Rebuild()
   AutoInvite()
+  Estimate.AfterResults()
 end
 
 -- Meldung in der Bildschirmmitte und Taskleiste blinken lassen (falls WoW im Hintergrund ist)
@@ -115,12 +117,16 @@ function OnRoster()
     local k = FindPending(name)
     if k then
       joined[k] = pending[k].role
+      state.lastJoinRole = joined[k]
+      Estimate.Joined(joined[k])
       pending[k] = nil
       roleQueue[k] = joined[k]
       Print(T.CHAT_JOINED:format(Short(k), ROLE_NAME[joined[k]]))
       Notify(T.CHAT_JOINED:format(Short(k), ROLE_NAME[joined[k]]))
     elseif expired[name] and not joined[name] then
       joined[name] = expired[name]
+      state.lastJoinRole = joined[name]
+      Estimate.Joined(joined[name])
       roleQueue[name] = joined[name]
       Print(T.CHAT_LATE:format(Short(name), ROLE_NAME[joined[name]]))
     end
@@ -247,6 +253,7 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4)
     if UpdateUI then UpdateUI() end
   elseif event == "PLAYER_ENTERING_WORLD" then
     state.here = HereDungeon()
+    C_Timer.After(10, Estimate.UpdateChannel) -- Chat-Kanäle sind direkt nach dem Laden noch nicht bereit
     History.Track()
     local inInstance, kind = IsInInstance()
     if state.queued and inInstance and (kind == "party" or kind == "raid") then

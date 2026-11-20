@@ -488,6 +488,7 @@ OPTIONS = {
   { "preferFriends", T.OPT_FRIENDS, T.OPT_FRIENDS_TIP, function() Rebuild() end },
   { "preferNear", T.OPT_NEAR, T.OPT_NEAR_TIP, function() Rebuild() end },
   { "hereSuggest", T.OPT_HERE, T.OPT_HERE_TIP, function() Rebuild() end },
+  { "shareStats", T.OPT_SHARE, T.OPT_SHARE_TIP:format(SHARE_CHANNEL), function() Estimate.UpdateChannel() end },
   { "inviteWhisper", T.OPT_WHISPER, T.OPT_WHISPER_TIP:format(SLASH) },
   { "notify", T.OPT_NOTIFY, T.OPT_NOTIFY_TIP },
   { "showDemand", T.OPT_DEMAND, T.OPT_DEMAND_TIP, function() Rebuild() end },

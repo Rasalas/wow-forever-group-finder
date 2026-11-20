@@ -94,6 +94,10 @@ DEFAULTS = {
   levelCheck = true,     -- Spieler unter dem Stufenbereich überspringen
   levelTolerance = 2,
   preferFriends = true,  -- Freunde und Gildenmitglieder zuerst
+  shareStats = false,    -- Wartezeiten über den versteckten Kanal teilen (Estimate.lua)
+  fills = {},            -- fertige Gruppen: eigene und geteilte Wartezeiten
+  calib = {},            -- tatsächlich / geschätzt, um den Schätzfehler zu lernen
+  inviteStats = { TANK = { sent = 0, joined = 0 }, HEALER = { sent = 0, joined = 0 }, DAMAGER = { sent = 0, joined = 0 } },
   hereSuggest = true,    -- am Dungeon eine Karte zum Sofort-Suchen anbieten
   preferNear = true,     -- Spieler am Dungeon (Zone des Eingangs oder schon drin) zuerst
   inviteWhisper = false, -- beim Einladen kurz anflüstern
@@ -120,7 +124,8 @@ DEFAULTS = {
 }
 
 state = { queued = false, queuedAt = 0, lastSearchAt = 0, demand = {},
-  trees = {}, treeVersion = 0, listings = {}, lastSupply = {} }
+  trees = {}, treeVersion = 0, listings = {}, lastSupply = {},
+  arrivals = { TANK = {}, HEALER = {}, DAMAGER = {} } }
 History = {} -- Verlauf: Aufzeichnen und Seite 3
 pending = {}   -- key -> { role, t, confirmed }
 joined = {}    -- key -> Rolle, für die wir eingeladen haben

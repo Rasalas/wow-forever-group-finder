@@ -125,7 +125,7 @@ local function check(label, got, want)
   print(label, got, got == want and "ok" or ("FEHLER, erwartet " .. want))
   if got ~= want then error(label .. ": " .. got .. " statt " .. want) end
 end
-local function picked() local t = {} for id, v in pairs(db.activities) do if v then t[#t + 1] = id end end table.sort(t) return table.concat(t, ",") end
+local function picked() local _, ids = E.SearchActivities() local t = {} for i, id in ipairs(ids) do t[i] = id end table.sort(t) return table.concat(t, ",") end
 
 check("Vor Gnomeregan erkannt:", E.state.here and E.state.here.name, "Gnomeregan")
 check("Aktivitäten dazu:", E.state.here and table.concat(E.state.here.ids, ","), "11")
