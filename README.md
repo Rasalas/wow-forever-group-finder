@@ -64,6 +64,8 @@ make install   # tests, then copy into LOCAL_ADDONS
 make deploy    # tests, then copy to a game PC via SSH
 make zip       # tests, then dist/AutoGroupFinder-<version>.zip
 make pdf       # printable in-game test checklist (German) from docs/checklist.html
+make release   # bump the version, tag and push; GitHub Actions builds the zip and uploads to CurseForge
+               # (make release V=0.7.0 for a specific version, DRY=1 to preview)
 ```
 
 ## License

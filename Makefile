@@ -4,7 +4,7 @@
 ADDON   := AutoGroupFinder
 VERSION := $(shell sed -n 's/^\#\# Version: *//p' $(ADDON)/$(ADDON).toc)
 
-.PHONY: test deploy install zip pdf
+.PHONY: test deploy install zip pdf release
 
 test:
 	@scripts/test.sh
@@ -30,3 +30,8 @@ zip: test
 
 pdf:
 	@scripts/checklist-pdf.sh
+
+# Neue Version: .toc hochsetzen, testen, Tag pushen; GitHub Actions baut und lädt zu CurseForge hoch.
+# make release  (letzte Stelle +1)  ·  make release V=0.7.0  ·  make release DRY=1
+release:
+	@DRY=$(DRY) scripts/release.sh $(V)
