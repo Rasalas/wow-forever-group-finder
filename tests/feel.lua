@@ -105,7 +105,7 @@ local function res(id, name, roles, age, extra)
   results[id] = r
 end
 local ns = {}
--- Rückmeldungen: Eingeladene mit Countdown, Ton beim Beitritt, Plätze ploppen auf
+-- Rückmeldungen: Eingeladene mit Countdown, Ton beim Beitritt
 local sounds = {}
 PlaySound = function(id) sounds[#sounds + 1] = id end
 SOUNDKIT.UI_GROUP_FINDER_RECEIVE_APPLICATION = 5000
@@ -121,8 +121,6 @@ local function check(label, got, want)
   if got ~= want then error(label .. ": " .. got .. " statt " .. want) end
 end
 db.playstyle, db.view, db.page, db.scarceFirst = 2, "activities", 2, false
-local pops = 0
-for _, t in ipairs(E.need.slots.slots) do rawset(t.pop, "Play", function() pops = pops + 1 end) end
 local cds = 0
 local function hookRows()
   for i = 1, 12 do
@@ -147,14 +145,9 @@ check("Countdown-Ring gestartet:", cds, 2)
 local btnText = rawget(E.ListRow(2).btn, "_text")
 check("Knopf zeigt „Eingeladen“:", btnText, E.T.INVITED)
 
-E.UpdateNeed(); pops = 0
 party = { "Tanky" }
 fire("GROUP_ROSTER_UPDATE")
 check("Ton beim Beitritt:", sounds[#sounds], 5000)
-E.UpdateNeed()
-check("Neuer Platz ploppt auf:", pops, 1)
-E.UpdateNeed()
-check("Kein zweites Ploppen ohne Änderung:", pops, 1)
 db.sound = false
 local before = #sounds
 party = { "Tanky", "Healy" }

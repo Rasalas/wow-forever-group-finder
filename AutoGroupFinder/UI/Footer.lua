@@ -73,49 +73,14 @@ Clock = function(sec)
   return ("%d:%02d"):format(math.floor(sec / 60), sec % 60)
 end
 
--- Mitte: die Plätze der Gruppe wie auf der Einladungskarte; wer beitritt, „ploppt“ in seiner Rollenfarbe rein.
--- Während der Suche steht die Uhr links daneben.
-SLOT = 18
+-- Mitte: während der Suche die Uhr. Welche Rollen fehlen, steht im Tooltip von Knopf und Minimap-Symbol.
 need = CreateFrame("Frame", nil, footer)
 need:SetSize(150, 24)
 need:SetPoint("BOTTOM", win, "BOTTOM", 0, 18)
-need.clock = Label(need, "", "GameFontHighlightSmall", "LEFT", need, "LEFT", 0, 0)
-need.slots = Art.CreateSlots(need, SLOT)
-for _, t in ipairs(need.slots.slots) do
-  t.pop = t:CreateAnimationGroup()
-  local grow = t.pop:CreateAnimation("Scale")
-  if grow.SetScaleFrom then grow:SetScaleFrom(1.7, 1.7); grow:SetScaleTo(1, 1) else grow:SetFromScale(1.7, 1.7); grow:SetToScale(1, 1) end
-  grow:SetDuration(0.35)
-  if grow.SetSmoothing then grow:SetSmoothing("OUT") end
-  local fade = t.pop:CreateAnimation("Alpha")
-  fade:SetFromAlpha(0)
-  fade:SetToAlpha(1)
-  fade:SetDuration(0.2)
-end
+need.clock = Label(need, "", "GameFontHighlightSmall", "CENTER", need, "CENTER", 0, 0)
 
-local prevFill -- Besetzung beim letzten Zeichnen, um neu Beigetretene zu erkennen
 function UpdateNeed()
-  local clock = state.queued and Clock(GetTime() - state.queuedAt) or ""
-  need.clock:SetText(clock)
-  local x = clock ~= "" and need.clock:GetStringWidth() + 8 or 0
-  Art.PlaceSlots(need.slots, "LEFT", need, "LEFT", x, 0)
-  local comp = Composition()
-  Art.SetSlots(need.slots, comp)
-  local total = 0
-  for _, r in ipairs(ROLES) do total = total + comp[r][2] end
-  need:SetWidth(math.max(1, x + (total <= 5 and total * (SLOT + 3) or 3 * (SLOT + 34))))
-  -- neu besetzte Plätze kurz aufploppen lassen (nur bei Gruppen bis 5, gleiche Zielgröße)
-  local prev, i = prevFill, 0
-  if total <= 5 and prev and prev.total == total then
-    for _, r in ipairs(ROLES) do
-      for k = 1, comp[r][2] do
-        i = i + 1
-        if k <= comp[r][1] and k > (prev[r] or 0) then need.slots.slots[i].pop:Play() end
-      end
-    end
-  end
-  prevFill = { total = total }
-  for _, r in ipairs(ROLES) do prevFill[r] = comp[r][1] end
+  need.clock:SetText(state.queued and Clock(GetTime() - state.queuedAt) or "")
 end
 
 mainBtn = CreateFrame("Button", "AutoGroupFinderStartButton", footer, "UIPanelButtonTemplate")
