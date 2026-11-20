@@ -126,11 +126,11 @@ local function check(label, got, want)
 end
 local function onUpdate(f) local s = rawget(f, "_scripts") return s and s.OnUpdate ~= nil end
 
-check("Minimap-Auge still: kein OnUpdate:", onUpdate(E.mmEye), false)
+check("Fenster-Auge still: kein OnUpdate:", onUpdate(E.portraitEye), false)
 E.Eye.Set("search")
-check("Während der Suche: OnUpdate an:", onUpdate(E.mmEye), true)
+check("Während der Suche: OnUpdate an:", onUpdate(E.portraitEye), true)
 E.Eye.Set("idle")
-check("Wieder still: OnUpdate aus:", onUpdate(E.mmEye), false)
+check("Wieder still: OnUpdate aus:", onUpdate(E.portraitEye), false)
 
 local full = 0
 local origUI = E.UpdateUI

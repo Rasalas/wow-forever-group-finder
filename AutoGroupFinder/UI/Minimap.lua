@@ -39,18 +39,8 @@ function BuildMinimap()
   fade:SetToAlpha(1)
   fade:SetDuration(0.8)
 
-  -- Blizzards Auge statt des Gruppensymbols. Die Vorlage hat feste Bildgrößen (44 px), verkleinert wird per Scale.
-  mmEye = Eye.Create(mm, false, mm:GetFrameLevel() + 1)
-  if mmEye then
-    mmEye:SetSize(30, 30)
-    mmEye:EnableMouse(false) -- Klicks, Ziehen und Tooltip bleiben beim Knopf
-    -- Das Auge bringt seinen eigenen Ring mit; unser Rahmen würde einen zweiten darum legen.
-    mmIcon:Hide(); mmBg:Hide(); mmBorder:Hide()
-    local hl = mm:GetHighlightTexture(); if hl then hl:SetAlpha(0) end
-    mmEye:SetPoint("CENTER")
-    -- eingesammelt: so groß wie die anderen Knöpfe (31 px), einzeln: wie Blizzards Auge (44 px)
-    if not standalone then mmEye:SetScale(31 / 44) end
-  end
+  -- Rune statt Auge: Während der Suche zeigt Blizzard an der Minimap schon sein eigenes Auge.
+  if mmIcon.SetMask then pcall(mmIcon.SetMask, mmIcon, "Interface\\CharacterFrame\\TempPortraitAlphaMask") end
 
   mm:SetMovable(true)
   mm:SetClampedToScreen(true)
@@ -108,12 +98,7 @@ function BuildMinimap()
     if owner == Minimap or owner == UIParent then GameTooltip:AddLine(T.MM_DRAG, 0.7, 0.7, 0.7, true) end
     GameTooltip:Show()
   end)
-  mm:SetScript("OnLeave", function()
-    GameTooltip:Hide()
-    if mmEye then mmEye.cursorOnButton = false; mmEye:OnLeave() end
-  end)
-  mm:HookScript("OnEnter", function() if mmEye then mmEye.cursorOnButton = true; mmEye:OnEnter() end end)
-  mm:HookScript("OnClick", function() if mmEye then mmEye:OnClick() end end)
+  mm:SetScript("OnLeave", GameTooltip_Hide)
 end
 
 -- Am Minimap-Rand (Winkel) oder frei auf dem Bildschirm (db.minimap.free = Mitte in UIParent)
@@ -146,8 +131,8 @@ UpdateMinimap = function()
   if not db or not mm then return end
   mm:SetShown(not db.minimap.hide)
   Eye.Set(state.queued and "search" or "idle")
-  mmGlow:SetShown(state.queued and not mmEye)
-  if state.queued and not mmEye then
+  mmGlow:SetShown(state.queued)
+  if state.queued then
     if not pulse:IsPlaying() then pulse:Play() end
   else
     pulse:Stop()

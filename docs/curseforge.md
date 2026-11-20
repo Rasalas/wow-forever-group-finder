@@ -16,15 +16,15 @@ Like the old meeting stones, but on top of Blizzard's group finder in WoW Foreve
 - **Who invites you and why**: a card under the invite shows dungeon, group and your role
 - **Your group** page: who is at the entrance, waypoint, level check, and rate players (play again / never again)
 - **Keeps searching** when someone leaves right away; stays quiet after the last boss
-- Minimap eye like Blizzard's, Titan Panel / ElvUI support, English, Deutsch, Français, Español, Italiano, Português, Русский
+- Meeting-stone icon on the minimap that glows while searching, Titan Panel / ElvUI support, English, Deutsch, Français, Español, Italiano, Português, Русский
 
 ## How to use
 
-1. `/gf` or the minimap eye opens the window.
+1. `/gf` or the meeting-stone icon on the minimap opens the window.
 2. Pick your role(s), the dungeons and a play style, then click **Find Group**.
 3. Keep playing. When a group is full you hear a ready-check sound.
 
-**Why does it want a click?** Blizzard only lets add-ons search right after a click or key press. While searching, your normal clicks into the game world are enough, or use the "Still here" button, the minimap eye or a key binding (Key Bindings > Auto Group Finder).
+**Why does it want a click?** Blizzard only lets add-ons search right after a click or key press. While searching, your normal clicks into the game world are enough, or use the "Still here" button, a right-click on the minimap icon or a key binding (Key Bindings > Auto Group Finder).
 
 ## Privacy
 

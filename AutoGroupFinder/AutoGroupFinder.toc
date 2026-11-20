@@ -7,7 +7,7 @@
 ## X-License: MIT
 ## SavedVariables: AutoGroupFinderDB
 ## SavedVariablesPerCharacter: AutoGroupFinderCharDB
-## IconTexture: Interface\Icons\INV_Misc_GroupNeedMore
+## IconTexture: Interface\AddOns\AutoGroupFinder\Media\Icon
 ## AddonCompartmentFunc: AutoGroupFinder_OnCompartmentClick
 
 Libs\LibStub\LibStub.lua

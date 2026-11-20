@@ -135,8 +135,6 @@ function TestMinimap()
   local p = mm:GetParent()
   Print(p == Minimap and T.TEST_MM_RIM or p == UIParent and T.TEST_MM_FREE or T.TEST_MM_COLLECTED)
   Print(T.TEST_MM_ANIM)
-  if not mmEye then mmGlow:Show(); pulse:Play() end
-  Eye.Set("search")
-  C_Timer.After(6, function() Eye.Set("found") end)
-  C_Timer.After(9, UpdateMinimap)
+  mmGlow:Show(); pulse:Play()
+  C_Timer.After(6, UpdateMinimap)
 end

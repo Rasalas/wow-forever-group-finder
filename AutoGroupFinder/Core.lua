@@ -65,7 +65,7 @@ ROLE_TEXCOORD = {
   HEALER = { 20 / 64, 39 / 64, 1 / 64, 20 / 64 },
   DAMAGER = { 20 / 64, 39 / 64, 22 / 64, 41 / 64 },
 }
-ICON = "Interface\\Icons\\INV_Misc_GroupNeedMore"
+ICON = "Interface\\AddOns\\AutoGroupFinder\\Media\\Icon" -- Versammlungsstein aus dem Logo
 -- Blizzard filtert nach Client-Sprache; es gibt genau diese elf
 -- Spielsprachen je Region (Korea, Taiwan, China haben eigene Server und kommen in Forever nicht vor)
 local REGION_LANGUAGES = {

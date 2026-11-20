@@ -22,7 +22,7 @@ You pick your role, the dungeons and a play style and click **Find Group**. The 
 - **Your group** page: who is at the dungeon, waypoint to the entrance, level warnings, and rate players (play again / never again)
 - **Group history** per character, **backfill** with one click when someone leaves, raid conversion, ready check
 - Shows up in Titan Panel, ElvUI and other LibDataBroker displays
-- Blizzard look and feel: animated group-finder eye on the minimap, side tabs, a tab inside Blizzard's group finder
+- Blizzard look and feel: animated group-finder eye in the window, side tabs, a tab inside Blizzard's group finder; a meeting-stone icon on the minimap that glows while searching
 - English, Deutsch, Français, Español, Italiano, Português, Русский
 
 ## Installation
@@ -33,7 +33,7 @@ From [CurseForge](https://www.curseforge.com/wow/addons/auto-group-finder) (Curs
 
 `/gf` opens the window. The first time, a small card asks about automatic invites and sharing wait times. Everything else is in the gear menu.
 
-Blizzard only lets add-ons search the group finder right after a click or key press. While a search is running, right-click the minimap eye, press your key binding (Key Bindings > Auto Group Finder) or click into the game world to search again.
+Blizzard only lets add-ons search the group finder right after a click or key press. While a search is running, right-click the minimap icon, press your key binding (Key Bindings > Auto Group Finder) or click into the game world to search again.
 
 | Command | |
 |---|---|
