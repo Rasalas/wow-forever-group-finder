@@ -120,12 +120,12 @@ mm:SetScript("OnEnter", function(self)
   GameTooltip:SetText(T.TITLE)
   for _, line in ipairs(StatusLines()) do GameTooltip:AddLine(line, 1, 1, 1, true) end
   GameTooltip:AddLine(" ")
-  GameTooltip:AddLine(T.MM_LEFT, 0.7, 0.7, 0.7)
+  GameTooltip:AddLine(T.MM_LEFT, 0.7, 0.7, 0.7, true)
   if state.queued then
-    GameTooltip:AddLine(T.MM_RIGHT_SEARCH, 0.7, 0.7, 0.7)
-    GameTooltip:AddLine(T.MM_SHIFT_RIGHT, 0.7, 0.7, 0.7)
+    GameTooltip:AddLine(T.MM_RIGHT_SEARCH, 0.7, 0.7, 0.7, true)
+    GameTooltip:AddLine(T.MM_SHIFT_RIGHT, 0.7, 0.7, 0.7, true)
   end
-  GameTooltip:AddLine(T.MM_DRAG, 0.7, 0.7, 0.7)
+  GameTooltip:AddLine(T.MM_DRAG, 0.7, 0.7, 0.7, true)
   GameTooltip:Show()
 end)
 mm:SetScript("OnLeave", function()

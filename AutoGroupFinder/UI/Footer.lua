@@ -74,32 +74,41 @@ need = CreateFrame("Frame", nil, footer)
 need:SetSize(150, 24)
 need:SetPoint("BOTTOM", win, "BOTTOM", 0, 18)
 need.clock = Label(need, "", "GameFontHighlightSmall", "LEFT", need, "LEFT", 0, 0)
-need.icons, need.counts = {}, {}
-for i, role in ipairs(ROLES) do
-  local t = need:CreateTexture(nil, "ARTWORK")
-  t:SetSize(20, 20)
-  SetRoleTexture(t, role, false)
-  need.icons[i] = t
-  need.counts[i] = Label(need, "", "GameFontHighlightSmall", "LEFT", t, "RIGHT", 1, 0)
-end
+-- Ein Symbol je offenem Platz; bei großen Raids höchstens MAX_NEED_ICONS, der Rest als „+N“
+MAX_NEED_ICONS = 7
+need.pool = {}
+need.more = Label(need, "", "GameFontHighlightSmall", "LEFT", need, "LEFT", 0, 0)
 
 function UpdateNeed()
   local rem = Slots()
-  local x = 0
+  local x, n, hidden = 0, 0, 0
   need.clock:SetText(state.queued and Clock(GetTime() - state.queuedAt) or "")
   if state.queued then x = need.clock:GetStringWidth() + 8 end
-  for i, role in ipairs(ROLES) do
-    local t, c = need.icons[i], need.counts[i]
-    if rem[role] > 0 then
-      t:ClearAllPoints()
-      t:SetPoint("LEFT", need, "LEFT", x, 0)
-      c:SetText(rem[role] > 1 and ("×" .. rem[role]) or "")
-      t:Show() c:Show()
-      x = x + 22 + (rem[role] > 1 and c:GetStringWidth() + 4 or 0)
-    else
-      t:Hide() c:Hide()
+  for _, role in ipairs(ROLES) do
+    for _ = 1, rem[role] do
+      if n < MAX_NEED_ICONS then
+        n = n + 1
+        local t = need.pool[n]
+        if not t then
+          t = need:CreateTexture(nil, "ARTWORK")
+          t:SetSize(20, 20)
+          need.pool[n] = t
+        end
+        SetRoleTexture(t, role, false)
+        t:ClearAllPoints()
+        t:SetPoint("LEFT", need, "LEFT", x, 0)
+        t:Show()
+        x = x + 22
+      else
+        hidden = hidden + 1
+      end
     end
   end
+  for i = n + 1, #need.pool do need.pool[i]:Hide() end
+  need.more:SetText(hidden > 0 and ("+" .. hidden) or "")
+  need.more:ClearAllPoints()
+  need.more:SetPoint("LEFT", need, "LEFT", x, 0)
+  if hidden > 0 then x = x + need.more:GetStringWidth() + 2 end
   need:SetWidth(math.max(1, x))
 end
 

@@ -51,7 +51,7 @@ end
 function Tooltip(frame, title, body)
   frame:SetScript("OnEnter", function(self)
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-    GameTooltip:SetText(title)
+    GameTooltip:SetText(title, nil, nil, nil, nil, true) -- lange Texte umbrechen wie bei Blizzard
     if body then GameTooltip:AddLine(body, 1, 1, 1, true) end
     GameTooltip:Show()
   end)
