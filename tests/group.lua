@@ -195,3 +195,9 @@ party = { "Jemand" }; fire("GROUP_ROSTER_UPDATE"); fire("LFG_LIST_SEARCH_RESULTS
 check("In einer Gruppe keine Vorschläge:", #E.groupOffers, 0)
 party = {}; fire("GROUP_ROSTER_UPDATE")
 AutoGroupFinderCharDB.myRoles = myRoles
+
+print("== Selbst eingeladen, Rolle unbekannt")
+E.pending["Alpha Skullcrusher"] = { t = 0, confirmed = true, manual = true }
+local lines = table.concat(E.StatusLines(), " | ")
+check("Tooltip ohne Fehler, nur Name:", lines:find("Alpha Skullcrusher", 1, true) ~= nil and not lines:find("Alpha Skullcrusher (", 1, true), true)
+E.pending["Alpha Skullcrusher"] = nil

@@ -113,7 +113,8 @@ function StatusLines()
   local needIcons = NeedIcons((Slots()))
   lines[#lines + 1] = needIcons ~= "" and T.STATUS_NEED:format(needIcons) or T.GROUP_COMPLETE
   local waiting = {}
-  for k, p in pairs(pending) do waiting[#waiting + 1] = Short(k) .. " (" .. ROLE_NAME[p.role] .. ")" end
+  -- selbst Eingeladene ohne bekannte Rolle nur mit Namen
+  for k, p in pairs(pending) do waiting[#waiting + 1] = Short(k) .. (p.role and " (" .. ROLE_NAME[p.role] .. ")" or "") end
   if #waiting > 0 then lines[#lines + 1] = T.WAITING_FOR:format(table.concat(waiting, ", ")) end
   for _, line in ipairs(Estimate.Lines()) do lines[#lines + 1] = line end
   local held, scarce = HeldRoles()
