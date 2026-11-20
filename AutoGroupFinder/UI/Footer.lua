@@ -190,7 +190,7 @@ end
 win:SetScript("OnShow", function() ShowPage(db.page or 1) end)
 
 function _G.AutoGroupFinder_Toggle()
-  win:SetShown(not win:IsShown())
+  if win:IsShown() then CloseWindow() else OpenWindow() end
 end
 
 -------------------------------------------------------------------------

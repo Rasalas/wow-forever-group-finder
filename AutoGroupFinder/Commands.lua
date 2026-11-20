@@ -4,6 +4,7 @@ setfenv(1, ns.env) -- gemeinsamer, privater Namensraum aller Module (siehe Core.
 -- Zeigt, was der Client an Group-Finder-Schnittstellen hat.
 function Diag()
   Print(("Lua errors: %d"):format(#errors))
+  Print(("areaName: %d/%d %s"):format(state.areaSeen or 0, state.areaTotal or 0, table.concat(db and db.areaSample or {}, ", ")))
   for _, e in ipairs(errors) do print("  " .. e) end
   Print("Client: " .. tostring(select(4, GetBuildInfo())) .. " / " .. tostring((GetBuildInfo())))
   local api = C_LFGList

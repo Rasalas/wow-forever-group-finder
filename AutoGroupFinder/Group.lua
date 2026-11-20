@@ -164,6 +164,33 @@ function Popularity(activityID)
   return n
 end
 
+-- Zonen der Dungeon-Eingänge (uiMapID) je Instanz (mapID der Aktivität); Namen kommen lokalisiert aus C_Map.
+DUNGEON_ZONES = {
+  [389] = { 1454 }, [36] = { 1436 }, [43] = { 1413 }, [33] = { 1421 }, [48] = { 1440 }, -- RFC, DM, WC, SFK, BFD
+  [34] = { 1453 }, [90] = { 1426 }, [47] = { 1413 }, [189] = { 1420 }, [129] = { 1413 }, -- Verlies, Gnome, RFK, SM, RFD
+  [70] = { 1418 }, [209] = { 1446 }, [349] = { 1443 }, [109] = { 1435 }, [429] = { 1444 }, -- Uld, ZF, Mara, ST, DM
+  [230] = { 1428, 1427 }, [229] = { 1428, 1427 }, [329] = { 1423 }, [289] = { 1422 }, -- BRD, BRS, Strat, Scholo
+  [409] = { 1428, 1427 }, [469] = { 1428, 1427 }, [249] = { 1445 }, [309] = { 1434 }, -- MC, BWL, Ony, ZG
+  [509] = { 1451 }, [531] = { 1451 }, [533] = { 1423 }, -- AQ20, AQ40, Naxx
+}
+local nearCache = {}
+-- Zonennamen, in denen ein Spieler „am Dungeon“ ist: die Instanz selbst und die Zone(n) des Eingangs
+function NearNames(activityID)
+  if nearCache[activityID] then return nearCache[activityID] end
+  local names = {}
+  local a = L.GetActivityInfoTable(activityID)
+  if a and a.mapID then
+    local inst = GetRealZoneText(a.mapID)
+    if inst and inst ~= "" then names[inst] = true end
+    for _, ui in ipairs(DUNGEON_ZONES[a.mapID] or {}) do
+      local info = C_Map and C_Map.GetMapInfo and C_Map.GetMapInfo(ui)
+      if info and info.name then names[info.name] = true end
+    end
+  end
+  nearCache[activityID] = names
+  return names
+end
+
 function Rebuild()
   wipe(candidates)
   if not db then return end
@@ -182,6 +209,14 @@ function Rebuild()
     if info and not info.isDelisted and not info.hasSelf then
       local solo = info.numMembers == 1
       local p = solo and api.leader(id)
+      if p then
+        state.areaTotal = (state.areaTotal or 0) + 1
+        if p.areaName and p.areaName ~= "" then
+          state.areaSeen = (state.areaSeen or 0) + 1
+          db.areaSample = db.areaSample or {}
+          if #db.areaSample < 10 and not tContains(db.areaSample, p.areaName) then tinsert(db.areaSample, p.areaName) end
+        end
+      end
       local r = p and p.lfgRoles
       -- Einträge merken, um spätere Einladungen dieser Anführer einordnen zu können
       if info.leaderName then
@@ -246,7 +281,11 @@ function Rebuild()
             playstyle = info.generalPlaystyle,
             friend = (info.numCharFriends or 0) + (info.numBNetFriends or 0) > 0,
             guild = (info.numGuildMates or 0) > 0,
+            area = p.areaName ~= "" and p.areaName or nil,
           }
+          for _, e in ipairs(matches) do
+            if c.area and NearNames(e.id)[c.area] then c.near = true break end
+          end
           c.role = RoleFor(c, open)
           if c.role then
             seen[k] = seen[k] or now
@@ -264,6 +303,7 @@ function Rebuild()
       local af, bf = a.friend or a.guild, b.friend or b.guild
       if af ~= bf then return af end
     end
+    if db.preferNear and (a.near or false) ~= (b.near or false) then return a.near or false end
     if db.oldestFirst then return a.listedAt < b.listedAt end
     return a.listedAt > b.listedAt
   end)

@@ -185,6 +185,7 @@ function ListRow(i)
     for _, r in ipairs(ROLES) do if c.roles[r] then roles[#roles + 1] = ROLE_NAME[r] end end
     GameTooltip:AddLine(table.concat(roles, ", "), 1, 1, 1)
     GameTooltip:AddLine(c.activityText, 1, 0.82, 0, true)
+    if c.area then GameTooltip:AddLine((ZONE or "Zone") .. ": " .. c.area, 0.8, 0.8, 0.8) end
     if c.playstyle and c.playstyle > 0 and PLAYSTYLE_NAME[c.playstyle] then
       GameTooltip:AddLine(PLAYSTYLE_NAME[c.playstyle], 0.13, 1, 0.13)
     end
@@ -252,6 +253,7 @@ function UpdateFound()
     local tags = {}
     if c.friend then tags[#tags + 1] = "|cff82c5ff" .. T.TAG_FRIEND .. "|r" end
     if c.guild then tags[#tags + 1] = "|cff40ff40" .. T.TAG_GUILD .. "|r" end
+    if c.near then tags[#tags + 1] = "|cffffd100" .. T.TAG_NEAR .. "|r" end
     if #tags > 0 then title = title .. "  " .. table.concat(tags, " ") end
     row.name:SetText(title)
     row.name:Show()

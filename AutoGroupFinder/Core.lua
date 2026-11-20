@@ -94,6 +94,7 @@ DEFAULTS = {
   levelCheck = true,     -- Spieler unter dem Stufenbereich überspringen
   levelTolerance = 2,
   preferFriends = true,  -- Freunde und Gildenmitglieder zuerst
+  preferNear = true,     -- Spieler am Dungeon (Zone des Eingangs oder schon drin) zuerst
   inviteWhisper = false, -- beim Einladen kurz anflüstern
   whisperText = nil,     -- nil = Standardtext
   notify = true,         -- Meldung in der Bildschirmmitte und Taskleiste blinken

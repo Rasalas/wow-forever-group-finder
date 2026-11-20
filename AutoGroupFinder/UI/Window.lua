@@ -7,16 +7,20 @@ WIN_W, WIN_H = 458, 535 -- Maße von Blizzards Gruppensuche
 ok, win = pcall(CreateFrame, "Frame", "AutoGroupFinderFrame", UIParent, "PortraitFrameTemplate")
 if not ok then win = CreateFrame("Frame", "AutoGroupFinderFrame", UIParent, "BasicFrameTemplateWithInset") end
 win:SetSize(WIN_W, WIN_H)
-win:SetPoint("CENTER")
-win:SetFrameStrata("HIGH")
-win:SetMovable(true)
+win:SetPoint("CENTER") -- nur ohne Blizzards Fensterverwaltung
+win:SetFrameStrata("MEDIUM")
+win:SetToplevel(true)
 win:EnableMouse(true)
-win:RegisterForDrag("LeftButton")
-win:SetClampedToScreen(true)
-win:SetScript("OnDragStart", win.StartMoving)
-win:SetScript("OnDragStop", win.StopMovingOrSizing)
 win:Hide()
-tinsert(UISpecialFrames, "AutoGroupFinderFrame") -- Esc schließt
+-- Ein Fenster wie Blizzards Gruppensuche: links platziert, weicht anderen Fenstern aus, die Karte schließt es, Esc auch.
+win:SetAttribute("UIPanelLayout-defined", true)
+win:SetAttribute("UIPanelLayout-enabled", true)
+win:SetAttribute("UIPanelLayout-area", "left")
+win:SetAttribute("UIPanelLayout-pushable", 1)
+win:SetAttribute("UIPanelLayout-whileDead", 1)
+
+function OpenWindow() if ShowUIPanel then ShowUIPanel(win) else win:Show() end end
+function CloseWindow() if HideUIPanel then HideUIPanel(win) else win:Hide() end end
 if win.SetTitle then win:SetTitle(T.TITLE) end
 -- Porträt wie in Blizzards Gruppensuche: das große Auge, animiert während der Suche
 portraitEye = Eye.Create(win, true, win:GetFrameLevel() + 600) -- über Rahmen (500) und Titel (510)

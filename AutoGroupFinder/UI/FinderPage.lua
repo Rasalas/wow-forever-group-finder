@@ -451,6 +451,7 @@ OPTIONS = {
   { "samePlaystyle", T.OPT_SAME_PLAYSTYLE, T.OPT_SAME_PLAYSTYLE_TIP, function() Rebuild() end },
   { "levelCheck", T.OPT_LEVEL, T.OPT_LEVEL_TIP, function() Rebuild() end },
   { "preferFriends", T.OPT_FRIENDS, T.OPT_FRIENDS_TIP, function() Rebuild() end },
+  { "preferNear", T.OPT_NEAR, T.OPT_NEAR_TIP, function() Rebuild() end },
   { "inviteWhisper", T.OPT_WHISPER, T.OPT_WHISPER_TIP:format(SLASH) },
   { "notify", T.OPT_NOTIFY, T.OPT_NOTIFY_TIP },
   { "showDemand", T.OPT_DEMAND, T.OPT_DEMAND_TIP, function() Rebuild() end },

@@ -110,13 +110,13 @@ function RunTest(shots)
   }
 
   Print(T.TEST_START)
-  win:Show()
+  OpenWindow()
   ShowPage(1)
   after(1.5, Shot)
   after(3, function() if test then StartQueue() end end)
-  after(6.5, function() if test then win:Show() ShowPage(2) end end)
+  after(6.5, function() if test then OpenWindow() ShowPage(2) end end)
   after(7.5, Shot)
-  after(9, function() if test then win:Hide() end end)
+  after(9, function() if test then CloseWindow() end end)
   after(15, function()
     if not test then return end
     Print(T.TEST_NEW_HEALER)
@@ -124,7 +124,7 @@ function RunTest(shots)
     state.lastSearchAt = 0
     DoSearch(false)
   end)
-  after(21, function() if test then win:Show() ShowPage(1) end end)
+  after(21, function() if test then OpenWindow() ShowPage(1) end end)
   after(22, Shot)
   after(24, EndTest)
 end

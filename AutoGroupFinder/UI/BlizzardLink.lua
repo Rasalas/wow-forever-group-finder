@@ -1,27 +1,16 @@
 local _, ns = ...
 setfenv(1, ns.env) -- gemeinsamer, privater Namensraum aller Module (siehe Core.lua)
 
--- Zusätzlicher Seitenreiter in Blizzards Gruppensuche: wechselt an derselben Stelle zu unserem Fenster.
+-- Zusätzlicher Seitenreiter in Blizzards Gruppensuche: wechselt zu unserem Fenster.
 -- Blizzards Fenster wird nicht verändert, der Reiter hängt nur als eigenes Kind daran.
 -------------------------------------------------------------------------
 BLIZZ_LFG = "Blizzard_GroupFinder_VanillaStyle" -- lädt erst beim ersten Öffnen
 
--- frame bekommt die Bildschirmposition von target
-local function MoveOnto(frame, target)
-  local l, t = target:GetLeft(), target:GetTop()
-  if not l or not t then return end
-  local s = target:GetEffectiveScale() / frame:GetEffectiveScale()
-  frame:ClearAllPoints()
-  frame:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", l * s, t * s)
-end
-
+-- Blizzards Fenster schließen, unseres nimmt über die Fensterverwaltung denselben Platz ein
 function OpenFromBlizzard()
   local blizz = _G.LFGParentFrame
-  if blizz and blizz:IsShown() then
-    MoveOnto(win, blizz)
-    HideUIPanel(blizz)
-  end
-  win:Show()
+  if blizz and blizz:IsShown() then HideUIPanel(blizz) end
+  OpenWindow()
 end
 
 local function AddTab()

@@ -14,7 +14,7 @@ end
 function StartQueue()
   if InCombatLockdown() then Print(T.CHAT_IN_COMBAT) return end
   local reason = BlockReason()
-  if reason then Print(reason); win:Show() return end
+  if reason then Print(reason); OpenWindow() return end
   if not CanInvite() then Print(T.CHAT_LEADER_ONLY) return end
   local _, ids = SearchActivities()
   if #ids == 0 then Print(T.PICK_ACTIVITY) return end
@@ -31,7 +31,7 @@ function StartQueue()
   }, { tank = char.myRoles.TANK or false, healer = char.myRoles.HEALER or false, dps = char.myRoles.DAMAGER or false })
   if not okList then Print(T.CHAT_LIST_FAILED:format(tostring(err))) end
   DoSearch(true)
-  if win then win:Hide() end
+  CloseWindow()
   Print(T.CHAT_STARTED:format(NeedText(rem)))
   UpdateMinimap()
 end
@@ -64,7 +64,7 @@ function _G.AutoGroupFinder_Next()
     DoSearch(true)
   else
     -- Starten nur über den Knopf im Fenster, wo Rollen, Dungeons und Spielstil zu sehen sind
-    win:Show()
+    OpenWindow()
   end
 end
 function _G.AutoGroupFinder_Refresh() DoSearch(true) end
