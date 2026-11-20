@@ -46,18 +46,14 @@ end
 win:SetMovable(true)
 win:SetClampedToScreen(true)
 win:RegisterForDrag("LeftButton")
+-- Während des Ziehens darf das Fenster nicht aus- und eingeblendet werden, sonst verliert WoW den
+-- Ziehvorgang und das Loslassen kommt nie an. Aus Blizzards Verwaltung gelöst wird erst danach.
 function StartMoveWindow()
-  if not db then return end
-  if not state.winPos then
-    -- aus Blizzards Verwaltung lösen, ohne dass das Fenster springt
-    local l, t = win:GetLeft(), win:GetTop()
-    if not l then return end
-    if GetUIPanel and GetUIPanel("left") == win then db.winHome = { x = l, y = t } end
-    CloseWindow()
-    state.winPos = { x = l, y = t }
-    OpenWindow()
+  if not db or winMoving then return end
+  if not state.winPos and GetUIPanel and GetUIPanel("left") == win and win:GetLeft() then
+    db.winHome = { x = win:GetLeft(), y = win:GetTop() }
   end
-  win.moving = true
+  winMoving = true
   win:StartMoving()
 end
 -- Standardplatz merken, solange Blizzard das Fenster links platziert
@@ -71,17 +67,19 @@ win:HookScript("OnShow", function()
 end)
 
 function StopMoveWindow()
-  if not win.moving then return end
-  win.moving = false
+  if not winMoving then return end
+  winMoving = false
   win:StopMovingOrSizing()
-  win:SetUserPlaced(false) -- Position steht in db, nicht in WoWs Layout-Speicher
+  win:SetUserPlaced(false) -- Position steht in state, nicht in WoWs Layout-Speicher
   local x, y, home = win:GetLeft(), win:GetTop(), db.winHome
   if home and math.abs(x - home.x) < SNAP and math.abs(y - home.y) < SNAP then
-    ResetWindow() -- zurück in Blizzards Verwaltung
+    if state.winPos then ResetWindow() else CloseWindow() OpenWindow() end -- zurück an den Standardplatz
     return
   end
+  if not state.winPos then CloseWindow() end -- jetzt erst aus Blizzards Verwaltung lösen
   state.winPos = { x = x, y = y }
   ApplyWindowMode()
+  if not win:IsShown() then win:Show() end
 end
 function ResetWindow()
   if not state.winPos then return end
@@ -94,7 +92,14 @@ end
 win:SetScript("OnDragStart", StartMoveWindow)
 win:SetScript("OnDragStop", StopMoveWindow)
 -- Geschlossen = Verschiebung vergessen; beim Lösen aus der Verwaltung wird kurz geschlossen, das ist vorher.
-win:HookScript("OnHide", function() if not win.moving then state.winPos = nil end end)
+win:HookScript("OnHide", function()
+  if winMoving then -- Sicherung: ausgeblendet mitten im Ziehen, dann Ziehen beenden
+    winMoving = false
+    win:StopMovingOrSizing()
+    return
+  end
+  state.winPos = nil
+end)
 
 -- Griff über der Titelleiste (zwischen Porträt und Zahnrad); Hinweis nur, wenn das Fenster verschoben ist
 titleHandle = CreateFrame("Button", nil, win)

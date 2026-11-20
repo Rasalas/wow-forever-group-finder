@@ -129,10 +129,13 @@ HideUIPanel = function(f) f:Hide() end
 E.OpenWindow()
 check("Von Blizzard verwaltet:", attrs["UIPanelLayout-area"], "left")
 E.StartMoveWindow()
-check("Ziehen löst aus der Verwaltung:", attrs["UIPanelLayout-area"], nil)
+check("Während des Ziehens bleibt das Fenster offen:", win:IsShown(), true)
+check("Während des Ziehens noch verwaltet:", attrs["UIPanelLayout-area"], "left")
 check("Standardplatz gemerkt:", db.winHome and (db.winHome.x .. "," .. db.winHome.y), "16,700")
 L, Tp = 400, 500
 E.StopMoveWindow()
+check("Nach dem Loslassen gelöst:", attrs["UIPanelLayout-area"], nil)
+check("Und sichtbar:", win:IsShown(), true)
 check("Neue Position gespeichert:", E.state.winPos and (E.state.winPos.x .. "," .. E.state.winPos.y), "400,500")
 E.CloseWindow(); E.OpenWindow()
 L, Tp = 16, 700 -- Blizzards Verwaltung setzt es wieder an den Standardplatz
@@ -147,6 +150,15 @@ E.StartMoveWindow(); L, Tp = 500, 300; E.StopMoveWindow()
 rawget(E.titleHandle, "_scripts").OnDoubleClick(E.titleHandle)
 check("Doppelklick setzt zurück:", E.state.winPos, nil)
 check("Fenster wieder offen:", win:IsShown(), true)
+
+print("== Ausblenden mitten im Ziehen")
+local stopped = 0
+rawset(win, "StopMovingOrSizing", function() stopped = stopped + 1 end)
+E.StartMoveWindow()
+win:Hide()
+check("Ziehen beendet:", stopped, 1)
+check("Nicht mehr am Ziehen:", E.winMoving, false)
+E.OpenWindow()
 
 print("== Kurzanleitung")
 E.CloseWindow(); db.onboarded = nil
