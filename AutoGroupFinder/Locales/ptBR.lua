@@ -159,6 +159,7 @@ ns.L.ptBR = {
   WIN_RESET_TIP = "Clique duplo na barra de título: volta ao lugar padrão",
 
   CHAT_STARTED = "Busca iniciada. Procura-se: %s.",
+  CHAT_NEXT_CLICK = "A primeira busca acontece no seu próximo clique no mundo, no ícone do minimapa ou com seu atalho.",
   CHAT_STOPPED = "Busca encerrada.",
   CHAT_COMPLETE = "Grupo completo!",
   CHAT_INVITING = "Convidando %s como %s.",

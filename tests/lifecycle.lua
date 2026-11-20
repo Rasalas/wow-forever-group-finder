@@ -152,3 +152,22 @@ trigger("SetItemRef", link, "[Nachbesetzen]", "LeftButton")
 check("Klick auf den Link sucht wieder:", E.state.queued, true)
 trigger("SetItemRef", "addon:Other:thing")
 check("Fremde Links bleiben unbeachtet:", E.state.queued, true)
+
+print("== Eintragen und Suchen nicht im selben Klick")
+E.StopQueue()
+local searches, protected = 0, 0
+local origSearch = C_LFGList.Search
+C_LFGList.Search = function(...) searches = searches + 1; protected = protected + 1 return origSearch(...) end
+local origSetRole = E.api.setRole
+E.api.setRole = function(...) protected = protected + 1 return origSetRole(...) end
+E.state.lastSearchAt, E.state.selfRole = 0, nil
+E.StartQueue()
+check("Klick auf „Gruppe suchen“ trägt nur ein:", searches, 0)
+local maxPerClick = 0
+for _ = 1, 3 do
+  protected = 0
+  rawget(WorldFrame, "_scripts").OnMouseDown()
+  maxPerClick = math.max(maxPerClick, protected)
+end
+check("Je Klick höchstens eine geschützte Aktion:", maxPerClick, 1)
+check("Erst Vorgemerktes (eigene Rolle), dann gesucht:", searches, 1)

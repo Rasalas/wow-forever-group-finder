@@ -159,6 +159,7 @@ ns.L.itIT = {
   WIN_RESET_TIP = "Doppio clic sulla barra del titolo: torna alla posizione predefinita",
 
   CHAT_STARTED = "Ricerca avviata. Si cerca: %s.",
+  CHAT_NEXT_CLICK = "La prima ricerca parte al tuo prossimo clic nel mondo, sull'icona della minimappa o con la tua scorciatoia.",
   CHAT_STOPPED = "Ricerca interrotta.",
   CHAT_COMPLETE = "Gruppo completo!",
   CHAT_INVITING = "Invito %s come %s.",

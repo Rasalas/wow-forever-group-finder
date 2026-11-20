@@ -160,6 +160,7 @@ ns.L.esES = {
   WIN_RESET_TIP = "Doble clic en la barra de título: volver al lugar predeterminado",
 
   CHAT_STARTED = "Búsqueda iniciada. Se busca: %s.",
+  CHAT_NEXT_CLICK = "La primera búsqueda se hace con tu próximo clic en el mundo, en el icono del minimapa o con tu atajo.",
   CHAT_STOPPED = "Búsqueda detenida.",
   CHAT_COMPLETE = "¡Grupo completo!",
   CHAT_INVITING = "Invitando a %s como %s.",

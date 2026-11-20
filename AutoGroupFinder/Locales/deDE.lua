@@ -159,6 +159,7 @@ ns.L.deDE = {
   WIN_RESET_TIP = "Doppelklick auf die Titelleiste: zurück an den Standardplatz",
 
   CHAT_STARTED = "Suche gestartet. Gesucht: %s.",
+  CHAT_NEXT_CLICK = "Die erste Suche läuft beim nächsten Klick in die Welt, aufs Minimap-Symbol oder mit deinem Tastenkürzel.",
   CHAT_STOPPED = "Suche beendet.",
   CHAT_COMPLETE = "Gruppe komplett!",
   CHAT_INVITING = "Lade %s als %s ein.",

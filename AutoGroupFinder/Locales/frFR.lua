@@ -159,6 +159,7 @@ ns.L.frFR = {
   WIN_RESET_TIP = "Double-clic sur la barre de titre : retour à la place par défaut",
 
   CHAT_STARTED = "Recherche lancée. Recherché : %s.",
+  CHAT_NEXT_CLICK = "La première recherche se lance à votre prochain clic dans le monde, sur l'icône de la minicarte ou avec votre raccourci.",
   CHAT_STOPPED = "Recherche arrêtée.",
   CHAT_COMPLETE = "Groupe complet !",
   CHAT_INVITING = "Invitation de %s en tant que %s.",

@@ -135,6 +135,7 @@ db.languageMode = "mineEnglish"
 AutoGroupFinder_Next()
 print("Taste ohne laufende Suche startet nichts:", searchArgs == nil and "ok" or "FEHLER")
 ns.env.StartQueue()
+rawget(WorldFrame, "_scripts").OnMouseDown() -- erste Suche beim nächsten Klick
 print("mine+English (deDE client): de/en/fr =", searchArgs[4].deDE, searchArgs[4].enUS, searchArgs[4].frFR)
 fire("LFG_LIST_SEARCH_RESULTS_RECEIVED")
 print("invites:", table.concat(invites, ","), "(kein Tank, kein Troll/Bad, 3x Schaden)")

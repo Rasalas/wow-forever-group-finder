@@ -8,13 +8,15 @@ function FoundPageOpen() return win and win:IsShown() and db.page == 2 end
 
 function DoSearch(force)
   if not db then return end
-  if HardwareTick then HardwareTick() end
+  -- Beiläufige Klicks erledigen erst Vorgemerktes; ausdrückliches Suchen (force) sucht sofort.
+  if not force and HardwareTick and HardwareTick() then return end
   if InCombatLockdown() then return end
   if not force and not (state.queued or FoundPageOpen()) then return end
-  -- Umwandeln ist ebenfalls nur nach Klick oder Taste erlaubt, darum hier.
+  -- Umwandeln ist ebenfalls nur nach Klick oder Taste erlaubt und verbraucht diesen Klick.
   if state.queued and NeedsRaid() and CanInvite() then
     api.convertToRaid()
     Print(T.CHAT_CONVERTED)
+    return
   end
   local now = GetTime()
   if state.searching and now - state.searching < 10 then return end

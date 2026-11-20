@@ -31,9 +31,11 @@ function StartQueue()
     newPlayerFriendly = db.newPlayerFriendly and true or false,
   }, { tank = char.myRoles.TANK or false, healer = char.myRoles.HEALER or false, dps = char.myRoles.DAMAGER or false })
   if not okList then Print(T.CHAT_LIST_FAILED:format(tostring(err))) end
-  DoSearch(true)
+  -- Kein Suchen im selben Klick: Blizzard erlaubt nur eine geschützte Aktion pro Klick, das Eintragen hat sie
+  -- verbraucht (sonst ADDON_ACTION_BLOCKED). Die erste Suche läuft beim nächsten Klick oder Tastendruck.
   CloseWindow()
   Print(T.CHAT_STARTED:format(NeedText(rem)))
+  Print(T.CHAT_NEXT_CLICK)
   UpdateMinimap()
 end
 

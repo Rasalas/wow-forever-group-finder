@@ -26,26 +26,39 @@ end
 
 -- Rollen setzen erlaubt Blizzard nur nach Klick oder Taste; vorgemerkt und beim nächsten Klick gesetzt.
 roleQueue = {}
-HardwareTick = function()
-  if not db or InCombatLockdown() then return end
+-- Blizzard erlaubt pro Klick oder Taste nur EINE geschützte Aktion (Rolle setzen, Flüstern, Raid umwandeln,
+-- Suchen, Eintragen); jede weitere im selben Klick wird blockiert (ADDON_ACTION_BLOCKED). Darum diese
+-- Warteschlange: jeder Klick erledigt höchstens eine vorgemerkte Aktion.
+local function NextRestricted()
   if IsInGroup() and UnitIsGroupLeader("player") then
-    for k, unit in pairs(MemberKeys()) do
-      local role = roleQueue[k]
-      if role and api.unitRole(unit) ~= role then api.setRole(unit, role) end
-      roleQueue[k] = nil
+    local members = MemberKeys()
+    for k, role in pairs(roleQueue) do
+      local unit = members[k]
+      if unit then
+        roleQueue[k] = nil
+        if api.unitRole(unit) ~= role then return function() api.setRole(unit, role) end end
+      end
     end
     -- eigene Rolle nur einmal pro Änderung setzen, nicht bei jedem Klick
     local _, me = Filled()
     if api.unitRole("player") ~= me and state.selfRole ~= me then
-      api.setRole("player", me)
       state.selfRole = me
+      return function() api.setRole("player", me) end
     end
   end
   local now = GetTime()
-  for _, w in ipairs(whisperQueue) do
-    if now - w.t < 20 then api.whisper(w.name, w.text) end
+  while #whisperQueue > 0 do
+    local w = table.remove(whisperQueue, 1)
+    if now - w.t < 20 then return function() api.whisper(w.name, w.text) end end
   end
-  wipe(whisperQueue)
+end
+
+-- true = dieser Klick ist verbraucht
+HardwareTick = function()
+  if not db or InCombatLockdown() then return false end
+  local action = NextRestricted()
+  if action then action() return true end
+  return false
 end
 
 -- Verlauf: ein Eintrag je Gruppe, vom Entstehen bis zum Auflösen. Draußen heißt er nach der
@@ -233,8 +246,7 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4)
     PlaceMinimap()
     UpdateMinimap()
     WorldFrame:HookScript("OnMouseDown", function()
-      HardwareTick()
-      if db.keySearch then DoSearch(false) end
+      if db.keySearch then DoSearch(false) else HardwareTick() end -- je Klick nur eine geschützte Aktion
     end)
     C_Timer.NewTicker(1, Tick)
     History.Track() -- nach /reload in der laufenden Gruppe weitermachen

@@ -164,6 +164,7 @@ ns.L.enUS = {
   WIN_RESET_TIP = "Double-click the title bar: back to the default place",
 
   CHAT_STARTED = "Search started. Looking for: %s.",
+  CHAT_NEXT_CLICK = "The first search runs on your next click into the world, on the minimap icon or with your hotkey.",
   CHAT_STOPPED = "Search stopped.",
   CHAT_COMPLETE = "Group complete!",
   CHAT_INVITING = "Inviting %s as %s.",
