@@ -227,7 +227,7 @@ function Rebuild()
     if IsPicked(e) then wanted[e.id] = e end
   end
   local members = MemberKeys()
-  local me = UnitName("player")
+  local me = Key(MyName())
   local demand = wipe(state.demand)
   for _, id in ipairs(api.results()) do
     local info = api.info(id)
@@ -397,7 +397,7 @@ local ROLE_LETTER, LETTER_ROLE = { TANK = "T", HEALER = "H", DAMAGER = "D" }, { 
 function EncodeMembers()
   local _, me = Filled()
   local _, myClass = UnitClass("player")
-  local list = { { name = UnitName("player"), class = myClass, role = me, level = UnitLevel("player") } }
+  local list = { { name = MyName(), class = myClass, role = me, level = UnitLevel("player") } }
   for _, m in ipairs(History.Snapshot()) do list[#list + 1] = m end
   local out = {}
   for _, m in ipairs(list) do

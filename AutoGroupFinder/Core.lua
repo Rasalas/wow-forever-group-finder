@@ -217,6 +217,11 @@ end
 
 function Key(name) return Ambiguate(name, "none") end
 function Short(name) return Ambiguate(name, "short") end
+-- Forever-Namen haben einen Nachnamen; UnitName("player") liefert nur den Vornamen
+function MyName()
+  local full = GetUnitName and GetUnitName("player", true)
+  return (full and full ~= "") and full or UnitName("player")
+end
 function Ding() if db.sound then PlaySound(SOUNDKIT.READY_CHECK or 8960, "Master") end end
 
 function HasAtlas(a)

@@ -282,7 +282,7 @@ local fromCount = {}
 function Estimate.OnNet(msg, sender)
   if not db or not db.shareStats or not sender then return end
   local k = Key(sender)
-  if k == Key(UnitName("player")) then return end
+  if k == Key(MyName()) then return end
   local fields = Fields(msg)
   if not fields then return end
   if fields.k == "hi" then

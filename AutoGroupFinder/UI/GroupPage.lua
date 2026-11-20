@@ -120,7 +120,7 @@ do
     for i, unit in ipairs(units) do
       local row = Row(i)
       -- Einheiten-Werte können in Instanzen geheim sein; dann bleibt die Zeile schlicht
-      local name = unit == "player" and UnitName("player") or GetUnitName(unit, true)
+      local name = unit == "player" and MyName() or GetUnitName(unit, true)
       local _, class = UnitClass and UnitClass(unit)
       local color = class and RAID_CLASS_COLORS[class]
       local role = unit == "player" and select(2, Filled()) or joined[Key(name)] or api.unitRole(unit)
