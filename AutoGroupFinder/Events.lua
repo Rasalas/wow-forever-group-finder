@@ -297,7 +297,9 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4)
     C_Timer.After(10, Estimate.UpdateChannel) -- Chat-Kanäle sind direkt nach dem Laden noch nicht bereit
     History.Track()
     local inInstance, kind = IsInInstance()
-    if inInstance then char.instanceSince = char.instanceSince or time() else char.instanceSince = nil end
+    -- Nur beim echten Betreten starten; nach /reload oder Login drinnen ist der Beginn unbekannt
+    if not inInstance then char.instanceSince = nil
+    elseif not char.instanceSince and not (arg1 or arg2) then char.instanceSince = time() end
     if state.queued and inInstance and (kind == "party" or kind == "raid") then
       StopQueue(T.CHAT_IN_INSTANCE)
     end

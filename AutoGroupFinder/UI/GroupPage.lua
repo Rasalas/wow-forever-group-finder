@@ -46,7 +46,7 @@ end
 
 -- Wo ist ein Mitglied? 2 = im/am Dungeon, 1 = Zone des Eingangs, 0 = woanders, nil = offline
 local function Place(unit, near)
-  if UnitIsConnected and not UnitIsConnected(unit) then return nil, nil end
+  if UnitIsConnected and not UnitIsConnected(unit) then return nil, nil, true end
   local map = C_Map and C_Map.GetBestMapForUnit and C_Map.GetBestMapForUnit(unit)
   local info = map and C_Map.GetMapInfo(map)
   local zone = info and info.name
@@ -110,7 +110,8 @@ do
     local parts = {}
     local fill = char.lastFill
     if fill and time() - fill.t < 4 * 3600 then parts[#parts + 1] = T.GROUP_FILLED:format(math.max(1, math.floor(fill.s / 60 + 0.5))) end
-    if inside and char.instanceSince then parts[#parts + 1] = T.GROUP_RUN:format(math.max(0, math.floor((time() - char.instanceSince) / 60))) end
+    local run = inside and char.instanceSince and math.floor((time() - char.instanceSince) / 60)
+    if run and run >= 1 then parts[#parts + 1] = T.GROUP_RUN:format(run) end
     sub:SetText(table.concat(parts, " · "))
 
     local units = { "player" }
@@ -129,10 +130,11 @@ do
       local lvl = UnitLevel(unit)
       local low = a and a.minLevelSuggestion and lvl and lvl > 0 and lvl < a.minLevelSuggestion
       row.level:SetText(lvl and lvl > 0 and ((low and "|cffffd100" or "") .. lvl .. (low and "|r" or "")) or "")
-      local zone, level = Place(unit, near)
+      local zone, level, offline = Place(unit, near)
       if level == 2 then there = there + 1 end
-      row.place:SetText(not zone and "|cffff6060" .. (PLAYER_OFFLINE or "Offline") .. "|r"
-        or level == 2 and "|cff40ff40" .. T.GROUP_HERE .. "|r" or zone)
+      -- ohne Karte (z. B. Mitspieler in Instanzen) bleibt der Ort leer statt „Offline“
+      row.place:SetText(offline and "|cffff6060" .. (PLAYER_OFFLINE or "Offline") .. "|r"
+        or level == 2 and "|cff40ff40" .. T.GROUP_HERE .. "|r" or zone or "")
       row.member = unit ~= "player" and name or nil
       local r = row.member and Rating(name)
       for v, b in pairs(row.rate) do
