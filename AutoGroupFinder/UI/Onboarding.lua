@@ -99,8 +99,8 @@ local function Layout()
   local hasKey = Settings and Settings.KEYBINDINGS_CATEGORY_ID and true or false
   keyLink:SetShown(hasKey)
   keyLink:ClearAllPoints()
-  keyLink:SetPoint("TOPLEFT", card, "TOPLEFT", 24, -54 - rows * ROW - 6)
-  card:SetHeight(54 + rows * ROW + (hasKey and 30 or 0) + 70)
+  keyLink:SetPoint("TOPLEFT", card, "TOPLEFT", 24, -54 - rows * ROW - 16)
+  card:SetHeight(54 + rows * ROW + (hasKey and 40 or 0) + 70)
 end
 
 onboarding:SetScript("OnShow", function()

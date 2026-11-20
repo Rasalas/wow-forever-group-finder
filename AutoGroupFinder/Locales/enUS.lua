@@ -4,7 +4,7 @@ ns.L = ns.L or {}
 
 ns.L.enUS = {
   TITLE = "Auto Group Finder",
-  LOADED = "loaded. %s opens the window; set a key under Key Bindings > AddOns.",
+  LOADED = "loaded. %s opens the window; set a key under Key Bindings > Auto Group Finder.",
 
   BIND_NEXT = "Open window / search now",
   BIND_REFRESH = "Search now",
@@ -211,7 +211,7 @@ ns.L.enUS = {
   ONB_MM_TIP = "Takes effect after reloading.",
   ONB_MM = "Keep the icon at the minimap",
   ONB_MM_SUB = "instead of in %s",
-  ONB_KEY = "Set a key…",
+  ONB_KEY = "Set a hotkey…",
   ONB_RELOAD = "Let's go (reloads)",
   ONB_COLLECTOR = "a button collector",
   ONB_GO = "Let's go",

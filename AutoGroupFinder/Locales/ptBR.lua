@@ -2,7 +2,7 @@ local _, ns = ...
 ns.L = ns.L or {}
 
 ns.L.ptBR = {
-  LOADED = "carregado. %s abre a janela; defina uma tecla em Teclas de Atalho > AddOns.",
+  LOADED = "carregado. %s abre a janela; defina uma tecla em Teclas de Atalho > Auto Group Finder.",
 
   BIND_NEXT = "Abrir janela / procurar agora",
   BIND_REFRESH = "Procurar agora",
@@ -206,7 +206,7 @@ ns.L.ptBR = {
   ONB_MM_TIP = "Vale após recarregar.",
   ONB_MM = "Manter o ícone no minimapa",
   ONB_MM_SUB = "em vez de no %s",
-  ONB_KEY = "Definir tecla…",
+  ONB_KEY = "Definir um atalho…",
   ONB_RELOAD = "Vamos lá (recarrega)",
   ONB_COLLECTOR = "um agrupador de ícones",
   ONB_GO = "Vamos lá",

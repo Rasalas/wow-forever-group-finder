@@ -2,7 +2,7 @@ local _, ns = ...
 ns.L = ns.L or {}
 
 ns.L.deDE = {
-  LOADED = "geladen. %s öffnet das Fenster, die Taste legst du unter Tastaturbelegung > AddOns fest.",
+  LOADED = "geladen. %s öffnet das Fenster, die Taste legst du unter Tastaturbelegung > Auto Group Finder fest.",
 
   BIND_NEXT = "Fenster öffnen / jetzt suchen",
   BIND_REFRESH = "Jetzt suchen",
@@ -206,7 +206,7 @@ ns.L.deDE = {
   ONB_MM_TIP = "Wirkt nach dem Neuladen.",
   ONB_MM = "Symbol an der Minimap lassen",
   ONB_MM_SUB = "statt in %s",
-  ONB_KEY = "Taste festlegen…",
+  ONB_KEY = "Tastenkürzel festlegen…",
   ONB_RELOAD = "Los geht's (lädt neu)",
   ONB_COLLECTOR = "einem Sammel-Add-on",
   ONB_GO = "Los geht's",

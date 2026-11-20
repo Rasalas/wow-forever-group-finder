@@ -3,7 +3,7 @@ local _, ns = ...
 ns.L = ns.L or {}
 
 ns.L.esES = {
-  LOADED = "cargado. %s abre la ventana; asigna una tecla en Asignación de teclas > AddOns.",
+  LOADED = "cargado. %s abre la ventana; asigna una tecla en Asignación de teclas > Auto Group Finder.",
 
   BIND_NEXT = "Abrir ventana / buscar ahora",
   BIND_REFRESH = "Buscar ahora",
@@ -207,7 +207,7 @@ ns.L.esES = {
   ONB_MM_TIP = "Se aplica al recargar.",
   ONB_MM = "Dejar el icono junto al minimapa",
   ONB_MM_SUB = "en vez de en %s",
-  ONB_KEY = "Asignar tecla…",
+  ONB_KEY = "Asignar un atajo…",
   ONB_RELOAD = "¡Vamos! (recarga)",
   ONB_COLLECTOR = "un agrupador de iconos",
   ONB_GO = "¡Vamos!",

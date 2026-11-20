@@ -2,7 +2,7 @@ local _, ns = ...
 ns.L = ns.L or {}
 
 ns.L.itIT = {
-  LOADED = "caricato. %s apre la finestra; assegna un tasto in Comandi > AddOn.",
+  LOADED = "caricato. %s apre la finestra; assegna un tasto in Comandi > Auto Group Finder.",
 
   BIND_NEXT = "Apri finestra / cerca ora",
   BIND_REFRESH = "Cerca ora",
@@ -206,7 +206,7 @@ ns.L.itIT = {
   ONB_MM_TIP = "Ha effetto dopo il ricaricamento.",
   ONB_MM = "Tieni l'icona vicino alla minimappa",
   ONB_MM_SUB = "invece che in %s",
-  ONB_KEY = "Assegna un tasto…",
+  ONB_KEY = "Imposta una scorciatoia…",
   ONB_RELOAD = "Iniziamo (ricarica)",
   ONB_COLLECTOR = "un raccoglitore di icone",
   ONB_GO = "Iniziamo",

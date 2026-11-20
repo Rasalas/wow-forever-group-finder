@@ -2,7 +2,7 @@ local _, ns = ...
 ns.L = ns.L or {}
 
 ns.L.frFR = {
-  LOADED = "chargé. %s ouvre la fenêtre ; choisissez une touche dans Raccourcis > AddOns.",
+  LOADED = "chargé. %s ouvre la fenêtre ; choisissez une touche dans Raccourcis > Auto Group Finder.",
 
   BIND_NEXT = "Ouvrir la fenêtre / chercher maintenant",
   BIND_REFRESH = "Chercher maintenant",
@@ -206,7 +206,7 @@ ns.L.frFR = {
   ONB_MM_TIP = "Prend effet après rechargement.",
   ONB_MM = "Garder l'icône près de la minicarte",
   ONB_MM_SUB = "au lieu de %s",
-  ONB_KEY = "Choisir une touche…",
+  ONB_KEY = "Définir un raccourci…",
   ONB_RELOAD = "C'est parti (recharge)",
   ONB_COLLECTOR = "un regroupeur d'icônes",
   ONB_GO = "C'est parti",

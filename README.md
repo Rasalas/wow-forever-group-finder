@@ -25,7 +25,7 @@ Copy the `AutoGroupFinder` folder into `World of Warcraft/_forever_/Interface/Ad
 
 `/gf` opens the window. The first time, a short guide explains the three steps.
 
-Blizzard only lets add-ons search the group finder right after a click or key press. While a search is running, right-click the minimap eye, press your key binding (Key Bindings → AddOns) or click into the game world to search again.
+Blizzard only lets add-ons search the group finder right after a click or key press. While a search is running, right-click the minimap eye, press your key binding (Key Bindings > Auto Group Finder) or click into the game world to search again.
 
 | Command | |
 |---|---|
