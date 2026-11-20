@@ -28,6 +28,10 @@ ns.L.enUS = {
   OPT_FRIENDS_TIP = "Within each role, friends and guild members are invited first.",
   OPT_NEAR = "Prefer players at the dungeon",
   OPT_NEAR_TIP = "Within each role, players who are in the dungeon's zone or already inside are invited first – they get there fastest. Blizzard tells which zone each player is in.",
+  OPT_HERE = "Offer a quick start at the dungeon",
+  OPT_HERE_TIP = "When you stand at or in a dungeon, a card for exactly that dungeon appears above the categories. One click selects it and starts the search.",
+  HERE_SUB = "You're here – one click searches a group for it",
+  HERE_TIP = "Selects exactly this dungeon and starts the search with your roles and play style. If something is missing, the selection opens instead.",
   OPT_WHISPER = "Whisper when inviting",
   OPT_WHISPER_TIP = "Sends a short whisper with the invite. Blizzard only lets add-ons whisper right after a click or key press, so for automatic invites the message goes out with your next click (within 20 seconds). Change the text with %s whisper <text>; {dungeon} and {role} are filled in.",
   OPT_NOTIFY = "Announce on screen and flash the taskbar",
@@ -130,6 +134,7 @@ ns.L.enUS = {
   CTX_INVITE_AS = "Invite as %s",
   CTX_SKIP = "Don't suggest for an hour",
   CTX_TARGET = "Target (/target – then press Enter)",
+  TARGET_TIP = "Click: target %s (only when in sight)",
   ROW_HINT = "Right-click: options · Shift-click: put the name or dungeon into chat",
   AGE_S = "%ds", AGE_M = "%dm",
 

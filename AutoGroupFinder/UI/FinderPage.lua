@@ -149,12 +149,47 @@ function Card(i)
   return card
 end
 
+-- Karte „Du bist hier“ über den Kategorien, mit dem Bild des Dungeons
+hereCard = CreateFrame("Button", nil, catView)
+hereCard:SetSize(CARD_W, CARD_H)
+hereCard:SetPoint("TOP", catView, "TOP", 0, -8)
+hereCard.art = hereCard:CreateTexture(nil, "BACKGROUND")
+hereCard.art:SetPoint("TOPLEFT", 5, -8)
+hereCard.art:SetPoint("BOTTOMRIGHT", -5, 5)
+hereCard.cover = hereCard:CreateTexture(nil, "ARTWORK")
+hereCard.cover:SetPoint("CENTER")
+AtlasSized(hereCard.cover, "groupfinder-button-cover")
+if hereCard.SetHighlightAtlas and HasAtlas("groupfinder-button-cover-hover") then hereCard:SetHighlightAtlas("groupfinder-button-cover-hover") end
+hereCard.label = Label(hereCard, "", "GameFontNormalLarge", "BOTTOMLEFT", hereCard, "LEFT", 20, 1)
+hereCard.sub = Label(hereCard, T.HERE_SUB, "GameFontHighlightSmall", "TOPLEFT", hereCard, "LEFT", 20, -3)
+hereCard:SetScript("OnClick", function()
+  PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON or 856)
+  if state.here then QuickStart(state.here) end
+end)
+Tooltip(hereCard, T.HERE_SUB, T.HERE_TIP)
+hereCard:Hide()
+
 function UpdateCards()
   local n = 0
+  local here = db.hereSuggest and not state.queued and state.here
+  hereCard:SetShown(here and true or false)
+  if here then
+    hereCard.label:SetText(here.name)
+    if not Art.Apply(hereCard.art, Art.Dungeon(here.ids[1]), (CARD_W - 10) / (CARD_H - 13)) then
+      hereCard.art:Show()
+      if not Atlas(hereCard.art, CATEGORY_ART[here.cat] or "groupfinder-button-dungeons") then hereCard.art:SetColorTexture(0.15, 0.2, 0.3, 0.9) end
+    else
+      hereCard.art:Show()
+    end
+  end
   for _, c in ipairs(Categories()) do
     if #ActivityTree(c.id).all > 0 then
       n = n + 1
       local card = Card(n)
+      if n == 1 then
+        card:ClearAllPoints()
+        if here then card:SetPoint("TOP", hereCard, "BOTTOM", 0, -4) else card:SetPoint("TOP", catView, "TOP", 0, -8) end
+      end
       card.categoryID = c.id
       card.label:SetText(c.name)
       if not Atlas(card.art, CATEGORY_ART[c.id] or "groupfinder-button-questing") then
@@ -452,6 +487,7 @@ OPTIONS = {
   { "levelCheck", T.OPT_LEVEL, T.OPT_LEVEL_TIP, function() Rebuild() end },
   { "preferFriends", T.OPT_FRIENDS, T.OPT_FRIENDS_TIP, function() Rebuild() end },
   { "preferNear", T.OPT_NEAR, T.OPT_NEAR_TIP, function() Rebuild() end },
+  { "hereSuggest", T.OPT_HERE, T.OPT_HERE_TIP, function() Rebuild() end },
   { "inviteWhisper", T.OPT_WHISPER, T.OPT_WHISPER_TIP:format(SLASH) },
   { "notify", T.OPT_NOTIFY, T.OPT_NOTIFY_TIP },
   { "showDemand", T.OPT_DEMAND, T.OPT_DEMAND_TIP, function() Rebuild() end },

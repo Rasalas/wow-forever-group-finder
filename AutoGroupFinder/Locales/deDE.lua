@@ -26,6 +26,10 @@ ns.L.deDE = {
   OPT_FRIENDS_TIP = "Innerhalb jeder Rolle werden Freunde und Gildenmitglieder zuerst eingeladen.",
   OPT_NEAR = "Spieler am Dungeon bevorzugen",
   OPT_NEAR_TIP = "Innerhalb jeder Rolle werden Spieler zuerst eingeladen, die in der Zone des Dungeons oder schon drin sind – die sind am schnellsten da. Blizzard verrät, in welcher Zone jeder Spieler gerade ist.",
+  OPT_HERE = "Schnellstart am Dungeon anbieten",
+  OPT_HERE_TIP = "Stehst du an oder in einem Dungeon, erscheint über den Kategorien eine Karte für genau diesen Dungeon. Ein Klick wählt ihn aus und startet die Suche.",
+  HERE_SUB = "Du bist hier – ein Klick sucht eine Gruppe dafür",
+  HERE_TIP = "Wählt genau diesen Dungeon aus und startet die Suche mit deinen Rollen und deinem Spielstil. Fehlt etwas, öffnet sich stattdessen die Auswahl.",
   OPT_WHISPER = "Beim Einladen anflüstern",
   OPT_WHISPER_TIP = "Schickt mit der Einladung eine kurze Flüsternachricht. Blizzard lässt Add-ons nur direkt nach einem Klick oder Tastendruck flüstern; bei automatischen Einladungen geht die Nachricht deshalb mit deinem nächsten Klick raus (innerhalb von 20 Sekunden). Text ändern mit %s whisper <Text>; {dungeon} und {role} werden ersetzt.",
   OPT_NOTIFY = "Auf dem Bildschirm melden und in der Taskleiste blinken",
@@ -125,6 +129,7 @@ ns.L.deDE = {
   CTX_INVITE_AS = "Als %s einladen",
   CTX_SKIP = "Eine Stunde nicht vorschlagen",
   CTX_TARGET = "Ins Ziel nehmen (/target – dann Enter)",
+  TARGET_TIP = "Klick: %s ins Ziel nehmen (nur in Sichtweite)",
   ROW_HINT = "Rechtsklick: Aktionen · Shift-Klick: Name oder Dungeon in den Chat",
   AGE_S = "%ds", AGE_M = "%dm",
 

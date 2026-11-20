@@ -26,6 +26,10 @@ ns.L.itIT = {
   OPT_FRIENDS_TIP = "All'interno di ogni ruolo, amici e membri della gilda vengono invitati per primi.",
   OPT_NEAR = "Preferisci i giocatori vicini alla spedizione",
   OPT_NEAR_TIP = "In ogni ruolo vengono invitati per primi i giocatori che si trovano nella zona della spedizione o già dentro: arrivano prima. Blizzard indica la zona in cui si trova ogni giocatore.",
+  OPT_HERE = "Offri l'avvio rapido alla spedizione",
+  OPT_HERE_TIP = "Se ti trovi davanti o dentro una spedizione, sopra le categorie compare una scheda per quella spedizione. Un clic la seleziona e avvia la ricerca.",
+  HERE_SUB = "Sei qui – un clic cerca un gruppo",
+  HERE_TIP = "Seleziona proprio questa spedizione e avvia la ricerca con i tuoi ruoli e il tuo stile di gioco. Se manca qualcosa, si apre invece la selezione.",
   OPT_WHISPER = "Sussurra quando inviti",
   OPT_WHISPER_TIP = "Invia un breve sussurro con l'invito. Blizzard permette agli addon di sussurrare solo subito dopo un clic o un tasto, quindi per gli inviti automatici il messaggio parte al tuo prossimo clic (entro 20 secondi). Cambia il testo con %s whisper <testo>; {dungeon} e {role} vengono sostituiti.",
   OPT_NOTIFY = "Avvisa sullo schermo e fai lampeggiare la barra delle applicazioni",
@@ -125,6 +129,7 @@ ns.L.itIT = {
   CTX_INVITE_AS = "Invita come %s",
   CTX_SKIP = "Non proporre per un'ora",
   CTX_TARGET = "Seleziona come bersaglio (/target – poi Invio)",
+  TARGET_TIP = "Clic: seleziona %s come bersaglio (solo se in vista)",
   ROW_HINT = "Clic destro: azioni · Maiusc-clic: inserisci il nome o la spedizione nella chat",
   AGE_S = "%ds", AGE_M = "%dmin",
 

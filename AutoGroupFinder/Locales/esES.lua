@@ -27,6 +27,10 @@ ns.L.esES = {
   OPT_FRIENDS_TIP = "Dentro de cada rol, los amigos y miembros de la hermandad se invitan primero.",
   OPT_NEAR = "Preferir jugadores junto a la mazmorra",
   OPT_NEAR_TIP = "Dentro de cada rol, se invita primero a quienes están en la zona de la mazmorra o ya dentro: llegan antes. Blizzard indica en qué zona está cada jugador.",
+  OPT_HERE = "Ofrecer inicio rápido en la mazmorra",
+  OPT_HERE_TIP = "Si estás junto a una mazmorra o dentro, aparece encima de las categorías una tarjeta para esa mazmorra. Un clic la selecciona e inicia la búsqueda.",
+  HERE_SUB = "Estás aquí – un clic busca grupo para ella",
+  HERE_TIP = "Selecciona exactamente esta mazmorra e inicia la búsqueda con tus roles y estilo de juego. Si falta algo, se abre la selección en su lugar.",
   OPT_WHISPER = "Susurrar al invitar",
   OPT_WHISPER_TIP = "Envía un breve susurro con la invitación. Blizzard solo deja susurrar a los addons justo después de un clic o una tecla, así que en las invitaciones automáticas el mensaje sale con tu siguiente clic (en 20 segundos). Cambia el texto con %s whisper <texto>; {dungeon} y {role} se rellenan.",
   OPT_NOTIFY = "Avisar en pantalla y hacer parpadear la barra de tareas",
@@ -126,6 +130,7 @@ ns.L.esES = {
   CTX_INVITE_AS = "Invitar como %s",
   CTX_SKIP = "No sugerir durante una hora",
   CTX_TARGET = "Seleccionar como objetivo (/target – luego Intro)",
+  TARGET_TIP = "Clic: seleccionar a %s como objetivo (solo si está a la vista)",
   ROW_HINT = "Clic derecho: acciones · Mayús-clic: poner el nombre o la mazmorra en el chat",
   AGE_S = "%ds", AGE_M = "%dmin",
 

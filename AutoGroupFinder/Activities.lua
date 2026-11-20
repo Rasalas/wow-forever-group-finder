@@ -16,6 +16,32 @@ function Categories()
   return out
 end
 
+-- Steht man an oder in einem Dungeon? Draußen zählt das Gebiet (wie auf der Minimap), drinnen die Instanz.
+function HereDungeon()
+  local here = IsInInstance() and GetRealZoneText() or GetSubZoneText()
+  if not here or here == "" then return nil end
+  local found
+  for _, c in ipairs(Categories()) do
+    for _, id in ipairs(L.GetAvailableActivities(c.id) or {}) do
+      local a = L.GetActivityInfoTable(id)
+      if a and (a.mapID or 0) > 0 and (a.maxNumPlayers or 0) >= 5 and GetRealZoneText(a.mapID) == here then
+        found = found or { name = here, cat = c.id, ids = {} }
+        if found.cat == c.id then found.ids[#found.ids + 1] = id end
+      end
+    end
+  end
+  return found
+end
+
+-- Ein Klick: genau diesen Dungeon wählen und suchen. Fehlt etwas (z. B. Spielstil), zeigt StartQueue den Grund.
+function QuickStart(here)
+  db.category, db.view = here.cat, "activities"
+  for _, id in ipairs(L.GetAvailableActivities(here.cat) or {}) do db.activities[id] = nil end
+  for _, id in ipairs(here.ids) do db.activities[id] = true end
+  Rebuild()
+  StartQueue()
+end
+
 function CurrentCategory()
   local cats = Categories()
   for _, c in ipairs(cats) do if c.id == db.category then return c.id end end

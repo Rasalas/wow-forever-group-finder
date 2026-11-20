@@ -67,6 +67,7 @@ refresh:SetScript("OnClick", function() DoSearch(true) end)
 Tooltip(refresh, T.REFRESH)
 
 list = Scroller(found, win, 12, -80, -12, 62)
+hooksecurefunc(list, "SetVerticalScroll", function() HideTargetButton() end)
 listEmpty = Label(found, "", "GameFontDisable", "TOP", win, "TOP", 0, -120)
 listEmpty:SetWidth(WIN_W - 60)
 -- Während der Suche Blizzards Lade-Kreisel mit „Suche …“ darüber, wie in der echten Gruppensuche
@@ -93,6 +94,51 @@ function NearIcon(level)
     return "|cffd9c08c" .. T.TAG_NEAR_ZONE .. "|r"
   end
 end
+
+-- Klick aufs Rollensymbol nimmt den Spieler ins Ziel, wie bei Raid-Frames: ein geschützter Knopf mit /target.
+-- Er hängt an UIParent statt am Fenster, sonst dürfte das Fenster im Kampf nicht mehr auf- und zugehen.
+-- Geschützte Knöpfe lassen sich nur außerhalb des Kampfes verschieben; im Kampf bleibt er versteckt.
+targetBtn = CreateFrame("Button", "AutoGroupFinderTargetButton", UIParent, "SecureActionButtonTemplate")
+targetBtn:SetFrameStrata("HIGH")
+targetBtn:RegisterForClicks("LeftButtonUp")
+targetBtn:SetAttribute("type", "macro")
+targetBtn:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight", "ADD")
+if targetBtn.SetPassThroughButtons then pcall(targetBtn.SetPassThroughButtons, targetBtn, "RightButton") end
+targetBtn:Hide()
+
+function HideTargetButton()
+  if not InCombatLockdown() then targetBtn:Hide() end
+end
+
+function ShowTargetButton(row)
+  local c = row.cand
+  if InCombatLockdown() or not c or not row.avatar:IsVisible() then return end
+  local x, y = row.avatar:GetCenter()
+  if not x then return end
+  local s = row.avatar:GetEffectiveScale() / UIParent:GetEffectiveScale()
+  targetBtn:ClearAllPoints()
+  targetBtn:SetPoint("CENTER", UIParent, "BOTTOMLEFT", x * s, y * s)
+  targetBtn:SetSize(row.avatar:GetWidth() * s, row.avatar:GetHeight() * s)
+  targetBtn:SetAttribute("macrotext", "/target " .. c.name)
+  targetBtn.row, targetBtn.key = row, c.key
+  targetBtn:Show()
+end
+
+targetBtn:SetScript("OnEnter", function(self)
+  GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+  GameTooltip:SetText(T.TARGET_TIP:format(Short(self.row and self.row.cand and self.row.cand.name or "")), 1, 1, 1, 1, true)
+  GameTooltip:Show()
+end)
+targetBtn:SetScript("OnLeave", function(self)
+  GameTooltip:Hide()
+  if not (self.row and self.row:IsMouseOver()) then HideTargetButton() end
+end)
+-- Kurz vor dem Kampf ist Verstecken noch erlaubt; Scrollen und Schließen lassen ihn ebenfalls verschwinden.
+targetEv = CreateFrame("Frame")
+targetEv:RegisterEvent("PLAYER_REGEN_DISABLED")
+targetEv:SetScript("OnEvent", function() targetBtn:Hide() end)
+win:HookScript("OnHide", HideTargetButton)
+found:HookScript("OnHide", HideTargetButton)
 
 -- Rechtsklick auf einen Spieler: Aktionen wie bei Blizzard
 function ShowPlayerMenu(owner, c)
@@ -227,7 +273,11 @@ function ListRow(i)
     GameTooltip:AddLine(T.ROW_HINT, 0.6, 0.6, 0.6, true)
     GameTooltip:Show()
   end)
-  row:SetScript("OnLeave", GameTooltip_Hide)
+  row:SetScript("OnLeave", function()
+    GameTooltip:Hide()
+    if not targetBtn:IsMouseOver() then HideTargetButton() end
+  end)
+  row:HookScript("OnEnter", ShowTargetButton)
   listRows[i] = row
   return row
 end
@@ -312,6 +362,8 @@ function UpdateFound()
   end
   for i = n + 1, #listRows do listRows[i]:Hide() end
   list:SetContentHeight(y)
+  local tr = targetBtn.row
+  if targetBtn:IsShown() and not (tr and tr:IsVisible() and tr.cand and tr.cand.key == targetBtn.key) then HideTargetButton() end
   local _, pickedIDs = SearchActivities()
   if #pickedIDs == 0 then
     listEmpty:SetText(T.PICK_ACTIVITY)

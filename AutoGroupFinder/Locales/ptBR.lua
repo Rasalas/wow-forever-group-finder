@@ -26,6 +26,10 @@ ns.L.ptBR = {
   OPT_FRIENDS_TIP = "Dentro de cada função, amigos e membros da guilda são convidados primeiro.",
   OPT_NEAR = "Preferir jogadores perto da masmorra",
   OPT_NEAR_TIP = "Dentro de cada função, quem está na zona da masmorra ou já lá dentro é convidado primeiro – chega mais rápido. A Blizzard informa em que zona cada jogador está.",
+  OPT_HERE = "Oferecer início rápido na masmorra",
+  OPT_HERE_TIP = "Quando você está na entrada ou dentro de uma masmorra, aparece um cartão para ela acima das categorias. Um clique a seleciona e inicia a busca.",
+  HERE_SUB = "Você está aqui – um clique procura um grupo",
+  HERE_TIP = "Seleciona exatamente esta masmorra e inicia a busca com suas funções e estilo de jogo. Se faltar algo, a seleção abre no lugar.",
   OPT_WHISPER = "Sussurrar ao convidar",
   OPT_WHISPER_TIP = "Envia um sussurro curto com o convite. A Blizzard só deixa addons sussurrarem logo após um clique ou tecla, então nos convites automáticos a mensagem sai no seu próximo clique (em até 20 segundos). Mude o texto com %s whisper <texto>; {dungeon} e {role} são preenchidos.",
   OPT_NOTIFY = "Avisar na tela e piscar a barra de tarefas",
@@ -125,6 +129,7 @@ ns.L.ptBR = {
   CTX_INVITE_AS = "Convidar como %s",
   CTX_SKIP = "Não sugerir por uma hora",
   CTX_TARGET = "Selecionar como alvo (/target – depois Enter)",
+  TARGET_TIP = "Clique: selecionar %s como alvo (só se estiver à vista)",
   ROW_HINT = "Clique direito: ações · Shift-clique: colocar o nome ou a masmorra no bate-papo",
   AGE_S = "%ds", AGE_M = "%dmin",
 

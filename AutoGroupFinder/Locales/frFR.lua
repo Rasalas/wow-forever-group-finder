@@ -26,6 +26,10 @@ ns.L.frFR = {
   OPT_FRIENDS_TIP = "Dans chaque rôle, les amis et les membres de la guilde sont invités en premier.",
   OPT_NEAR = "Privilégier les joueurs près du donjon",
   OPT_NEAR_TIP = "Dans chaque rôle, les joueurs qui se trouvent dans la zone du donjon ou déjà dedans sont invités en premier – ils arrivent le plus vite. Blizzard indique la zone de chaque joueur.",
+  OPT_HERE = "Proposer un départ rapide au donjon",
+  OPT_HERE_TIP = "Quand vous êtes devant ou dans un donjon, une carte pour ce donjon apparaît au-dessus des catégories. Un clic le sélectionne et lance la recherche.",
+  HERE_SUB = "Vous y êtes – un clic cherche un groupe",
+  HERE_TIP = "Sélectionne exactement ce donjon et lance la recherche avec vos rôles et votre style de jeu. S'il manque quelque chose, la sélection s'ouvre à la place.",
   OPT_WHISPER = "Chuchoter en invitant",
   OPT_WHISPER_TIP = "Envoie un court chuchotement avec l'invitation. Blizzard n'autorise les add-ons à chuchoter que juste après un clic ou une touche ; pour les invitations automatiques, le message part donc à votre prochain clic (dans les 20 secondes). Modifiez le texte avec %s whisper <texte> ; {dungeon} et {role} sont remplacés.",
   OPT_NOTIFY = "Annoncer à l'écran et faire clignoter la barre des tâches",
@@ -125,6 +129,7 @@ ns.L.frFR = {
   CTX_INVITE_AS = "Inviter en tant que %s",
   CTX_SKIP = "Ne plus proposer pendant une heure",
   CTX_TARGET = "Cibler (/target – puis Entrée)",
+  TARGET_TIP = "Clic : cibler %s (seulement à portée de vue)",
   ROW_HINT = "Clic droit : actions · Maj-clic : mettre le nom ou le donjon dans la discussion",
   AGE_S = "%ds", AGE_M = "%dmin",
 
