@@ -158,3 +158,23 @@ E.CloseWindow(); E.OpenWindow()
 check("Danach nicht mehr von selbst:", E.onboarding:IsShown(), false)
 E.ShowOnboarding()
 check("Über das Menü wieder aufrufbar:", E.onboarding:IsShown(), true)
+
+print("== Kurzanleitung: Einstellungen")
+local reloads = 0
+ReloadUI = function() reloads = reloads + 1 end
+E.onboarding:Hide()
+db.shareStats, db.minimapStandalone = true, false
+E.ShowOnboarding()
+check("Zwei Einstellungen ohne Sammel-Add-on:", #E.onboarding.checks, 2)
+C_AddOns = { IsAddOnLoaded = function(n) return n == "MinimapButtonButton" end }
+E.onboarding:Hide(); E.ShowOnboarding()
+check("Mit MinimapButtonButton eine dritte:", #E.onboarding.checks, 3)
+local share, mmc = E.onboarding.checks[2], E.onboarding.checks[3]
+check("Häkchen spiegelt die Einstellung:", share:GetChecked(), true)
+share:SetChecked(false)
+mmc:SetChecked(true); rawget(mmc, "_scripts").OnClick(mmc)
+check("Knopf kündigt Neuladen an:", rawget(E.onboarding.go, "_text"), E.T.ONB_RELOAD)
+rawget(E.onboarding.go, "_scripts").OnClick(E.onboarding.go)
+check("Teilen abgeschaltet:", db.shareStats, false)
+check("Minimap-Symbol einzeln:", db.minimapStandalone, true)
+check("Neu geladen:", reloads, 1)
