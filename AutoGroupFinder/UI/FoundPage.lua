@@ -222,6 +222,19 @@ function ListRow(i)
     t:SetPoint("BOTTOMRIGHT", row.avatar, "BOTTOMRIGHT", 4 - (j - 1) * 13, -3)
     row.extra[j] = t
   end
+  -- Laufende Einladung: Blizzards Cooldown-Ring, rund wie das Rollensymbol
+  local okCd, cd = pcall(CreateFrame, "Cooldown", nil, row, "CooldownFrameTemplate")
+  if okCd and cd then
+    cd:SetAllPoints(row.avatar)
+    if cd.SetSwipeTexture then cd:SetSwipeTexture("Interface\\CharacterFrame\\TempPortraitAlphaMask") end
+    if cd.SetSwipeColor then cd:SetSwipeColor(0, 0, 0, 0.65) end
+    if cd.SetUseCircularEdge then cd:SetUseCircularEdge(true) end
+    if cd.SetDrawEdge then cd:SetDrawEdge(false) end
+    if cd.SetHideCountdownNumbers then cd:SetHideCountdownNumbers(true) end
+    if cd.SetReverse then cd:SetReverse(true) end
+    cd:Hide()
+    row.cd = cd
+  end
   row.btn = CreateFrame("Button", nil, row, "UIPanelButtonTemplate")
   row.btn:SetSize(74, 22)
   row.btn:SetPoint("RIGHT", -14, -1)
@@ -282,93 +295,131 @@ function Age(c)
   return s < 60 and T.AGE_S:format(s) or T.AGE_M:format(math.floor(s / 60))
 end
 
+INVITE_SECONDS = 60 -- so lange gilt Blizzards Einladung
+
+-- Überschrift einer Gruppe in der Liste
+local function HeadRow(n, y, key, text)
+  local row = ListRow(n)
+  row:SetHeight(HEAD_H)
+  row:SetPoint("TOPLEFT", 0, -y)
+  SetRowKey(row, key)
+  row.cand = nil
+  row.bg:Hide()
+  row.hl:Hide()
+  row.headBg:Show()
+  row.head:SetText(text)
+  row.head:Show()
+  row.avatar:Hide() row.name:Hide() row.level:Hide() row.sub:Hide() row.btn:Hide()
+  row.age:Hide() row.clock:Hide() row.style:Hide()
+  if row.cd then row.cd:Hide() end
+  for _, t in ipairs(row.extra) do t:Hide() end
+  row:Show()
+  return y + HEAD_H
+end
+
+-- Spielerkarte; invitedAt = Zeitpunkt einer laufenden Einladung (Countdown statt Einladen-Knopf)
+local function PlayerRow(n, y, c, role, invitedAt)
+  local row = ListRow(n)
+  row:SetHeight(PLAYER_H)
+  row:SetPoint("TOPLEFT", 0, -y)
+  SetRowKey(row, c.key)
+  row.cand = c
+  row.bg:Show()
+  row.hl:Show()
+  row.headBg:Hide()
+  row.head:Hide()
+  SetRoleTexture(row.avatar, role, true)
+  row.avatar:Show()
+  local color = c.class and RAID_CLASS_COLORS[c.class]
+  local title = Short(c.name)
+  title = color and color:WrapTextInColorCode(title) or title
+  local tags = {}
+  if c.friend then tags[#tags + 1] = "|cff82c5ff" .. T.TAG_FRIEND .. "|r" end
+  if c.guild then tags[#tags + 1] = "|cff40ff40" .. T.TAG_GUILD .. "|r" end
+  if c.near then tags[#tags + 1] = NearIcon(c.near) end
+  if #tags > 0 then title = title .. "  " .. table.concat(tags, " ") end
+  row.name:SetText(title)
+  row.name:Show()
+  row.level:SetText((c.level and c.level > 0) and c.level or "")
+  row.level:Show()
+  row.sub:SetText(c.activity)
+  row.sub:Show()
+  row.age:SetText(Age(c))
+  row.age:Show()
+  row.clock:SetShown(HasAtlas("groupfinder-waitdot"))
+  row.style:SetText((c.playstyle and c.playstyle > 0 and PLAYSTYLE_NAME[c.playstyle]) or "")
+  row.style:Show()
+  -- weitere Rollen, die der Spieler auch angegeben hat
+  local j = 0
+  for _, r in ipairs(ROLES) do
+    if c.roles[r] and r ~= role and j < 2 then
+      j = j + 1
+      SetRoleTexture(row.extra[j], r, false)
+      row.extra[j]:Show()
+    end
+  end
+  for k = j + 1, 2 do row.extra[k]:Hide() end
+  if row.cd then
+    if invitedAt then
+      if row.cd.invitedAt ~= invitedAt then row.cd:SetCooldown(invitedAt, INVITE_SECONDS) end
+      row.cd.invitedAt = invitedAt
+      row.cd:Show()
+    else
+      row.cd.invitedAt = nil
+      row.cd:Hide()
+    end
+  end
+  row.btn:SetText(invitedAt and T.INVITED or T.INVITE)
+  row.btn:SetEnabled(not invitedAt)
+  row.btn:Show()
+  row:Show()
+  return y + PLAYER_H
+end
+
 function UpdateFound()
   local summary = ActivitySummary()
   if actDd.OverrideText then actDd:OverrideText(summary) elseif actDd.Text then actDd.Text:SetText(summary) end
   for _, dd in ipairs(dropdowns) do if dd.cycle then dd.cycle() end end
   refresh:SetEnabled(not state.searching)
-  local n, y, lastRole = 0, 0, nil
-  local counts = {}
+  local n, y = 0, 0
+  -- Laufende Einladungen zuerst, mit Countdown
+  local invited = {}
+  for _, p in pairs(pending) do if p.c then invited[#invited + 1] = p end end
+  table.sort(invited, function(a, b) return a.t < b.t end)
+  if #invited > 0 then
+    n = n + 1
+    y = HeadRow(n, y, "head:invited", T.INVITED_HEAD:format(#invited))
+    for _, p in ipairs(invited) do
+      n = n + 1
+      y = PlayerRow(n, y, p.c, p.role, p.t)
+    end
+  end
+  local counts, lastRole = {}, nil
   for _, c in ipairs(candidates) do counts[c.role] = (counts[c.role] or 0) + 1 end
   for _, c in ipairs(candidates) do
     if c.role ~= lastRole then
       lastRole = c.role
       n = n + 1
-      local row = ListRow(n)
-      row:SetHeight(HEAD_H)
-      row:SetPoint("TOPLEFT", 0, -y)
-      SetRowKey(row, "head:" .. c.role)
-      y = y + HEAD_H
-      row.cand = nil
-      row.bg:Hide()
-      row.hl:Hide()
-      row.headBg:Show()
-      row.head:SetText(("%s (%d)"):format(ROLE_PLURAL[c.role], counts[c.role]))
-      row.head:Show()
-      row.avatar:Hide() row.name:Hide() row.level:Hide() row.sub:Hide() row.btn:Hide()
-      row.age:Hide() row.clock:Hide() row.style:Hide()
-      for _, t in ipairs(row.extra) do t:Hide() end
-      row:Show()
+      y = HeadRow(n, y, "head:" .. c.role, ("%s (%d)"):format(ROLE_PLURAL[c.role], counts[c.role]))
     end
     n = n + 1
-    local row = ListRow(n)
-    row:SetHeight(PLAYER_H)
-    row:SetPoint("TOPLEFT", 0, -y)
-    SetRowKey(row, c.key)
-    y = y + PLAYER_H
-    row.cand = c
-    row.bg:Show()
-    row.hl:Show()
-    row.headBg:Hide()
-    row.head:Hide()
-    SetRoleTexture(row.avatar, c.role, true)
-    row.avatar:Show()
-    local color = c.class and RAID_CLASS_COLORS[c.class]
-    local title = Short(c.name)
-    title = color and color:WrapTextInColorCode(title) or title
-    local tags = {}
-    if c.friend then tags[#tags + 1] = "|cff82c5ff" .. T.TAG_FRIEND .. "|r" end
-    if c.guild then tags[#tags + 1] = "|cff40ff40" .. T.TAG_GUILD .. "|r" end
-    if c.near then tags[#tags + 1] = NearIcon(c.near) end
-    if #tags > 0 then title = title .. "  " .. table.concat(tags, " ") end
-    row.name:SetText(title)
-    row.name:Show()
-    row.level:SetText((c.level and c.level > 0) and c.level or "")
-    row.level:Show()
-    row.sub:SetText(c.activity)
-    row.sub:Show()
-    row.age:SetText(Age(c))
-    row.age:Show()
-    row.clock:SetShown(HasAtlas("groupfinder-waitdot"))
-    row.style:SetText((c.playstyle and c.playstyle > 0 and PLAYSTYLE_NAME[c.playstyle]) or "")
-    row.style:Show()
-    -- weitere Rollen, die der Spieler auch angegeben hat
-    local j = 0
-    for _, r in ipairs(ROLES) do
-      if c.roles[r] and r ~= c.role and j < 2 then
-        j = j + 1
-        SetRoleTexture(row.extra[j], r, false)
-        row.extra[j]:Show()
-      end
-    end
-    for k = j + 1, 2 do row.extra[k]:Hide() end
-    row.btn:Show()
-    row:Show()
+    y = PlayerRow(n, y, c, c.role)
   end
   for i = n + 1, #listRows do listRows[i]:Hide() end
   list:SetContentHeight(y)
   local tr = targetBtn.row
   if targetBtn:IsShown() and not (tr and tr:IsVisible() and tr.cand and tr.cand.key == targetBtn.key) then HideTargetButton() end
   local _, pickedIDs = SearchActivities()
+  local nothing = #candidates == 0 and #invited == 0
   if #pickedIDs == 0 then
     listEmpty:SetText(T.PICK_ACTIVITY)
-  elseif #candidates == 0 then
+  elseif nothing then
     local text = state.searching and T.SEARCHING or (T.FOUND_EMPTY .. "\n" .. T.FOUND_EMPTY_HINT)
     listEmpty:SetText((state.searching and spinner) and "" or text)
   else
     listEmpty:SetText("")
   end
-  if spinner then spinner:SetShown(state.searching and #candidates == 0 and #pickedIDs > 0) end
+  if spinner then spinner:SetShown(state.searching and nothing and #pickedIDs > 0) end
 end
 
 -------------------------------------------------------------------------

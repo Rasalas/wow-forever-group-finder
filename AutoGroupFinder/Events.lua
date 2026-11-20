@@ -122,6 +122,7 @@ function OnRoster()
       pending[k] = nil
       roleQueue[k] = joined[k]
       Print(T.CHAT_JOINED:format(Short(k), ROLE_NAME[joined[k]]))
+      if db.sound then PlaySound(SOUNDKIT.UI_GROUP_FINDER_RECEIVE_APPLICATION or SOUNDKIT.IG_PLAYER_INVITE or 880, "SFX") end
       if (Target()) <= 5 then Notify(T.CHAT_JOINED:format(Short(k), ROLE_NAME[joined[k]])) end -- in Raids nur die volle Gruppe
     elseif expired[name] and not joined[name] then
       joined[name] = expired[name]
