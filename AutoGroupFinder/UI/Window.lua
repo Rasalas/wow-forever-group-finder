@@ -48,11 +48,22 @@ end
 function CloseWindow() win:Hide() end
 
 -- Sichere Hooks: laufen nach Blizzards Code und bewegen nur unser Fenster, Blizzards Ablauf bleibt sauber.
--- Die Karte schließt es, wie Blizzards eigene Fenster.
+-- Die Karte blendet es aus, solange sie offen ist; danach kommt es an derselben Stelle wieder.
+local mapHid, mapHooked
+local function MapClosed()
+  if mapHid then mapHid = false win:Show() end
+end
 local function AfterPanel(frame)
-  if not win:IsShown() then return end
-  if frame and frame == _G.WorldMapFrame then win:Hide() return end
-  FitBesideBlizzard()
+  if frame and frame == _G.WorldMapFrame then
+    if not mapHooked and frame.HookScript then mapHooked = true frame:HookScript("OnHide", MapClosed) end
+    if win:IsShown() then
+      mapHid, mapHiding = true, true
+      win:Hide()
+      mapHiding = false
+    end
+    return
+  end
+  if win:IsShown() then FitBesideBlizzard() end
 end
 if hooksecurefunc then
   if ShowUIPanel then hooksecurefunc("ShowUIPanel", AfterPanel) end
@@ -92,8 +103,9 @@ function ResetWindow()
 end
 win:SetScript("OnDragStart", StartMoveWindow)
 win:SetScript("OnDragStop", StopMoveWindow)
--- Geschlossen = Verschiebung vergessen
+-- Geschlossen = Verschiebung vergessen (nicht beim Ausblenden für die Karte)
 win:HookScript("OnHide", function()
+  if mapHiding then return end
   if winMoving then -- Sicherung: ausgeblendet mitten im Ziehen, dann Ziehen beenden
     winMoving = false
     win:StopMovingOrSizing()
