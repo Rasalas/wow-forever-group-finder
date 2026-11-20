@@ -613,11 +613,16 @@ if menuOk then
         list:CreateButton(T.UNBLOCK_ENTRY:format(Short(k)), function() ToggleBlocked(k) end)
       end
     end
+    local lang = root:CreateButton(T.PREF_LANG)
+    local function SetLang(v) db.preferLang = v Rebuild() end
+    lang:CreateRadio(T.PREF_LANG_NONE, function(v) return db.preferLang == v end, SetLang, "none")
+    for _, loc in ipairs(LANGUAGES) do
+      lang:CreateRadio(LangName(loc), function(v) return db.preferLang == v end, SetLang, loc)
+    end
     root:CreateDivider()
     root:CreateButton(T.EDIT_WHISPER, EditWhisper)
     root:CreateButton(T.ONB_SHOW, ShowOnboarding)
-    root:CreateDivider()
-    root:CreateTitle(T.SETTINGS_PATH)
+    root:CreateButton(T.ABOUT, ShowInfo)
   end)
 else
   -- Ohne Menü-API: kleines Aufklappfenster mit Häkchen

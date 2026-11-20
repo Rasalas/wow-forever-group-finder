@@ -5,6 +5,10 @@ setfenv(1, ns.env) -- gemeinsamer, privater Namensraum aller Module (siehe Core.
 -- Kein Spendenaufruf im Spiel (Blizzards Add-on-Richtlinie, Regel 5); der steht nur auf GitHub.
 -------------------------------------------------------------------------
 REPO_URL = "https://github.com/Rasalas/wow-forever-group-finder"
+function AddonVersion()
+  local get = (C_AddOns and C_AddOns.GetAddOnMetadata) or GetAddOnMetadata
+  return get and get(ADDON, "Version") or "?"
+end
 
 -- Kopierbares Textfeld: WoW kann keine Links öffnen, also markieren und Strg+C
 function CopyBox(parent, text, width)
@@ -124,13 +128,66 @@ ONBOARDING_VERSION = 3 -- erhöhen, wenn man die Karte nach einem Update nochmal
 win:HookScript("OnShow", function() if db and db.onboarded ~= ONBOARDING_VERSION then onboarding:Show() end end)
 
 -------------------------------------------------------------------------
+-- Info im eigenen Fenster (Zahnrad > Über): Blizzards Einstellungen öffnet das Add-on nicht selbst (Taint)
+-------------------------------------------------------------------------
+info = CreateFrame("Frame", nil, win)
+info:SetPoint("TOPLEFT", win, "TOPLEFT", 2, -22)
+info:SetPoint("BOTTOMRIGHT", win, "BOTTOMRIGHT", -2, 2)
+info:SetFrameLevel(win:GetFrameLevel() + 100)
+info:EnableMouse(true)
+info.dim = info:CreateTexture(nil, "BACKGROUND")
+info.dim:SetAllPoints()
+info.dim:SetColorTexture(0, 0, 0, 0.6)
+do
+  local W = 400
+  local c = CreateFrame("Frame", nil, info, "BackdropTemplate")
+  c:SetWidth(W)
+  c:SetPoint("TOP", info, "TOP", 0, -40)
+  if c.SetBackdrop and BACKDROP_DARK_DIALOG_32_32 then c:SetBackdrop(BACKDROP_DARK_DIALOG_32_32) end
+  local version = AddonVersion()
+  local title = Label(c, T.TITLE .. "  |cff9d9d9d" .. version .. "|r", "GameFontNormalLarge", "TOPLEFT", c, "TOPLEFT", 24, -22)
+  local parts = { title }
+  local function Text(text, font, gap)
+    local fs = Label(c, text, font, "TOPLEFT", parts[#parts], "BOTTOMLEFT", 0, -gap)
+    fs:SetWidth(W - 48)
+    fs:SetJustifyH("LEFT")
+    fs:SetSpacing(2)
+    parts[#parts + 1] = fs
+    return fs
+  end
+  Text(T.ABOUT_TEXT, "GameFontHighlightSmall", 10)
+  local code = Text(T.ABOUT_CODE, "GameFontNormal", 14)
+  local box = CopyBox(c, REPO_URL, W - 56)
+  box:SetPoint("TOPLEFT", code, "BOTTOMLEFT", 6, -4)
+  local hint = Label(c, T.ABOUT_COPY, "GameFontDisableSmall", "TOPLEFT", box, "BOTTOMLEFT", -6, -2)
+  parts[#parts + 1] = hint
+  Text(T.ABOUT_PRIVACY_TITLE, "GameFontNormal", 14)
+  Text(T.ABOUT_PRIVACY, "GameFontHighlightSmall", 4)
+  Text(T.SETTINGS_PATH, "GameFontDisableSmall", 12)
+  local close = CreateFrame("Button", nil, c, "UIPanelButtonTemplate")
+  close:SetSize(120, 22)
+  close:SetPoint("BOTTOM", c, "BOTTOM", 0, 18)
+  close:SetText(CLOSE or "Close")
+  close:SetScript("OnClick", function() info:Hide() end)
+  -- Höhe aus den Texten, erst beim Zeigen sind die Zeilen gemessen
+  info:SetScript("OnShow", function()
+    local h = 22 + 60 + 18
+    for _, fs in ipairs(parts) do h = h + (fs:GetStringHeight() or 14) + 8 end
+    c:SetHeight(math.min(h + 34, win:GetHeight() - 70))
+  end)
+end
+info:Hide()
+win:HookScript("OnHide", function() info:Hide() end)
+function ShowInfo() OpenWindow() onboarding:Hide() info:Show() end
+
+-------------------------------------------------------------------------
 -- Infoseite: Einstellungen → AddOns → Auto Group Finder → Über
 -------------------------------------------------------------------------
 function RegisterAboutPage()
   if not (settingsCategory and Settings and Settings.RegisterCanvasLayoutSubcategory) then return end
   local page = CreateFrame("Frame")
   page.OnCommit, page.OnDefault, page.OnRefresh = function() end, function() end, function() end
-  local version = (C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata)(ADDON, "Version") or "?"
+  local version = AddonVersion()
   local title = Label(page, T.TITLE .. "  |cff9d9d9d" .. version .. "|r", "GameFontHighlightHuge", "TOPLEFT", page, "TOPLEFT", 16, -16)
   local text = Label(page, T.ABOUT_TEXT, "GameFontHighlight", "TOPLEFT", title, "BOTTOMLEFT", 0, -14)
   text:SetWidth(560)
