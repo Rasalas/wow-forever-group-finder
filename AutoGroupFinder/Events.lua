@@ -122,7 +122,7 @@ function OnRoster()
       pending[k] = nil
       roleQueue[k] = joined[k]
       Print(T.CHAT_JOINED:format(Short(k), ROLE_NAME[joined[k]]))
-      Notify(T.CHAT_JOINED:format(Short(k), ROLE_NAME[joined[k]]))
+      if (Target()) <= 5 then Notify(T.CHAT_JOINED:format(Short(k), ROLE_NAME[joined[k]])) end -- in Raids nur die volle Gruppe
     elseif expired[name] and not joined[name] then
       joined[name] = expired[name]
       state.lastJoinRole = joined[name]
@@ -132,6 +132,7 @@ function OnRoster()
     end
   end
   for k in pairs(joined) do if not members[k] then joined[k] = nil end end
+  Estimate.OnRoster()
   Rebuild()
   if not IsInGroup() then state.completed = false end
   -- Fertige Gruppe wieder unvollständig: Neustart braucht einen Klick, also nur Bescheid geben.
@@ -139,11 +140,15 @@ function OnRoster()
     local rem = Slots()
     if AnyLeft(rem) and not state.backfillNoted then
       state.backfillNoted = true
-      Print(T.CHAT_BACKFILL:format(NeedText(rem)))
+      Print(T.CHAT_BACKFILL:format(NeedText(rem)) .. " |cff71d5ff|Haddon:AutoGroupFinder:backfill|h[" .. T.BACKFILL_LINK .. "]|h|r")
       Notify(T.NOTIFY_BACKFILL:format(NeedText(rem)))
     elseif not AnyLeft(rem) then
       state.backfillNoted = false
     end
+  end
+  if state.queued and IsInGroup() and not CanInvite() then
+    StopQueue(T.CHAT_LEADER_ONLY) -- Anführer abgegeben: einladen geht nicht mehr
+    return
   end
   if state.queued then
     local _, _, cap = Target()
@@ -176,7 +181,7 @@ for _, e in ipairs({ "ADDON_LOADED", "PLAYER_LOGIN", "PLAYER_LEVEL_UP", "PLAYER_
     "PARTY_INVITE_REQUEST",
     "PLAYER_ENTERING_WORLD", "ZONE_CHANGED", "ZONE_CHANGED_INDOORS", "ZONE_CHANGED_NEW_AREA",
     "LFG_LIST_SEARCH_RESULTS_RECEIVED", "LFG_LIST_SEARCH_RESULT_UPDATED", "LFG_LIST_SEARCH_FAILED",
-    "LFG_LIST_AVAILABILITY_UPDATE", "GROUP_ROSTER_UPDATE", "CHAT_MSG_SYSTEM" }) do
+    "LFG_LIST_AVAILABILITY_UPDATE", "LFG_LIST_ACTIVE_ENTRY_UPDATE", "GROUP_ROSTER_UPDATE", "CHAT_MSG_SYSTEM" }) do
   pcall(ev.RegisterEvent, ev, e)
 end
 ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4)
@@ -185,6 +190,7 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4)
     _G.AutoGroupFinderDB = _G.AutoGroupFinderDB or {}
     db = AutoGroupFinderDB
     db.errors = errors -- nur die Fehler dieser Sitzung
+    if not db.shareV2 then db.shareStats, db.shareV2 = true, true end -- Teilen ist jetzt Standard
     for k, v in pairs(DEFAULTS) do
       if db[k] == nil then db[k] = type(v) == "table" and CopyTable(v) or v end
     end
@@ -228,6 +234,11 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4)
     History.Track() -- nach /reload in der laufenden Gruppe weitermachen
     if C_ChatInfo and C_ChatInfo.RegisterAddonMessagePrefix then pcall(C_ChatInfo.RegisterAddonMessagePrefix, COMM_PREFIX) end
     Print(T.LOADED:format(SLASH))
+  elseif event == "LFG_LIST_ACTIVE_ENTRY_UPDATE" then
+    -- Über Blizzards Auge ausgetragen oder einer anderen Gruppe beigetreten: nicht weiter „suchen“
+    if state.queued and GetTime() - state.queuedAt > 5 and L.HasActiveEntryInfo and not L.HasActiveEntryInfo() then
+      StopQueue(T.CHAT_LISTING_GONE)
+    end
   elseif event == "LFG_LIST_AVAILABILITY_UPDATE" then
     state.here = HereDungeon() -- Dungeon-Liste ist da, Standort neu prüfen
     Rebuild()
@@ -273,3 +284,10 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4)
 end)
 
 -------------------------------------------------------------------------
+
+-- Klick auf [Nachbesetzen] im Chat: ein echter Klick, also darf eingetragen und gesucht werden
+if EventRegistry and EventRegistry.RegisterCallback then
+  EventRegistry:RegisterCallback("SetItemRef", function(_, link)
+    if link == "addon:AutoGroupFinder:backfill" and not state.queued then StartQueue() end
+  end, ns)
+end

@@ -94,7 +94,7 @@ DEFAULTS = {
   levelCheck = true,     -- Spieler unter dem Stufenbereich überspringen
   levelTolerance = 2,
   preferFriends = true,  -- Freunde und Gildenmitglieder zuerst
-  shareStats = false,    -- Wartezeiten über den versteckten Kanal teilen (Estimate.lua)
+  shareStats = true,     -- Wartezeiten mit anderen Nutzern teilen: Gilde, Kanal, eigene Gruppe (Estimate.lua)
   fills = {},            -- fertige Gruppen: eigene und geteilte Wartezeiten
   calib = {},            -- tatsächlich / geschätzt, um den Schätzfehler zu lernen
   inviteStats = { TANK = { sent = 0, joined = 0 }, HEALER = { sent = 0, joined = 0 }, DAMAGER = { sent = 0, joined = 0 } },

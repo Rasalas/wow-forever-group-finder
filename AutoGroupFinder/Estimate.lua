@@ -142,9 +142,20 @@ local function Prune()
   db.fills = keep
 end
 
+-- Kennung zum Aussortieren doppelter Meldungen (dieselbe Gruppe kommt über Gruppe, Gilde und Kanal)
+local function Id(f) return ("%d.%d.%d.%s"):format(f.t, f.m, f.s, f.q) end
+local known
 local function Add(f)
+  if not known then
+    known = {}
+    for _, g in ipairs(db.fills) do known[Id(g)] = true end
+  end
+  local id = Id(f)
+  if known[id] then return false end
+  known[id] = true
   tinsert(db.fills, f)
   Prune()
+  return true
 end
 
 -- Restzeiten (Viertel, Mitte, Dreiviertel) aus fertigen Gruppen; sameDungeon = nur die gewählte Instanz.
@@ -186,60 +197,129 @@ function Estimate.RecordFill(seconds, lastRole)
   local f = { m = mapID, s = math.floor(seconds), b = ROLE_CODE[lastRole] or "D", z = (Target()),
     q = state.startNeed, h = tonumber(date("!%H")), t = time(), o = "me" }
   Add(f)
-  if db.shareStats then Estimate.Send(f) end
+  Estimate.Share(f)
 end
 
 -------------------------------------------------------------------------
--- Teilen über den versteckten Kanal
+-- Teilen: eine Meldung je fertiger Gruppe an Kanal und Gilde, dazu Austausch in der Gruppe,
+-- damit sich Wartezeiten von Gruppe zu Gruppe weiterverbreiten. Namen werden nicht gespeichert.
 -------------------------------------------------------------------------
--- Benannte Felder, unbekannte werden ignoriert, z. B. "v=1;k=fill;m=90;s=372;b=T;z=5;q=1.1.2;h=20"
+-- Benannte Felder, unbekannte werden ignoriert, z. B. "v=1;k=fill;m=90;s=372;b=T;z=5;q=1.1.2;h=20;t=1795180000"
 function Estimate.Encode(f)
-  return ("v=%d;k=fill;m=%d;s=%d;b=%s;z=%d;q=%s;h=%d"):format(PROTO, f.m, f.s, f.b, f.z, f.q, f.h)
+  return ("v=%d;k=fill;m=%d;s=%d;b=%s;z=%d;q=%s;h=%d;t=%d"):format(PROTO, f.m, f.s, f.b, f.z, f.q, f.h, f.t)
+end
+
+local function Fields(msg)
+  local fields = {}
+  for k, v in msg:gmatch("(%w+)=([^;]*)") do fields[k] = v end
+  if math.floor(tonumber(fields.v) or 0) ~= PROTO then return nil end
+  return fields
 end
 
 function Estimate.Decode(msg)
-  local fields = {}
-  for k, v in msg:gmatch("(%w+)=([^;]*)") do fields[k] = v end
-  if math.floor(tonumber(fields.v) or 0) ~= PROTO or fields.k ~= "fill" then return nil end
+  local fields = Fields(msg)
+  if not fields or fields.k ~= "fill" then return nil end
   local m, s, z, h = tonumber(fields.m), tonumber(fields.s), tonumber(fields.z), tonumber(fields.h)
   if not (m and m > 0 and s and s >= 10 and s <= 4 * 3600 and z and DEFAULT_NEED[z] and h and h >= 0 and h < 24) then return nil end
   if fields.b ~= "T" and fields.b ~= "H" and fields.b ~= "D" then return nil end
   if not (fields.q and fields.q:match("^%d+%.%d+%.%d+$")) then return nil end
-  return { m = m, s = math.floor(s), b = fields.b, z = z, q = fields.q, h = math.floor(h), t = time(), o = "net" }
+  local now = time()
+  local t = math.floor(tonumber(fields.t) or now)
+  if t < now - KEEP_SECONDS or t > now + 3600 then return nil end
+  return { m = m, s = math.floor(s), b = fields.b, z = z, q = fields.q, h = math.floor(h), t = t, o = "net" }
 end
 
-local lastFrom = {} -- nur im Speicher: höchstens eine Meldung je Absender alle 5 Minuten
+local function Send(kind, target, msg)
+  if C_ChatInfo and C_ChatInfo.SendAddonMessage then pcall(C_ChatInfo.SendAddonMessage, COMM_PREFIX, msg, kind, target) end
+end
+local function GroupKind() return IsInRaid() and "RAID" or "PARTY" end
+
+-- Eigene fertige Gruppe: an den Kanal und an die Gilde
+function Estimate.Share(f)
+  if not db.shareStats then return end
+  local msg = Estimate.Encode(f)
+  local id = GetChannelName and GetChannelName(SHARE_CHANNEL)
+  if id and id ~= 0 then Send("CHANNEL", tostring(id), msg) end
+  if IsInGuild and IsInGuild() then Send("GUILD", nil, msg) end
+end
+
+-- In der Gruppe: einmal „hallo“; wer das Add-on hat, antwortet mit seinen letzten Wartezeiten
+local GOSSIP_MAX = 10
+function Estimate.OnRoster()
+  if not db or not db.shareStats then return end
+  if not IsInGroup() then state.hiSent = nil return end
+  if not state.hiSent then
+    state.hiSent = true
+    Send(GroupKind(), nil, ("v=%d;k=hi"):format(PROTO))
+  end
+end
+
+function Estimate.Gossip()
+  local now = GetTime()
+  if state.gossipAt and now - state.gossipAt < 30 then return end
+  state.gossipAt = now
+  local kind, n = GroupKind(), 0
+  for i = #db.fills, 1, -1 do
+    if n >= GOSSIP_MAX then break end
+    n = n + 1
+    local msg = Estimate.Encode(db.fills[i])
+    C_Timer.After(n * 1.5, function() if IsInGroup() then Send(kind, nil, msg) end end) -- gedrosselt
+  end
+end
+
+-- Empfang; je Absender höchstens 30 Meldungen in 10 Minuten
+local fromCount = {}
 function Estimate.OnNet(msg, sender)
   if not db or not db.shareStats or not sender then return end
   local k = Key(sender)
   if k == Key(UnitName("player")) then return end
-  if lastFrom[k] and GetTime() - lastFrom[k] < 300 then return end
+  local fields = Fields(msg)
+  if not fields then return end
+  if fields.k == "hi" then
+    Estimate.OnRoster() -- falls wir selbst noch nicht gegrüßt haben
+    Estimate.Gossip()
+    return
+  end
+  local now, c = GetTime(), fromCount[k]
+  if not c or now - c.since > 600 then c = { n = 0, since = now }; fromCount[k] = c end
+  if c.n >= 30 then return end
   local f = Estimate.Decode(msg)
   if not f then return end
-  lastFrom[k] = GetTime()
+  c.n = c.n + 1
   Add(f)
 end
 
-function Estimate.Send(f)
-  local id = GetChannelName and GetChannelName(SHARE_CHANNEL)
-  if not id or id == 0 or not (C_ChatInfo and C_ChatInfo.SendAddonMessage) then return end
-  pcall(C_ChatInfo.SendAddonMessage, COMM_PREFIX, Estimate.Encode(f), "CHANNEL", tostring(id))
+-- Versteckter Kanal: beitreten, aus allen Chatfenstern nehmen, Beitrittsmeldung unterdrücken; abgeschaltet verlassen
+local function MentionsChannel(...)
+  for i = 1, select("#", ...) do
+    local v = select(i, ...)
+    if type(v) == "string" and v:find(SHARE_CHANNEL, 1, true) then return true end
+  end
 end
-
--- Versteckter Kanal: beitreten und aus allen Chatfenstern nehmen, beim Abschalten verlassen
+local filterAdded
 function Estimate.UpdateChannel()
   if not db then return end
+  if not filterAdded then
+    filterAdded = true
+    local add = (ChatFrameUtil and ChatFrameUtil.AddMessageEventFilter) or ChatFrame_AddMessageEventFilter
+    if add then pcall(add, "CHAT_MSG_CHANNEL_NOTICE", function(_, _, ...) return MentionsChannel(...) end) end
+  end
   local joinedNow = GetChannelName and GetChannelName(SHARE_CHANNEL) or 0
   if db.shareStats and joinedNow == 0 then
     local join = JoinTemporaryChannel or JoinChannelByName
     if join then pcall(join, SHARE_CHANNEL) end
-    local remove = (ChatFrameUtil and ChatFrameUtil.RemoveChannel) or ChatFrame_RemoveChannel
     for i = 1, (NUM_CHAT_WINDOWS or 10) do
       local frame = _G["ChatFrame" .. i]
-      if frame and remove then pcall(remove, frame, SHARE_CHANNEL) end
+      if frame and frame.RemoveChannel then pcall(frame.RemoveChannel, frame, SHARE_CHANNEL)
+      elseif frame and ChatFrame_RemoveChannel then pcall(ChatFrame_RemoveChannel, frame, SHARE_CHANNEL) end
     end
   elseif not db.shareStats and joinedNow ~= 0 and LeaveChannelByName then
     pcall(LeaveChannelByName, SHARE_CHANNEL)
+  end
+  -- Einmaliger Hinweis, dass geteilt wird und wie man es abschaltet
+  if db.shareStats and not db.shareNoticeShown then
+    db.shareNoticeShown = true
+    Print(T.SHARE_NOTICE)
   end
 end
 

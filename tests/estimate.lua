@@ -131,7 +131,7 @@ local function setResults(list)
   for i, e in ipairs(list) do res(i, e[1], e[2], 5, { generalPlaystyle = 2, activityIDs = { 11 } }) end
   fire("LFG_LIST_SEARCH_RESULTS_RECEIVED")
 end
-db.playstyle, db.view, db.autoInvite = 2, "activities", false
+db.playstyle, db.view, db.autoInvite, db.shareStats = 2, "activities", false, false
 for k in pairs(db.activities) do db.activities[k] = nil end
 db.activities[11] = true
 db.activities[10], db.activities[12], db.activities[13] = false, false, false
@@ -157,7 +157,7 @@ check("Gespeichert:", #db.fills, 1)
 local f = db.fills[1]
 check("Datensatz:", ("%d %d %s %d %s"):format(f.m, f.s, f.b, f.z, f.q), "90 600 T 5 1.1.2")
 check("Fehler gelernt (tatsächlich/geschätzt):", ("%.2f"):format(db.calib[1]), "1.54")
-check("Nachricht:", Est.Encode(f):gsub("h=%d+$", "h=H"), "v=1;k=fill;m=90;s=600;b=T;z=5;q=1.1.2;h=H")
+check("Nachricht:", (Est.Encode(f):gsub("h=%d+;t=%d+$", "h=H;t=T")), "v=1;k=fill;m=90;s=600;b=T;z=5;q=1.1.2;h=H;t=T")
 check("Ohne Teilen nichts gesendet:", #sentMsgs, 0)
 db.shareStats = true
 Est.RecordFill(480, "HEALER")
@@ -170,8 +170,8 @@ local function msg(s, extra) return ("v=1;k=fill;m=90;s=%d;b=T;z=5;q=1.1.2;h=%d%
 E.OnAddonMessage("AutoGrpFinder", msg(300), "CHANNEL", "Other")
 check("Gültige Meldung:", #db.fills, base + 1)
 E.OnAddonMessage("AutoGrpFinder", msg(300), "CHANNEL", "Other")
-check("Gleicher Absender kurz danach ignoriert:", #db.fills, base + 1)
-E.OnAddonMessage("AutoGrpFinder", msg(300, ";neu=1"), "CHANNEL", "Other2")
+check("Doppelte Meldung aussortiert:", #db.fills, base + 1)
+E.OnAddonMessage("AutoGrpFinder", msg(301, ";neu=1"), "CHANNEL", "Other2")
 check("Unbekanntes Feld wird übergangen:", #db.fills, base + 2)
 E.OnAddonMessage("AutoGrpFinder", (msg(300):gsub("^v=1", "v=2")), "CHANNEL", "Other3")
 check("Neuere Hauptversion ignoriert:", #db.fills, base + 2)
@@ -180,6 +180,23 @@ check("Kaputte Meldung ignoriert:", #db.fills, base + 2)
 E.OnAddonMessage("AutoGrpFinder", msg(300), "CHANNEL", "Me")
 check("Eigene Meldung ignoriert:", #db.fills, base + 2)
 check("Gespeichert ohne Namen:", db.fills[#db.fills].o, "net")
+E.OnAddonMessage("AutoGrpFinder", msg(302, ";t=" .. (os.time() - 40 * 86400)), "CHANNEL", "Other6")
+check("Zu alte Meldung ignoriert:", #db.fills, base + 2)
+
+print("== Austausch in der Gruppe")
+local before = #sentMsgs
+party = { "Mate" }
+fire("GROUP_ROSTER_UPDATE")
+check("Einmal gegrüßt:", sentMsgs[before + 1] and (sentMsgs[before + 1][1] .. " " .. sentMsgs[before + 1][2]), "v=1;k=hi PARTY")
+fire("GROUP_ROSTER_UPDATE")
+check("Nicht doppelt gegrüßt:", #sentMsgs, before + 1)
+E.OnAddonMessage("AutoGrpFinder", "v=1;k=hi", "PARTY", "Mate")
+advance(20)
+local fillsSent = 0
+for i = before + 2, #sentMsgs do if sentMsgs[i][1]:find("k=fill") and sentMsgs[i][2] == "PARTY" then fillsSent = fillsSent + 1 end end
+check("Antwort mit den letzten Wartezeiten:", fillsSent, #db.fills)
+party = {}
+fire("GROUP_ROSTER_UPDATE")
 
 print("== Echte Wartezeiten vor Modell")
 E.OnAddonMessage("AutoGrpFinder", msg(900), "CHANNEL", "Other5")
