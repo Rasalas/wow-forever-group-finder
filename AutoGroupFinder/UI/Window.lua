@@ -132,17 +132,9 @@ titleHandle:SetScript("OnEnter", function(self)
 end)
 titleHandle:SetScript("OnLeave", GameTooltip_Hide)
 if win.SetTitle then win:SetTitle(T.TITLE) end
--- Porträt wie in Blizzards Gruppensuche: das große Auge, animiert während der Suche
-portraitEye = Eye.Create(win, true, win:GetFrameLevel() + 600) -- über Rahmen (500) und Titel (510)
-if portraitEye then
-  portraitEye:SetSize(64, 64)
-  portraitEye:SetPoint("CENTER", win, "TOPLEFT", 25, -22)
-  portraitEye:SetScript("OnClick", portraitEye.OnClick)
-  local p = win.GetPortrait and win:GetPortrait()
-  if p then p:SetAlpha(0) end
-elseif win.SetPortraitToAsset then
-  pcall(win.SetPortraitToAsset, win, ICON)
-end
+-- Porträt: der Versammlungsstein, unterscheidet das Fenster von Blizzards Gruppensuche
+local portrait = win.GetPortrait and win:GetPortrait()
+if portrait then portraitStone = Stone.Attach(portrait) end
 
 -- Blizzards Dropdowns bauen ihr Menü schon bei SetupMenu auf, vor ADDON_LOADED gibt es db aber noch nicht.
 -- Nach dem Laden erzeugt Events.lua alle Menüs neu (RefreshMenus).

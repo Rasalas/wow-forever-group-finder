@@ -137,7 +137,7 @@ end
 UpdateMinimap = function()
   if not db or not mm then return end
   mm:SetShown(not db.minimap.hide)
-  Eye.Set(state.queued and "search" or "idle")
+  Stone.Set(state.queued and "search" or "idle")
   mmGlow:SetShown(state.queued)
   if state.queued then
     if not pulse:IsPlaying() then pulse:Play() end

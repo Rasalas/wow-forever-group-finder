@@ -31,7 +31,7 @@ Invite.lua
 InviteInfo.lua
 Messages.lua
 Queue.lua
-UI\Eye.lua
+UI\Stone.lua
 UI\Window.lua
 UI\FinderPage.lua
 UI\FoundPage.lua

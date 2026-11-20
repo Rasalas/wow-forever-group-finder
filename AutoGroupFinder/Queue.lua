@@ -60,7 +60,7 @@ function FinishQueue()
   db.page = 4 -- beim nächsten Öffnen die Gruppenübersicht
   state.completed, state.backfillNoted = true, false
   StopQueue(T.CHAT_COMPLETE)
-  Eye.Set("found")
+  Stone.Set("found")
   Ding()
   if Notify then Notify(T.CHAT_COMPLETE) end
 end

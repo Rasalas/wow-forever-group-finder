@@ -126,11 +126,14 @@ local function check(label, got, want)
 end
 local function onUpdate(f) local s = rawget(f, "_scripts") return s and s.OnUpdate ~= nil end
 
-check("Fenster-Auge still: kein OnUpdate:", onUpdate(E.portraitEye), false)
-E.Eye.Set("search")
-check("Während der Suche: OnUpdate an:", onUpdate(E.portraitEye), true)
-E.Eye.Set("idle")
-check("Wieder still: OnUpdate aus:", onUpdate(E.portraitEye), false)
+-- Porträt-Stein: Zustände ohne OnUpdate, „gefunden“ hält kurz gegen „Suche“
+E.Stone.Set("search")
+check("Stein: Suche:", E.Stone.mode, "search")
+E.Stone.Set("found")
+E.Stone.Set("search")
+check("Stein: gefunden bleibt kurz stehen:", E.Stone.mode, "found")
+E.Stone.Set("idle")
+check("Stein: nach dem Aufleuchten nicht sofort still:", E.Stone.mode, "found")
 
 local full = 0
 local origUI = E.UpdateUI
@@ -162,3 +165,10 @@ check("Frische bleibt:", db.popular[10] and db.popular[10].Frisch ~= nil and db.
 check("Alte Einträge der Gruppensuche entfernt:", E.state.listings.Alt, nil)
 check("Alte Gesehen-Marke entfernt:", E.seen.Alt, nil)
 check("Unbenutzte Sprachen freigegeben:", ns.L.frFR == nil and ns.L.enUS ~= nil, true)
+
+print("== Porträt-Stein an einer Porträt-Textur")
+local holder = CreateFrame("Frame")
+local tex = holder:CreateTexture()
+rawset(tex, "GetParent", function() return holder end)
+local s = E.Stone.Attach(tex)
+check("Leuchten angelegt:", s and s.glow ~= nil, true)

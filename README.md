@@ -22,7 +22,7 @@ You pick your role, the dungeons and a play style and click **Find Group**. The 
 - **Your group** page: who is at the dungeon, waypoint to the entrance, level warnings, and rate players (play again / never again)
 - **Group history** per character, **backfill** with one click when someone leaves, raid conversion, ready check
 - Shows up in Titan Panel, ElvUI and other LibDataBroker displays
-- Blizzard look and feel: animated group-finder eye in the window, side tabs, a tab inside Blizzard's group finder; a meeting-stone icon on the minimap that glows while searching
+- Blizzard look and feel: side tabs, a tab inside Blizzard's group finder; a meeting stone as the window portrait and minimap icon that glows while searching
 - English, Deutsch, Français, Español, Italiano, Português, Русский
 
 ## Installation
