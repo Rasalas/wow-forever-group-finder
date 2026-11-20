@@ -146,11 +146,6 @@ function ShowPlayerMenu(owner, c)
   MenuUtil.CreateContextMenu(owner, function(_, root)
     root:CreateTitle(Short(c.name))
     root:CreateButton(T.WHISPER, function() Whisper(c.name) end)
-    -- Ins Ziel nehmen dürfen Add-ons nicht selbst; der Befehl steht dann im Chat, Enter führt ihn aus.
-    root:CreateButton(T.CTX_TARGET, function()
-      local open = (ChatFrameUtil and ChatFrameUtil.OpenChat) or ChatFrame_OpenChat
-      if open then open("/target " .. c.name) end
-    end)
     for _, r in ipairs(ROLES) do
       if c.roles[r] then
         root:CreateButton(T.CTX_INVITE_AS:format(ROLE_NAME[r]), function()
