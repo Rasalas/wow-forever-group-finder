@@ -119,6 +119,7 @@ ns.L.frFR = {
   MM_RIGHT_START = "Clic droit : chercher un groupe",
   MM_RIGHT_SEARCH = "Clic droit : chercher maintenant",
   MM_SHIFT_RIGHT = "Maj-clic droit : arrêter la recherche",
+  MM_DRAG = "Glisser : déplacer autour de la minicarte · Maj-glisser : placer librement",
 
   CHAT_STARTED = "Recherche lancée. Recherché : %s.",
   CHAT_STOPPED = "Recherche arrêtée.",
@@ -143,7 +144,7 @@ ns.L.frFR = {
   CHAT_RESET = "Joueurs ignorés et invités oubliés.",
   CHAT_NO_RESULTS = "Aucun résultat de recherche.",
   ON = "activé", OFF = "désactivé",
-  HELP = "%s · %s config · %s whisper <texte> · %s testinvite [simple|listing] · %s test · %s test shots · %s start · %s stop · %s minimap · %s sound · %s interval 8 · %s reset · %s diag · %s dump",
+  HELP = "%s · %s config · %s whisper <texte> · %s testinvite [simple|listing] · %s test · %s test shots · %s start · %s stop · %s minimap [reset] · %s sound · %s interval 8 · %s reset · %s diag · %s dump",
 
   TEST_START = "[Test] Lancé avec des joueurs inventés – personne n'est vraiment invité.",
   TEST_SEARCH = "[Test] Recherche …",

@@ -45,14 +45,42 @@ if mmEye then
   local hl = mm:GetHighlightTexture(); if hl then hl:SetAlpha(0) end
 end
 
+-- Am Minimap-Rand (Winkel) oder frei auf dem Bildschirm (db.minimap.free = Mitte in UIParent)
 function PlaceMinimap()
-  local a = math.rad(db.minimap.angle)
-  local r = (Minimap:GetWidth() / 2) + 5
+  local free = db.minimap.free
   mm:ClearAllPoints()
-  mm:SetPoint("CENTER", Minimap, "CENTER", math.cos(a) * r, math.sin(a) * r)
+  if free then
+    mm:SetParent(UIParent)
+    mm:SetPoint("CENTER", UIParent, "BOTTOMLEFT", free.x, free.y)
+  else
+    mm:SetParent(Minimap)
+    local a = math.rad(db.minimap.angle)
+    local r = (Minimap:GetWidth() / 2) + 5
+    mm:SetPoint("CENTER", Minimap, "CENTER", math.cos(a) * r, math.sin(a) * r)
+  end
+  mm:SetFrameStrata("MEDIUM")
+  mm:SetFrameLevel(8)
 end
 
+-- Aktuelle Bildschirmmitte des Knopfs in UIParent-Koordinaten
+local function ScreenCenter()
+  local x, y = mm:GetCenter()
+  local s = mm:GetEffectiveScale() / UIParent:GetEffectiveScale()
+  return x * s, y * s
+end
+
+mm:SetMovable(true)
+mm:SetClampedToScreen(true)
 mm:SetScript("OnDragStart", function(self)
+  if IsShiftKeyDown() then
+    local x, y = ScreenCenter()
+    db.minimap.free = { x = x, y = y }
+    PlaceMinimap()
+    self.freeDrag = true
+    self:StartMoving()
+    return
+  end
+  if db.minimap.free then db.minimap.free = nil; PlaceMinimap() end
   self:SetScript("OnUpdate", function()
     local mx, my = Minimap:GetCenter()
     local cx, cy = GetCursorPosition()
@@ -61,7 +89,17 @@ mm:SetScript("OnDragStart", function(self)
     PlaceMinimap()
   end)
 end)
-mm:SetScript("OnDragStop", function(self) self:SetScript("OnUpdate", nil) end)
+mm:SetScript("OnDragStop", function(self)
+  self:SetScript("OnUpdate", nil)
+  if self.freeDrag then
+    self.freeDrag = false
+    self:StopMovingOrSizing()
+    self:SetUserPlaced(false) -- Position steht in db, nicht in WoWs Layout-Speicher
+    local x, y = ScreenCenter()
+    db.minimap.free = { x = x, y = y }
+    PlaceMinimap()
+  end
+end)
 mm:SetScript("OnClick", function(_, button)
   if button == "RightButton" then
     if IsShiftKeyDown() then
@@ -81,6 +119,7 @@ mm:SetScript("OnEnter", function(self)
   GameTooltip:AddLine(T.MM_LEFT, 0.7, 0.7, 0.7)
   GameTooltip:AddLine(state.queued and T.MM_RIGHT_SEARCH or T.MM_RIGHT_START, 0.7, 0.7, 0.7)
   if state.queued then GameTooltip:AddLine(T.MM_SHIFT_RIGHT, 0.7, 0.7, 0.7) end
+  GameTooltip:AddLine(T.MM_DRAG, 0.7, 0.7, 0.7)
   GameTooltip:Show()
 end)
 mm:SetScript("OnLeave", function()

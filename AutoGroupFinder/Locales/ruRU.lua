@@ -119,6 +119,7 @@ ns.L.ruRU = {
   MM_RIGHT_START = "Правый щелчок: искать группу",
   MM_RIGHT_SEARCH = "Правый щелчок: искать сейчас",
   MM_SHIFT_RIGHT = "Shift + правый щелчок: прекратить поиск",
+  MM_DRAG = "Перетаскивание: вдоль края миникарты · Shift + перетаскивание: в любое место",
 
   CHAT_STARTED = "Поиск начат. Нужны: %s.",
   CHAT_STOPPED = "Поиск остановлен.",
@@ -143,7 +144,7 @@ ns.L.ruRU = {
   CHAT_RESET = "Пропущенные и приглашенные игроки забыты.",
   CHAT_NO_RESULTS = "Результатов поиска нет.",
   ON = "вкл.", OFF = "выкл.",
-  HELP = "%s · %s config · %s whisper <текст> · %s testinvite [simple|listing] · %s test · %s test shots · %s start · %s stop · %s minimap · %s sound · %s interval 8 · %s reset · %s diag · %s dump",
+  HELP = "%s · %s config · %s whisper <текст> · %s testinvite [simple|listing] · %s test · %s test shots · %s start · %s stop · %s minimap [reset] · %s sound · %s interval 8 · %s reset · %s diag · %s dump",
 
   TEST_START = "[Тест] Запущен с вымышленными игроками – никто по-настоящему не приглашается.",
   TEST_SEARCH = "[Тест] Поиск …",

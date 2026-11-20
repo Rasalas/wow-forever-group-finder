@@ -119,6 +119,7 @@ ns.L.deDE = {
   MM_RIGHT_START = "Rechtsklick: Gruppe suchen",
   MM_RIGHT_SEARCH = "Rechtsklick: jetzt suchen",
   MM_SHIFT_RIGHT = "Shift-Rechtsklick: Suche beenden",
+  MM_DRAG = "Ziehen: am Minimap-Rand verschieben · Shift-Ziehen: frei platzieren",
 
   CHAT_STARTED = "Suche gestartet. Gesucht: %s.",
   CHAT_STOPPED = "Suche beendet.",
@@ -151,5 +152,5 @@ ns.L.deDE = {
   TEST_RUNNING = "[Test] Läuft schon.",
   TEST_STOP_REAL = "Erst die echte Suche beenden.",
   TEST_NO_DUNGEON = "[Test] Braucht mindestens einen Dungeon für deine Stufe.",
-  HELP = "%s · %s config · %s whisper <Text> · %s testinvite [simple|listing] · %s test · %s test shots · %s start · %s stop · %s minimap · %s sound · %s interval 8 · %s reset · %s diag · %s dump",
+  HELP = "%s · %s config · %s whisper <Text> · %s testinvite [simple|listing] · %s test · %s test shots · %s start · %s stop · %s minimap [reset] · %s sound · %s interval 8 · %s reset · %s diag · %s dump",
 }
