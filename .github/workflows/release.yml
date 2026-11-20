@@ -50,7 +50,13 @@ jobs:
       - name: GitHub-Release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" "dist/AutoGroupFinder-${{ steps.meta.outputs.version }}.zip" --title "$GITHUB_REF_NAME" --notes-file changelog.md
+        run: |
+          zip="dist/AutoGroupFinder-${{ steps.meta.outputs.version }}.zip"
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" "$zip" --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" "$zip" --title "$GITHUB_REF_NAME" --notes-file changelog.md
+          fi
 
       - name: CurseForge
         if: env.CF_API_KEY != '' && vars.CF_PROJECT_ID != ''
@@ -59,10 +65,15 @@ jobs:
           GAME: ${{ steps.meta.outputs.game }}
         run: |
           api=https://wow.curseforge.com/api
-          ids=$(curl -sf -H "X-Api-Token: $CF_API_KEY" "$api/game/versions" | jq -c --arg v "$GAME" '[.[] | select(.name == $v) | .id]')
+          code=$(curl -s -o versions.json -w '%{http_code}' -H "X-Api-Token: $CF_API_KEY" "$api/game/versions")
+          [ "$code" = 200 ] || { echo "Spielversionen: HTTP $code"; head -c 500 versions.json; exit 1; }
+          ids=$(jq -c --arg v "$GAME" '[.[] | select(.name == $v) | .id]' versions.json)
+          echo "Spielversion $GAME -> IDs $ids"
           [ "$ids" != "[]" ] || { echo "CurseForge kennt die Spielversion $GAME nicht"; exit 1; }
           meta=$(jq -n --rawfile log changelog.md --argjson ids "$ids" \
             '{changelog: $log, changelogType: "markdown", gameVersions: $ids, releaseType: "release"}')
-          curl -sf -H "X-Api-Token: $CF_API_KEY" \
+          code=$(curl -s -o upload.json -w '%{http_code}' -H "X-Api-Token: $CF_API_KEY" \
             -F "metadata=$meta" -F "file=@dist/AutoGroupFinder-${{ steps.meta.outputs.version }}.zip" \
-            "$api/projects/$PROJECT/upload-file"
+            "$api/projects/$PROJECT/upload-file")
+          echo "Upload: HTTP $code"; head -c 1000 upload.json; echo
+          [ "$code" = 200 ]
