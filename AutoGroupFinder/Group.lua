@@ -215,7 +215,7 @@ function Rebuild()
         if p.areaName and p.areaName ~= "" then
           state.areaSeen = (state.areaSeen or 0) + 1
           db.areaSample = db.areaSample or {}
-          if #db.areaSample < 10 and not tContains(db.areaSample, p.areaName) then tinsert(db.areaSample, p.areaName) end
+          if #db.areaSample < 40 and not tContains(db.areaSample, p.areaName) then tinsert(db.areaSample, p.areaName) end
         end
       end
       local r = p and p.lfgRoles

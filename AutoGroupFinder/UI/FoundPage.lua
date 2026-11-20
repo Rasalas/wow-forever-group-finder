@@ -69,6 +69,16 @@ Tooltip(refresh, T.REFRESH)
 list = Scroller(found, win, 12, -80, -12, 62)
 listEmpty = Label(found, "", "GameFontDisable", "TOP", win, "TOP", 0, -120)
 listEmpty:SetWidth(WIN_W - 60)
+-- Während der Suche Blizzards Lade-Kreisel mit „Suche …“ darüber, wie in der echten Gruppensuche
+local okSpin
+okSpin, spinner = pcall(CreateFrame, "Frame", nil, found, "LoadingSpinnerTemplate")
+if okSpin and spinner and spinner.Anim then
+  spinner:SetPoint("TOP", win, "TOP", 0, -190)
+  spinner.label = Label(spinner, SEARCHING or T.SEARCHING, "GameFontNormalLarge", "BOTTOM", spinner, "TOP", 0, 4)
+  spinner:Hide()
+else
+  spinner = nil
+end
 HEAD_H, PLAYER_H = 28, 58
 listRows = {}
 
@@ -286,10 +296,12 @@ function UpdateFound()
   if #pickedIDs == 0 then
     listEmpty:SetText(T.PICK_ACTIVITY)
   elseif #candidates == 0 then
-    listEmpty:SetText(state.searching and T.SEARCHING or (T.FOUND_EMPTY .. "\n" .. T.FOUND_EMPTY_HINT))
+    local text = state.searching and T.SEARCHING or (T.FOUND_EMPTY .. "\n" .. T.FOUND_EMPTY_HINT)
+    listEmpty:SetText((state.searching and spinner) and "" or text)
   else
     listEmpty:SetText("")
   end
+  if spinner then spinner:SetShown(state.searching and #candidates == 0 and #pickedIDs > 0) end
 end
 
 -------------------------------------------------------------------------

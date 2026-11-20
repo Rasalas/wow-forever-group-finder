@@ -39,7 +39,10 @@ end
 
 for i, iconPath in ipairs(TAB_ICONS) do
   local tip = ({ T.TAB_FINDER, T.TAB_FOUND, T.TAB_HISTORY })[i]
-  local tab = MakeSideTab(win, iconPath, tip, function() ShowPage(i) end)
+  local tab = MakeSideTab(win, iconPath, tip, function()
+    ShowPage(i)
+    if i == 2 then DoSearch(true) end -- Reiterklick ist ein echter Klick, Suchen also erlaubt
+  end)
   if i == 1 then
     tab:SetPoint("TOPLEFT", win, "TOPRIGHT", 0, -60)
   else
@@ -190,7 +193,10 @@ end
 win:SetScript("OnShow", function() ShowPage(db.page or 1) end)
 
 function _G.AutoGroupFinder_Toggle()
-  if win:IsShown() then CloseWindow() else OpenWindow() end
+  if win:IsShown() then CloseWindow() return end
+  OpenWindow()
+  -- aufgerufen nur von Slash-Befehl, Minimap-Klick und Taste, also darf gesucht werden
+  if db.page == 2 then DoSearch(true) end
 end
 
 -------------------------------------------------------------------------
