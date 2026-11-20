@@ -22,7 +22,7 @@ You pick your role, the dungeons and a play style and click **Find Group**. The 
 
 ## Installation
 
-Copy the `AutoGroupFinder` folder into `World of Warcraft/_forever_/Interface/AddOns/` and restart the game.
+From [CurseForge](https://www.curseforge.com/wow/addons/auto-group-finder) (CurseForge app or WowUp, game version WoW Forever), or by hand: copy the `AutoGroupFinder` folder into `World of Warcraft/_forever_/Interface/AddOns/` and restart the game.
 
 ## Usage
 
