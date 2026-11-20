@@ -58,8 +58,9 @@ function RegisterSettings()
       Settings.CreateSlider(category, setting, options, T.COMPOSITION_TIP)
     end
   end
-  Settings.RegisterAddOnCategory(category)
   settingsCategory = category
+  if RegisterAboutPage then pcall(RegisterAboutPage) end -- Unterseite „Über“ vor dem Registrieren anhängen
+  Settings.RegisterAddOnCategory(category)
 end
 
 -------------------------------------------------------------------------

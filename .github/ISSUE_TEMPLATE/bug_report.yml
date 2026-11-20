@@ -1,0 +1,32 @@
+name: Bug report
+description: Something doesn't work as expected
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: diag
+    attributes:
+      label: Output of /gf diag
+      description: Type `/gf diag` in the game and copy the chat lines here. They include any Lua errors the add-on caught.
+      render: text
+  - type: input
+    id: version
+    attributes:
+      label: Add-on version
+      description: Shown under Options → AddOns → Auto Group Finder → About.
+  - type: dropdown
+    id: language
+    attributes:
+      label: Game client language
+      options: [English, Deutsch, Français, Español, Italiano, Português, Русский, Other]
+  - type: textarea
+    id: addons
+    attributes:
+      label: Other add-ons
+      description: Optional. Especially ones that change the minimap, chat or windows.

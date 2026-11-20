@@ -611,6 +611,8 @@ if menuOk then
     root:CreateDivider()
     root:CreateButton(T.EDIT_WHISPER, EditWhisper)
     if settingsCategory then root:CreateButton(T.SETTINGS, OpenSettings) end
+    root:CreateButton(T.ONB_SHOW, ShowOnboarding)
+    if aboutCategory then root:CreateButton(T.ABOUT .. "…", OpenAbout) end
   end)
 else
   -- Ohne Menü-API: kleines Aufklappfenster mit Häkchen

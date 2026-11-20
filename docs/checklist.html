@@ -32,7 +32,7 @@
   <h1>Auto Group Finder – Testliste im Spiel</h1>
   <div class="meta">Version {{VERSION}} · Stand {{DATE}}<br>Charakter: ____________________</div>
 </header>
-<p class="intro">Abhaken, was wie erwartet läuft. Unter jedem Punkt ist Platz für Anmerkungen. Bei Lua-Fehlern reicht <code>/reload</code> und eine kurze Nachricht – die Fehler liest Claude selbst auf dem Spielrechner aus.</p>
+<p class="intro">Abhaken, was wie erwartet läuft. Unter jedem Punkt ist Platz für Anmerkungen. Bei Lua-Fehlern zeigt <code>/gf diag</code> die gesammelten Fehler.</p>
 
 <h2>0 · Vorbereitung</h2>
 <table>
@@ -174,7 +174,7 @@
 <tr class="note"><td colspan="3"><div></div></td></tr>
 <tr><td class="box"><span></span></td><td class="step"><code>/gf test</code>, dann <code>/gf test search</code></td><td class="exp">Liste der Tests; Ablauf mit erfundenen Spielern, niemand wird eingeladen</td></tr>
 <tr class="note"><td colspan="3"><div></div></td></tr>
-<tr><td class="box"><span></span></td><td class="step">Zum Schluss <code>/reload</code></td><td class="exp">Danach Bescheid geben – Fehler und Zonen-Stichprobe werden ausgelesen</td></tr>
+<tr><td class="box"><span></span></td><td class="step">Zum Schluss <code>/reload</code></td><td class="exp">Danach <code>/gf diag</code>: Lua-Fehler und Zonen-Stichprobe</td></tr>
 <tr class="note"><td colspan="3"><div></div></td></tr>
 </table>
 
