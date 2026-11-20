@@ -21,13 +21,13 @@ win:SetAttribute("UIPanelLayout-whileDead", 1)
 
 tinsert(UISpecialFrames, "AutoGroupFinderFrame") -- Esc schließt auch das frei verschobene Fenster
 
--- Frei verschoben (db.winPos) gehört das Fenster nicht mehr zu Blizzards Verwaltung: ohne Bereich
--- zeigen ShowUIPanel/HideUIPanel es einfach an bzw. blenden es aus.
+-- Verschoben (state.winPos) gehört das Fenster nicht mehr zu Blizzards Verwaltung: ohne Bereich zeigen
+-- ShowUIPanel/HideUIPanel es einfach an bzw. blenden es aus. Wie die Karte: nach dem Schließen wieder am Standardplatz.
 function ApplyWindowMode()
-  if db and db.winPos then
+  if state.winPos then
     win:SetAttribute("UIPanelLayout-area", nil)
     win:ClearAllPoints()
-    win:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", db.winPos.x, db.winPos.y)
+    win:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", state.winPos.x, state.winPos.y)
   else
     win:SetAttribute("UIPanelLayout-area", "left")
   end
@@ -42,19 +42,19 @@ function CloseWindow()
   if HideUIPanel and not InCombatLockdown() then HideUIPanel(win) else win:Hide() end
 end
 
--- Shift + Ziehen verschiebt, Doppelklick auf die Titelleiste setzt zurück
+-- Ziehen verschiebt (Titelleiste und freie Stellen), Doppelklick auf die Titelleiste setzt zurück
 win:SetMovable(true)
 win:SetClampedToScreen(true)
 win:RegisterForDrag("LeftButton")
 function StartMoveWindow()
-  if not IsShiftKeyDown() or not db then return end
-  if not db.winPos then
+  if not db then return end
+  if not state.winPos then
     -- aus Blizzards Verwaltung lösen, ohne dass das Fenster springt
     local l, t = win:GetLeft(), win:GetTop()
     if not l then return end
     if GetUIPanel and GetUIPanel("left") == win then db.winHome = { x = l, y = t } end
     CloseWindow()
-    db.winPos = { x = l, y = t }
+    state.winPos = { x = l, y = t }
     OpenWindow()
   end
   win.moving = true
@@ -64,7 +64,7 @@ end
 SNAP = 40 -- so nah (Pixel) am Standardplatz rastet es beim Loslassen wieder ein
 win:HookScript("OnShow", function()
   C_Timer.After(0, function()
-    if db and not db.winPos and GetUIPanel and GetUIPanel("left") == win and win:GetLeft() then
+    if db and not state.winPos and GetUIPanel and GetUIPanel("left") == win and win:GetLeft() then
       db.winHome = { x = win:GetLeft(), y = win:GetTop() }
     end
   end)
@@ -80,12 +80,12 @@ function StopMoveWindow()
     ResetWindow() -- zurück in Blizzards Verwaltung
     return
   end
-  db.winPos = { x = x, y = y }
+  state.winPos = { x = x, y = y }
   ApplyWindowMode()
 end
 function ResetWindow()
-  if not db or not db.winPos then return end
-  db.winPos = nil
+  if not state.winPos then return end
+  state.winPos = nil
   win:Hide()
   win:ClearAllPoints()
   win:SetPoint("CENTER")
@@ -93,8 +93,10 @@ function ResetWindow()
 end
 win:SetScript("OnDragStart", StartMoveWindow)
 win:SetScript("OnDragStop", StopMoveWindow)
+-- Geschlossen = Verschiebung vergessen; beim Lösen aus der Verwaltung wird kurz geschlossen, das ist vorher.
+win:HookScript("OnHide", function() if not win.moving then state.winPos = nil end end)
 
--- Griff über der Titelleiste (zwischen Porträt und Zahnrad), mit Hinweis nur bei Shift oder frei verschobenem Fenster
+-- Griff über der Titelleiste (zwischen Porträt und Zahnrad); Hinweis nur, wenn das Fenster verschoben ist
 titleHandle = CreateFrame("Button", nil, win)
 titleHandle:SetPoint("TOPLEFT", win, "TOPLEFT", 60, 0)
 titleHandle:SetPoint("BOTTOMRIGHT", win, "TOPRIGHT", -60, -22)
@@ -104,11 +106,10 @@ titleHandle:SetScript("OnDragStart", StartMoveWindow)
 titleHandle:SetScript("OnDragStop", StopMoveWindow)
 titleHandle:SetScript("OnDoubleClick", ResetWindow)
 titleHandle:SetScript("OnEnter", function(self)
-  if not (IsShiftKeyDown() or (db and db.winPos)) then return end
+  if not state.winPos then return end
   GameTooltip:SetOwner(self, "ANCHOR_TOP")
   GameTooltip:SetText(T.TITLE)
-  GameTooltip:AddLine(T.WIN_MOVE_TIP, 1, 1, 1, true)
-  if db and db.winPos then GameTooltip:AddLine(T.WIN_RESET_TIP, 1, 1, 1, true) end
+  GameTooltip:AddLine(T.WIN_RESET_TIP, 1, 1, 1, true)
   GameTooltip:Show()
 end)
 titleHandle:SetScript("OnLeave", GameTooltip_Hide)

@@ -152,7 +152,6 @@ ns.L.esES = {
   MM_RIGHT_SEARCH = "Clic derecho: buscar ahora",
   MM_SHIFT_RIGHT = "Mayús-clic derecho: dejar de buscar",
   MM_DRAG = "Arrastrar: mover por el borde del minimapa · Mayús-arrastrar: colocar libremente",
-  WIN_MOVE_TIP = "Mayús + arrastrar: mover la ventana libremente",
   WIN_RESET_TIP = "Doble clic en la barra de título: volver al lugar predeterminado",
 
   CHAT_STARTED = "Búsqueda iniciada. Se busca: %s.",

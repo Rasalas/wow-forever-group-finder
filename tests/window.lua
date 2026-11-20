@@ -16,9 +16,11 @@ local function dummy()
     if k == "SetupMenu" then return function(self, gen) rawset(self, "_menu", gen); if rawget(self, "_shown") then gen(self, dummy()) end end end
     if k == "GenerateMenu" then return function(self) local g = rawget(self, "_menu"); if g then g(self, dummy()) end end end
     if k == "Show" then return function() rawset(t, "_shown", true); local s = rawget(t, "_scripts"); if s and s.OnShow then s.OnShow(t) end end end
-    if k == "Hide" then return function() rawset(t, "_shown", false) end end
+    if k == "Hide" then return function() local was = rawget(t, "_shown"); rawset(t, "_shown", false); local s = rawget(t, "_scripts"); if was and s and s.OnHide then s.OnHide(t) end end end
     if k == "SetShown" then return function(_, v) if v then t:Show() else t:Hide() end end end
-    if k == "SetScript" or k == "HookScript" then return function(_, n, f) local s = rawget(t, "_scripts") or {}; rawset(t, "_scripts", s); s[n] = f end end
+    if k == "SetScript" then return function(_, n, f) local s = rawget(t, "_scripts") or {}; rawset(t, "_scripts", s); s[n] = f end end
+    -- Wie im Spiel: HookScript hängt sich an, statt zu ersetzen
+    if k == "HookScript" then return function(_, n, f) local s = rawget(t, "_scripts") or {}; rawset(t, "_scripts", s); local o = s[n]; s[n] = o and function(...) o(...); f(...) end or f end end
     if k == "GetScript" then return function(_, n) local s = rawget(t, "_scripts"); return s and s[n] end end
     if k == "SetText" then return function(_, v) rawset(t, "_text", v) end end
     if k == "SetChecked" then return function(_, v) rawset(t, "_checked", v) end end
@@ -103,7 +105,7 @@ local function res(id, name, roles, age, extra)
   results[id] = r
 end
 local ns = {}
--- Fenster: Shift + Ziehen löst es aus Blizzards Verwaltung, nahe am Standardplatz rastet es wieder ein
+-- Fenster: Ziehen löst es aus Blizzards Verwaltung, nahe am Standardplatz rastet es ein, Schließen vergisst die Position
 for line in io.lines(arg[1] .. "/AutoGroupFinder.toc") do
   local file = line:match("^%s*([^#%s][^%s]*%.lua)%s*$")
   if file then assert(loadfile(arg[1] .. "/" .. (file:gsub("\\", "/"))))("AutoGroupFinder", ns) end
@@ -120,31 +122,28 @@ local attrs, L, Tp = {}, 16, 700
 rawset(win, "SetAttribute", function(_, k, v) attrs[k] = v end)
 rawset(win, "GetLeft", function() return L end)
 rawset(win, "GetTop", function() return Tp end)
-GetUIPanel = function(area) return area == "left" and win:IsShown() and not db.winPos and win or nil end
+GetUIPanel = function(area) return area == "left" and win:IsShown() and not E.state.winPos and win or nil end
 ShowUIPanel = function(f) f:Show() end
 HideUIPanel = function(f) f:Hide() end
-local shift = false
-IsShiftKeyDown = function() return shift end
 
 E.OpenWindow()
 check("Von Blizzard verwaltet:", attrs["UIPanelLayout-area"], "left")
 E.StartMoveWindow()
-check("Ohne Shift kein Verschieben:", db.winPos, nil)
-shift = true
-E.StartMoveWindow()
-check("Shift löst aus der Verwaltung:", attrs["UIPanelLayout-area"], nil)
+check("Ziehen löst aus der Verwaltung:", attrs["UIPanelLayout-area"], nil)
 check("Standardplatz gemerkt:", db.winHome and (db.winHome.x .. "," .. db.winHome.y), "16,700")
 L, Tp = 400, 500
 E.StopMoveWindow()
-check("Neue Position gespeichert:", db.winPos and (db.winPos.x .. "," .. db.winPos.y), "400,500")
+check("Neue Position gespeichert:", E.state.winPos and (E.state.winPos.x .. "," .. E.state.winPos.y), "400,500")
 E.CloseWindow(); E.OpenWindow()
-check("Bleibt frei nach erneutem Öffnen:", attrs["UIPanelLayout-area"], nil)
+L, Tp = 16, 700 -- Blizzards Verwaltung setzt es wieder an den Standardplatz
+check("Nach Schließen wieder am Standardplatz:", attrs["UIPanelLayout-area"], "left")
+check("Verschiebung vergessen:", E.state.winPos, nil)
 E.StartMoveWindow()
 L, Tp = 30, 690
 E.StopMoveWindow()
-check("Nahe am Standardplatz eingerastet:", db.winPos, nil)
+check("Nahe am Standardplatz eingerastet:", E.state.winPos, nil)
 check("Wieder verwaltet:", attrs["UIPanelLayout-area"], "left")
 E.StartMoveWindow(); L, Tp = 500, 300; E.StopMoveWindow()
 rawget(E.titleHandle, "_scripts").OnDoubleClick(E.titleHandle)
-check("Doppelklick setzt zurück:", db.winPos, nil)
+check("Doppelklick setzt zurück:", E.state.winPos, nil)
 check("Fenster wieder offen:", win:IsShown(), true)

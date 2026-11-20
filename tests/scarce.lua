@@ -16,9 +16,11 @@ local function dummy()
     if k == "SetupMenu" then return function(self, gen) rawset(self, "_menu", gen); if rawget(self, "_shown") then gen(self, dummy()) end end end
     if k == "GenerateMenu" then return function(self) local g = rawget(self, "_menu"); if g then g(self, dummy()) end end end
     if k == "Show" then return function() rawset(t, "_shown", true); local s = rawget(t, "_scripts"); if s and s.OnShow then s.OnShow(t) end end end
-    if k == "Hide" then return function() rawset(t, "_shown", false) end end
+    if k == "Hide" then return function() local was = rawget(t, "_shown"); rawset(t, "_shown", false); local s = rawget(t, "_scripts"); if was and s and s.OnHide then s.OnHide(t) end end end
     if k == "SetShown" then return function(_, v) if v then t:Show() else t:Hide() end end end
-    if k == "SetScript" or k == "HookScript" then return function(_, n, f) local s = rawget(t, "_scripts") or {}; rawset(t, "_scripts", s); s[n] = f end end
+    if k == "SetScript" then return function(_, n, f) local s = rawget(t, "_scripts") or {}; rawset(t, "_scripts", s); s[n] = f end end
+    -- Wie im Spiel: HookScript hängt sich an, statt zu ersetzen
+    if k == "HookScript" then return function(_, n, f) local s = rawget(t, "_scripts") or {}; rawset(t, "_scripts", s); local o = s[n]; s[n] = o and function(...) o(...); f(...) end or f end end
     if k == "GetScript" then return function(_, n) local s = rawget(t, "_scripts"); return s and s[n] end end
     if k == "SetText" then return function(_, v) rawset(t, "_text", v) end end
     if k == "SetChecked" then return function(_, v) rawset(t, "_checked", v) end end

@@ -151,7 +151,6 @@ ns.L.deDE = {
   MM_RIGHT_SEARCH = "Rechtsklick: jetzt suchen",
   MM_SHIFT_RIGHT = "Shift-Rechtsklick: Suche beenden",
   MM_DRAG = "Ziehen: am Minimap-Rand verschieben · Shift-Ziehen: frei platzieren",
-  WIN_MOVE_TIP = "Shift + Ziehen: Fenster frei verschieben",
   WIN_RESET_TIP = "Doppelklick auf die Titelleiste: zurück an den Standardplatz",
 
   CHAT_STARTED = "Suche gestartet. Gesucht: %s.",

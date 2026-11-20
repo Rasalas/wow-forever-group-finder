@@ -151,7 +151,6 @@ ns.L.ptBR = {
   MM_RIGHT_SEARCH = "Clique direito: procurar agora",
   MM_SHIFT_RIGHT = "Shift-clique direito: parar de procurar",
   MM_DRAG = "Arrastar: mover pela borda do minimapa · Shift-arrastar: posicionar livremente",
-  WIN_MOVE_TIP = "Shift + arrastar: mover a janela livremente",
   WIN_RESET_TIP = "Clique duplo na barra de título: volta ao lugar padrão",
 
   CHAT_STARTED = "Busca iniciada. Procura-se: %s.",

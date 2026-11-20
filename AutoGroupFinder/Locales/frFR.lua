@@ -151,7 +151,6 @@ ns.L.frFR = {
   MM_RIGHT_SEARCH = "Clic droit : chercher maintenant",
   MM_SHIFT_RIGHT = "Maj-clic droit : arrêter la recherche",
   MM_DRAG = "Glisser : déplacer autour de la minicarte · Maj-glisser : placer librement",
-  WIN_MOVE_TIP = "Maj + glisser : déplacer librement la fenêtre",
   WIN_RESET_TIP = "Double-clic sur la barre de titre : retour à la place par défaut",
 
   CHAT_STARTED = "Recherche lancée. Recherché : %s.",

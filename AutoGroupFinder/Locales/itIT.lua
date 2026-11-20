@@ -151,7 +151,6 @@ ns.L.itIT = {
   MM_RIGHT_SEARCH = "Clic destro: cerca ora",
   MM_SHIFT_RIGHT = "Maiusc-clic destro: interrompi ricerca",
   MM_DRAG = "Trascina: sposta lungo la minimappa · Maiusc-trascina: posiziona liberamente",
-  WIN_MOVE_TIP = "Maiusc + trascina: sposta liberamente la finestra",
   WIN_RESET_TIP = "Doppio clic sulla barra del titolo: torna alla posizione predefinita",
 
   CHAT_STARTED = "Ricerca avviata. Si cerca: %s.",
