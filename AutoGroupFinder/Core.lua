@@ -121,8 +121,7 @@ DEFAULTS = {
   showDemand = true,     -- Balken: wie viele warten auf welche Aktivität
   popular = {},          -- activityID -> { Anführer -> time() zuletzt gesehen }
   blocked = {},          -- key -> true: nie wieder einladen
-  languageMode = "all",  -- all, mine, mineEnglish, custom
-  languages = {},        -- WowLocale -> true, nur bei "custom"
+  preferLang = "none",   -- bevorzugte Spielsprache (WowLocale) oder "none"
   autoInvite = true,
   keySearch = true,      -- bei Mausklicks in die Spielwelt neu suchen
   oldestFirst = false,
@@ -141,7 +140,7 @@ NUDGE_AFTER = 60 -- Sekunden ohne Suche, bis „Bin noch da“ erscheint (UI/Nud
 
 state = { queued = false, queuedAt = 0, lastSearchAt = 0, demand = {},
   trees = {}, treeVersion = 0, listings = {}, lastSupply = {},
-  arrivals = { TANK = {}, HEALER = {}, DAMAGER = {} } }
+  arrivals = { TANK = {}, HEALER = {}, DAMAGER = {} }, langOf = {} }
 History = {} -- Verlauf: Aufzeichnen und Seite 3
 pending = {}   -- key -> { role, t, confirmed }
 joined = {}    -- key -> Rolle, für die wir eingeladen haben

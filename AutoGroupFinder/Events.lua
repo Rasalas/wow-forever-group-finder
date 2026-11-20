@@ -216,6 +216,7 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4)
     db = AutoGroupFinderDB
     db.errors = errors -- nur die Fehler dieser Sitzung
     if not db.shareV2 then db.shareStats, db.shareV2 = true, true end -- Teilen ist jetzt Standard
+    db.languageMode, db.languages = nil, nil -- abgelöst durch preferLang
     for k, v in pairs(DEFAULTS) do
       if db[k] == nil then db[k] = type(v) == "table" and CopyTable(v) or v end
     end

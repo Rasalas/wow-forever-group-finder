@@ -34,31 +34,17 @@ function RegisterSettings()
       Settings.CreateSlider(category, setting, options, T.COMPOSITION_TIP)
     end
   end
-  -- Sprachen ganz unten: selten gebraucht
+  -- Sprache ganz unten: eine Auswahl, Standard „Keine“
   header(T.SETTINGS_LANGUAGES)
-  local myLocale = GetLocale() == "enGB" and "enUS" or GetLocale()
-  if myLocale == "enUS" and db.languageMode == "mineEnglish" then db.languageMode = "mine" end
-  local modeSetting = Settings.RegisterAddOnSetting(category, "AUTOGROUPFINDER_LANGMODE", "languageMode", db,
-    Settings.VarType.String, T.LANG_MODE, "all")
-  local modeInit = Settings.CreateDropdown(category, modeSetting, function()
+  local langSetting = Settings.RegisterAddOnSetting(category, "AUTOGROUPFINDER_PREFERLANG", "preferLang", db,
+    Settings.VarType.String, T.PREF_LANG, "none")
+  langSetting:SetValueChangedCallback(function() Rebuild() end)
+  Settings.CreateDropdown(category, langSetting, function()
     local c = Settings.CreateControlTextContainer()
-    c:Add("all", T.LANG_ALL)
-    c:Add("mine", T.LANG_MINE:format(LangName(myLocale)))
-    if myLocale ~= "enUS" then
-      c:Add("mineEnglish", T.LANG_MINE_EN:format(LangName(myLocale)))
-    end
-    c:Add("custom", T.LANG_CUSTOM)
+    c:Add("none", T.PREF_LANG_NONE)
+    for _, loc in ipairs(LANGUAGES) do c:Add(loc, LangName(loc)) end
     return c:GetData()
-  end, T.LANG_TIP)
-  for _, loc in ipairs(LANGUAGES) do
-    local setting = Settings.RegisterAddOnSetting(category, "AUTOGROUPFINDER_LANG_" .. loc, loc, db.languages,
-      Settings.VarType.Boolean, LangName(loc), false)
-    local init = Settings.CreateCheckbox(category, setting)
-    -- nur bei „Eigene Auswahl“ bedienbar
-    if init and init.SetParentInitializer and modeInit then
-      init:SetParentInitializer(modeInit, function() return db.languageMode == "custom" end)
-    end
-  end
+  end, T.PREF_LANG_TIP)
   settingsCategory = category
   if RegisterAboutPage then pcall(RegisterAboutPage) end -- Unterseite „Über“ vor dem Registrieren anhängen
   Settings.RegisterAddOnCategory(category)

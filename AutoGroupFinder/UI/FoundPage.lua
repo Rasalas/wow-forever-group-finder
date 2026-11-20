@@ -337,6 +337,7 @@ local function PlayerRow(n, y, c, role, invitedAt)
   if c.friend then tags[#tags + 1] = "|cff82c5ff" .. T.TAG_FRIEND .. "|r" end
   if c.guild then tags[#tags + 1] = "|cff40ff40" .. T.TAG_GUILD .. "|r" end
   if c.near then tags[#tags + 1] = NearIcon(c.near) end
+  if c.lang and c.lang == db.preferLang then tags[#tags + 1] = "|cffc0c0c0" .. c.lang:sub(3, 4) .. "|r" end
   if #tags > 0 then title = title .. "  " .. table.concat(tags, " ") end
   row.name:SetText(title)
   row.name:Show()

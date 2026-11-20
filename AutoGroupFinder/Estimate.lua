@@ -109,7 +109,7 @@ end
 function Estimate.Live()
   if not state.observeSince then return nil end
   local rem, open = Slots()
-  local supply, now = Supply(), GetTime()
+  local supply, now = SupplyNow(), GetTime()
   local window = math.min(WINDOW, now - state.observeSince)
   local lo, mid, hi, role = 0, 0, 0, nil
   for _, r in ipairs(ROLES) do

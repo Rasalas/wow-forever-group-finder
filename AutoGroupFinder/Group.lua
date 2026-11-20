@@ -105,7 +105,7 @@ end
 function HeldRoles()
   local held, waiting = {}, {}
   if not db.scarceFirst or not state.queued then return held, waiting end
-  local rem, supply, now = Slots(), Supply(), GetTime()
+  local rem, supply, now = Slots(), SupplyNow(), GetTime()
   for _, r in ipairs(ROLES) do
     if rem[r] > 0 and supply[r] < SCARCE_RATIO * rem[r] then
       local last = math.max(state.lastSupply[r] or 0, state.queuedAt)
@@ -126,21 +126,25 @@ end
 ROLE_ORDER = { TANK = 1, HEALER = 2, DAMAGER = 3 }
 
 -- Sprachfilter für die Suche (WowLocale-Struktur) oder nil für alle Sprachen
+-- Bevorzugte Sprache: abwechselnd nur diese Spielsprache und alle suchen. Wer bei der gefilterten Suche
+-- auftaucht, hat diese Spielsprache (state.langOf) und kommt innerhalb seiner Rolle zuerst dran.
+-- Wer die Sprache spricht, aber einen anderen Client hat, ist nicht erkennbar und wird normal eingeladen.
 function LanguageFilter()
-  local mine = GetLocale()
-  if mine == "enGB" then mine = "enUS" end
-  local pick = {}
-  if db.languageMode == "mine" then
-    pick[mine] = true
-  elseif db.languageMode == "mineEnglish" then
-    pick[mine], pick.enUS = true, true
-  elseif db.languageMode == "custom" then
-    pick = db.languages
-  end
-  if not next(pick) then return nil end
+  local pref = db.preferLang
+  state.lastSearchLang = nil
+  if not pref or pref == "none" then return nil end
+  state.langToggle = not state.langToggle
+  if not state.langToggle then return nil end
+  state.lastSearchLang = pref
   local filter = {}
-  for _, loc in ipairs(LANGUAGES) do filter[loc] = pick[loc] and true or false end
+  for _, loc in ipairs(LANGUAGES) do filter[loc] = loc == pref end
+  filter[pref] = true
   return filter
+end
+
+-- Angebot je Rolle; nach einer gefilterten Suche zählt das Angebot der letzten ungefilterten
+function SupplyNow()
+  return state.lastSearchLang and state.supplyAll or Supply()
 end
 
 function IsIgnoredName(name)
@@ -200,7 +204,7 @@ function PruneState()
     if next(seenBy) == nil then db.popular[a] = nil end
   end
   for k, l in pairs(state.listings) do if now - l.seenAt > 1800 then state.listings[k] = nil end end
-  for k, t in pairs(seen) do if now - t > 7200 then seen[k] = nil end end
+  for k, t in pairs(seen) do if now - t > 7200 then seen[k] = nil; state.langOf[k] = nil end end
   for k, d in pairs(InviteInfo.byAddon) do if now - d.t > 600 then InviteInfo.byAddon[k] = nil end end
   for k, t in pairs(db.skipUntil) do if t <= nowEpoch then db.skipUntil[k] = nil end end
   Estimate.Prune()
@@ -298,6 +302,8 @@ function Rebuild()
             guild = (info.numGuildMates or 0) > 0,
             area = p.areaName ~= "" and p.areaName or nil,
           }
+          if state.lastSearchLang then state.langOf[k] = state.lastSearchLang end
+          c.lang = state.langOf[k]
           for _, e in ipairs(matches) do
             local n = c.area and NearNames(e.id)[c.area]
             if n and n > (c.near or 0) then c.near = n end
@@ -319,11 +325,14 @@ function Rebuild()
       local af, bf = a.friend or a.guild, b.friend or b.guild
       if af ~= bf then return af end
     end
+    local pref = db.preferLang ~= "none" and db.preferLang
+    if pref and (a.lang == pref) ~= (b.lang == pref) then return a.lang == pref end
     if db.preferNear and (a.near or 0) ~= (b.near or 0) then return (a.near or 0) > (b.near or 0) end
     if db.oldestFirst then return a.listedAt < b.listedAt end
     return a.listedAt > b.listedAt
   end)
   for r, n in pairs(Supply()) do if n > 0 then state.lastSupply[r] = GetTime() end end
+  if not state.lastSearchLang then state.supplyAll = Supply() end
   if UpdateUI then UpdateUI() end
 end
 

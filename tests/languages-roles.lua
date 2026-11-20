@@ -131,12 +131,11 @@ res(3, "Heal", { healer = true }, 6, { generalPlaystyle = 2 })
 res(4, "D1", { dps = true }, 7, { generalPlaystyle = 2 }); res(5, "D2", { dps = true }, 8, { generalPlaystyle = 2 })
 res(6, "D3", { dps = true }, 9, { generalPlaystyle = 2 }); res(7, "OtherTank", { tank = true }, 3, { generalPlaystyle = 2 })
 db.blocked["Bad"] = true
-db.languageMode = "mineEnglish"
 AutoGroupFinder_Next()
 print("Taste ohne laufende Suche startet nichts:", searchArgs == nil and "ok" or "FEHLER")
 ns.env.StartQueue()
 rawget(WorldFrame, "_scripts").OnMouseDown() -- erste Suche beim nächsten Klick
-print("mine+English (deDE client): de/en/fr =", searchArgs[4].deDE, searchArgs[4].enUS, searchArgs[4].frFR)
+print("ohne bevorzugte Sprache: Filter =", tostring(searchArgs[4]))
 fire("LFG_LIST_SEARCH_RESULTS_RECEIVED")
 print("invites:", table.concat(invites, ","), "(kein Tank, kein Troll/Bad, 3x Schaden)")
 print("addon msgs:", sent[1])
@@ -153,14 +152,37 @@ print("ready checks:", readyChecks, "button:", rawget(AutoGroupFinderStartButton
 print("== Sperren über das Menü")
 SlashCmdList.AUTOGROUPFINDER("reset")
 
-print("== Sprachmodi")
-for _, mode in ipairs({ "all", "mine", "custom" }) do
-  db.languageMode = mode
-  db.languages = mode == "custom" and { frFR = true, koKR = true } or {}
-  state_last = nil
+print("== Bevorzugte Sprache: abwechselnd nur Deutsch und alle, Deutsche zuerst")
+local E = ns.env
+local function check(label, got, want)
+  got, want = tostring(got), tostring(want)
+  print(label, got, got == want and "ok" or ("FEHLER, erwartet " .. want))
+  if got ~= want then error(label .. ": " .. got .. " statt " .. want) end
+end
+db.preferLang, E.state.langToggle = "deDE", false
+local filters = {}
+now = now + 3; E.state.searching = nil
+for i = 1, 4 do
   searchArgs = nil
   AutoGroupFinder_Refresh()
   local f = searchArgs and searchArgs[4]
-  print(mode, f and (f.deDE and "de " or "") .. (f.enUS and "en " or "") .. (f.frFR and "fr " or "") .. (f.koKR and "ko" or "") or "nil (alle)")
+  filters[i] = not searchArgs and "keine Suche" or f and ((f.deDE and "de" or "") .. (f.enUS and "en" or "") .. (f.frFR and "fr" or "")) or "alle"
   fire("LFG_LIST_SEARCH_RESULTS_RECEIVED"); now = now + 3
 end
+check("Abwechselnd gesucht:", table.concat(filters, ","), "de,alle,de,alle")
+-- Ein Spieler taucht in der deutschen Suche auf, ein anderer nur in der allgemeinen
+for k in pairs(results) do results[k] = nil end
+party = {}; fire("GROUP_ROSTER_UPDATE") -- wieder Plätze frei
+db.preferLang, E.state.langToggle = "deDE", false
+res(50, "Fritz", { dps = true }, 40, { generalPlaystyle = 2 })
+AutoGroupFinder_Refresh(); fire("LFG_LIST_SEARCH_RESULTS_RECEIVED"); now = now + 3 -- deutsche Suche
+res(51, "Neuling", { dps = true }, 2, { generalPlaystyle = 2 })
+AutoGroupFinder_Refresh(); fire("LFG_LIST_SEARCH_RESULTS_RECEIVED"); now = now + 3 -- alle
+local order = {}
+for _, c in ipairs(E.candidates) do if c.role == "DAMAGER" then order[#order + 1] = c.name end end
+check("Deutscher vor neuerem Spieler:", table.concat(order, ","), "Fritz,Neuling")
+check("Markiert als deutsch:", E.candidates[1].lang, "deDE")
+db.preferLang = "none"; E.Rebuild()
+order = {}
+for _, c in ipairs(E.candidates) do if c.role == "DAMAGER" then order[#order + 1] = c.name end end
+check("Ohne Bevorzugung nach Alter:", table.concat(order, ","), "Neuling,Fritz")
