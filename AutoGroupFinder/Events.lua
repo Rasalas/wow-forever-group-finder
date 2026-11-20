@@ -58,6 +58,13 @@ HardwareTick = function()
   if not db or InCombatLockdown() then return false end
   local action = NextRestricted()
   if action then action() return true end
+  -- Jemand ist gleich wieder gegangen: Eintragen ist der eine erlaubte Schritt dieses Klicks
+  local r = state.resume
+  if r and r.auto and not state.queued then
+    state.resume = nil -- nur ein Versuch, sonst meldet jeder Klick denselben Fehler
+    StartQueue(r)
+    return true
+  end
   return false
 end
 
@@ -123,8 +130,11 @@ function History.Track()
   History.Merge(e)
 end
 
+RESUME_AUTO_WINDOW = 180 -- Sekunden nach dem Vollwerden, in denen ein Abgang automatisch weitersuchen lässt
+
 function OnRoster()
-  if not IsInGroup() then state.selfRole = nil end
+  if not IsInGroup() then state.selfRole = nil else state.inGroupAt = GetTime() end
+  if state.resume and IsInGroup() and not CanInvite() then state.resume = nil end
   local members = MemberKeys()
   for name in pairs(members) do
     local k = FindPending(name)
@@ -159,10 +169,17 @@ function OnRoster()
     local rem = Slots()
     if AnyLeft(rem) and not state.backfillNoted then
       state.backfillNoted = true
-      Print(T.CHAT_BACKFILL:format(NeedText(rem)) .. " |cff71d5ff|Haddon:AutoGroupFinder:backfill|h[" .. T.BACKFILL_LINK .. "]|h|r")
+      -- Kurz nach dem Vollwerden und noch draußen: beim nächsten Klick automatisch weitersuchen
+      local auto = char.lastFill and time() - char.lastFill.t < RESUME_AUTO_WINDOW and not (IsInInstance and IsInInstance())
+      state.resume = { auto = auto, t = GetTime() }
+      if auto then
+        Print(T.CHAT_BACKFILL:format(NeedText(rem)) .. " " .. T.RESUME_NEXT)
+      else
+        Print(T.CHAT_BACKFILL:format(NeedText(rem)) .. " |cff71d5ff|Haddon:AutoGroupFinder:backfill|h[" .. T.BACKFILL_LINK .. "]|h|r")
+      end
       Notify(T.NOTIFY_BACKFILL:format(NeedText(rem)))
     elseif not AnyLeft(rem) then
-      state.backfillNoted = false
+      state.backfillNoted, state.resume = false, nil
     end
   end
   if state.queued and IsInGroup() and not CanInvite() then
@@ -192,6 +209,8 @@ function Tick()
   end
   for _, d in ipairs(drop) do DropPending(d[1], d[2], d[3]) end
   state.ticks = (state.ticks or 0) + 1
+  if IsInGroup() then state.inGroupAt = now end
+  if state.resume and (state.queued or now - state.resume.t > 600) then state.resume = nil end
   local full = state.ticks % 5 == 0 -- Alterangaben u. Ä. reichen alle 5 s; Änderungen zeichnen sofort über Rebuild
   if state.searching and now - state.searching > 10 then state.searching, full = nil, true end
   if state.ticks % 60 == 0 then PruneState() end
@@ -264,7 +283,11 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4)
   elseif event == "LFG_LIST_ACTIVE_ENTRY_UPDATE" then
     -- Über Blizzards Auge ausgetragen oder einer anderen Gruppe beigetreten: nicht weiter „suchen“
     if state.queued and GetTime() - state.queuedAt > 5 and L.HasActiveEntryInfo and not L.HasActiveEntryInfo() then
-      StopQueue(T.CHAT_LISTING_GONE)
+      -- Gruppe hat sich gerade aufgelöst (einziger Mitspieler weg): Blizzard nimmt den Eintrag mit
+      local dissolved = not IsInGroup() and GetTime() - (state.inGroupAt or 0) < 3
+      local since = state.queuedAt
+      StopQueue(dissolved and T.CHAT_DISSOLVED or T.CHAT_LISTING_GONE)
+      if dissolved then state.resume = { auto = true, since = since, t = GetTime() } end
     end
   elseif event == "LFG_LIST_AVAILABILITY_UPDATE" then
     InvalidateHere()

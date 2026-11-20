@@ -11,7 +11,8 @@ function NeedText(rem)
   return table.concat(parts, ", ")
 end
 
-function StartQueue()
+-- resume: Fortsetzen nach Abgang oder Auflösung; since = ursprünglicher Start, damit die Wartezeit stimmt
+function StartQueue(resume)
   if InCombatLockdown() then Print(T.CHAT_IN_COMBAT) return end
   local reason = BlockReason()
   if reason then Print(reason); OpenWindow() return end
@@ -21,7 +22,8 @@ function StartQueue()
   if (db.playstyle or 0) == 0 then Print(GROUP_FINDER_PLAYSTYLE_REQUIRED or T.PLAYSTYLE_REQUIRED) return end
   local rem = Slots()
   if not AnyLeft(rem) then Print(T.CHAT_NO_ROLE) return end
-  state.queued, state.queuedAt, state.lastSearchAt, state.searching = true, GetTime(), 0, nil
+  state.queued, state.queuedAt, state.lastSearchAt, state.searching = true, resume and resume.since or GetTime(), 0, nil
+  state.resume = nil
   wipe(state.lastSupply)
   Estimate.OnStart()
   char.groupActivityID = ids[1]
@@ -34,9 +36,13 @@ function StartQueue()
   if not okList then Print(T.CHAT_LIST_FAILED:format(tostring(err))) end
   -- Kein Suchen im selben Klick: Blizzard erlaubt nur eine geschützte Aktion pro Klick, das Eintragen hat sie
   -- verbraucht (sonst ADDON_ACTION_BLOCKED). Die erste Suche läuft beim nächsten Klick oder Tastendruck.
-  CloseWindow()
-  Print(T.CHAT_STARTED:format(NeedText(rem)))
-  Print(T.CHAT_NEXT_CLICK)
+  if resume then
+    Print(T.CHAT_RESUMED:format(NeedText(rem)))
+  else
+    CloseWindow()
+    Print(T.CHAT_STARTED:format(NeedText(rem)))
+    Print(T.CHAT_NEXT_CLICK)
+  end
   UpdateMinimap()
 end
 
@@ -69,6 +75,8 @@ function _G.AutoGroupFinder_Next()
     api.readyCheck()
   elseif state.queued then
     DoSearch(true)
+  elseif state.resume then
+    StartQueue(state.resume)
   else
     -- Starten nur über den Knopf im Fenster, wo Rollen, Dungeons und Spielstil zu sehen sind
     OpenWindow()

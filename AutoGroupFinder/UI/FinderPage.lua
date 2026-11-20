@@ -509,6 +509,7 @@ end
 OPTIONS = {
   { "autoInvite", T.OPT_AUTOINVITE, T.OPT_AUTOINVITE_TIP, function() AutoInvite() end },
   { "scarceFirst", T.OPT_SCARCE, T.OPT_SCARCE_TIP:format(SCARCE_WAIT / 60), function() AutoInvite() end },
+  { "tankFirst", T.OPT_TANK_FIRST, T.OPT_TANK_FIRST_TIP, function() AutoInvite() end },
   { "keySearch", T.OPT_CLICKSEARCH, T.OPT_CLICKSEARCH_TIP:format(DEFAULTS.interval) },
   { "oldestFirst", T.OPT_OLDEST, T.OPT_OLDEST_TIP, function() Rebuild() end },
   { "samePlaystyle", T.OPT_SAME_PLAYSTYLE, T.OPT_SAME_PLAYSTYLE_TIP, function() Rebuild() end },

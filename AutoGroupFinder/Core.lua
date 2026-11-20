@@ -135,6 +135,7 @@ DEFAULTS = {
   need = {},
   minimap = { angle = 200, hide = false },
   scarceFirst = true,        -- seltene Rollen zuerst einladen
+  tankFirst = false,         -- streng: niemand sonst, bis ein Tank dabei ist
   minimapStandalone = false, -- true: nicht von Sammel-Add-ons einsammeln lassen
 }
 

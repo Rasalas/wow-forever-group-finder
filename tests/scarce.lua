@@ -178,3 +178,50 @@ db.scarceFirst = false
 E.StartQueue()
 results10(with({ { "Tank3", { tank = true } } }))
 check("7) Option aus:", newInvites(), "Tank3,Dd1,Dd2")
+
+print("== Streng: erst einladen, wenn ein Tank dabei ist")
+reset()
+db.scarceFirst, db.tankFirst = true, true
+E.StartQueue()
+results10(with({ { "Heal9", { healer = true } } }))
+check("8) kein Tank: niemand:", newInvites(), "-")
+advance(E.SCARCE_WAIT + 60)
+results10(with({ { "Heal9", { healer = true } } }))
+check("9) auch nach Minuten niemand:", newInvites(), "-")
+results10(with({ { "Heal9", { healer = true } }, { "Tank9", { tank = true } } }))
+check("10) Tank taucht auf:", newInvites(), "Tank9")
+join("Tank9")
+results10(with({ { "Heal9", { healer = true } } }))
+check("11) Tank da: Heiler, Schaden erst danach:", newInvites(), "Heal9")
+db.tankFirst = false
+
+print("== Weitersuchen: einziger Mitspieler geht sofort")
+reset()
+LISTED = true
+E.StartQueue()
+local startedAt = E.state.queuedAt
+advance(30)
+join("Tank8")
+for i = #party, 1, -1 do party[i] = nil end
+fire("GROUP_ROSTER_UPDATE")
+LISTED = false
+fire("LFG_LIST_ACTIVE_ENTRY_UPDATE")
+check("12) Suche pausiert:", E.state.queued, false)
+check("13) Weitersuchen vorgemerkt, automatisch:", E.state.resume and E.state.resume.auto, true)
+E.UpdateNudge()
+check("14) Knopf bietet es an:", rawget(E.nudge.text, "_text"), E.T.NUDGE_RESUME)
+check("15) Nächster Klick trägt wieder ein:", E.HardwareTick(), true)
+check("16) Suche läuft wieder:", E.state.queued, true)
+check("17) Wartezeit zählt weiter:", E.state.queuedAt, startedAt)
+
+print("== Weitersuchen: volle Gruppe, einer geht gleich wieder")
+reset()
+E.state.completed = true
+AutoGroupFinderCharDB.lastFill = { s = 60, t = os.time() }
+party = { "T", "H", "D1" }
+fire("GROUP_ROSTER_UPDATE")
+check("18) automatisch beim nächsten Klick:", E.state.resume and E.state.resume.auto, true)
+AutoGroupFinderCharDB.lastFill = { s = 60, t = os.time() - 3600 }
+E.state.resume, E.state.backfillNoted = nil, false
+fire("GROUP_ROSTER_UPDATE")
+check("19) später nur angeboten:", E.state.resume and E.state.resume.auto, false)

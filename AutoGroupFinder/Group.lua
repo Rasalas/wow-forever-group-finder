@@ -104,8 +104,14 @@ end
 -- held = Rollen, die gerade nicht eingeladen werden; waiting = knappe Rollen, auf die sie warten
 function HeldRoles()
   local held, waiting = {}, {}
-  if not db.scarceFirst or not state.queued then return held, waiting end
+  if not state.queued then return held, waiting end
   local rem, supply, now = Slots(), SupplyNow(), GetTime()
+  -- Streng (Option): ohne Tank in der Gruppe wartet jede andere Rolle, ohne Zeitlimit
+  if db.tankFirst and rem.TANK > 0 and Filled().TANK == 0 then
+    for _, r in ipairs(ROLES) do if r ~= "TANK" and rem[r] > 0 then held[r] = true end end
+    return held, { "TANK" }
+  end
+  if not db.scarceFirst then return held, waiting end
   for _, r in ipairs(ROLES) do
     if rem[r] > 0 and supply[r] < SCARCE_RATIO * rem[r] then
       local last = math.max(state.lastSupply[r] or 0, state.queuedAt)
