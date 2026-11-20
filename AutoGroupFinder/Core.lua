@@ -205,6 +205,14 @@ real = {
 }
 api = real
 
+-- In manchen Lagen (z. B. in Instanzen) liefert Blizzard „geheime“ Werte, die Add-ons nicht auswerten dürfen
+function Readable(v) return not (issecretvalue and issecretvalue(v)) end
+function AllReadable(t, ...)
+  if not t then return false end
+  for i = 1, select("#", ...) do if not Readable(t[select(i, ...)]) then return false end end
+  return true
+end
+
 function Key(name) return Ambiguate(name, "none") end
 function Short(name) return Ambiguate(name, "short") end
 function Ding() if db.sound then PlaySound(SOUNDKIT.READY_CHECK or 8960, "Master") end end

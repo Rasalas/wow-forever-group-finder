@@ -562,11 +562,9 @@ StaticPopupDialogs.AUTOGROUPFINDER_WHISPER = {
 }
 function EditWhisper() if StaticPopup_Show then StaticPopup_Show("AUTOGROUPFINDER_WHISPER") end end
 
-function OpenSettings()
-  if settingsCategory and Settings and Settings.OpenToCategory then
-    Settings.OpenToCategory(settingsCategory:GetID())
-  end
-end
+-- Blizzards Einstellungsfenster öffnet das Add-on bewusst nicht selbst: Das Öffnen läuft dann im Namen des
+-- Add-ons, Blizzard markiert das Fenster als „unsicher“ und blockiert beim Schließen SpellStopCasting.
+function OpenSettings() Print(T.SETTINGS_PATH) end
 
 okGear, gear = pcall(CreateFrame, "DropdownButton", nil, win)
 menuOk = okGear and gear and gear.SetupMenu
@@ -611,9 +609,9 @@ if menuOk then
     end
     root:CreateDivider()
     root:CreateButton(T.EDIT_WHISPER, EditWhisper)
-    if settingsCategory then root:CreateButton(T.SETTINGS, OpenSettings) end
     root:CreateButton(T.ONB_SHOW, ShowOnboarding)
-    if aboutCategory then root:CreateButton(T.ABOUT .. "…", OpenAbout) end
+    root:CreateDivider()
+    root:CreateTitle(T.SETTINGS_PATH)
   end)
 else
   -- Ohne Menü-API: kleines Aufklappfenster mit Häkchen

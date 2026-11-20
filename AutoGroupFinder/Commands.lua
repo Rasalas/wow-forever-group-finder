@@ -45,7 +45,7 @@ function _G.AutoGroupFinder_Slash(msg, raw)
     db.whisperText = text ~= "" and text or nil
     Print(T.CHAT_WHISPER_SET:format(db.whisperText or T.WHISPER_DEFAULT))
   elseif msg == "config" or msg == "settings" then
-    OpenSettings()
+    OpenSettings() -- nennt nur den Weg
   elseif msg == "test" then
     Print((T.TEST_LIST:gsub("%%s", SLASH)))
   elseif msg == "test search" or msg == "test search shots" then

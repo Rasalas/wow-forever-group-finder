@@ -67,26 +67,19 @@ function MinimapCollector()
   if owner and owner ~= Minimap and owner ~= UIParent then return T.ONB_COLLECTOR end
 end
 
--- Taste festlegen: kleiner Link mit Schlüssel, kein zweiter großer Knopf
-local keyLink = CreateFrame("Button", nil, card)
+-- Tastenkürzel: nur der Weg als Hinweis. Das Add-on öffnet Blizzards Einstellungen nicht selbst,
+-- das würde beim Schließen eine Blizzard-Aktion blockieren (siehe OpenSettings).
+local keyLink = CreateFrame("Frame", nil, card)
 keyLink:SetHeight(20)
 keyLink.icon = keyLink:CreateTexture(nil, "ARTWORK")
 keyLink.icon:SetSize(16, 16)
 keyLink.icon:SetPoint("LEFT", 5, 0)
 keyLink.icon:SetTexture("Interface\\Icons\\INV_Misc_Key_03")
 keyLink.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
-keyLink.text = Label(keyLink, T.ONB_KEY, "GameFontNormalSmall", "LEFT", keyLink.icon, "RIGHT", 9, 0)
-keyLink:SetWidth(keyLink.text:GetStringWidth() + 34)
-keyLink:SetScript("OnEnter", function(self) self.text:SetTextColor(1, 1, 1) end)
-keyLink:SetScript("OnLeave", function(self) self.text:SetTextColor(1, 0.82, 0) end)
--- Tastaturbelegung öffnen und zu unserem Abschnitt scrollen. Bewusst nicht selbst aufklappen: Ein Klick des
--- Add-ons auf Blizzards Plus färbt das Einstellungsfenster ein, beim Schließen wird dann SpellStopCasting blockiert.
-function OpenHotkeys()
-  if Settings and Settings.OpenToCategory and Settings.KEYBINDINGS_CATEGORY_ID then
-    Settings.OpenToCategory(Settings.KEYBINDINGS_CATEGORY_ID, _G.BINDING_HEADER_AUTOGROUPFINDER)
-  end
-end
-keyLink:SetScript("OnClick", OpenHotkeys)
+keyLink.text = Label(keyLink, T.ONB_KEY_PATH, "GameFontDisableSmall", "LEFT", keyLink.icon, "RIGHT", 9, 0)
+keyLink.text:SetWidth(CARD_W - 70)
+keyLink.text:SetJustifyH("LEFT")
+keyLink:SetWidth(CARD_W - 40)
 
 onboarding.go = CreateFrame("Button", nil, card, "UIPanelButtonTemplate")
 onboarding.go:SetSize(160, 26)
@@ -99,8 +92,7 @@ local function UpdateGo() onboarding.go:SetText(NeedsReload() and T.ONB_RELOAD o
 -- Höhe und Link-Position hängen davon ab, ob die Minimap-Zeile dazukommt
 local function Layout()
   local rows = #onboarding.checks
-  local hasKey = Settings and Settings.KEYBINDINGS_CATEGORY_ID and true or false
-  keyLink:SetShown(hasKey)
+  local hasKey = true
   keyLink:ClearAllPoints()
   keyLink:SetPoint("TOPLEFT", card, "TOPLEFT", 24, -54 - rows * ROW - 16)
   card:SetHeight(54 + rows * ROW + (hasKey and 40 or 0) + 70)
@@ -153,12 +145,9 @@ function RegisterAboutPage()
   ptext:SetWidth(560)
   ptext:SetJustifyH("LEFT")
   ptext:SetSpacing(2)
-  -- Kein Knopf, der das Einstellungsfenster selbst schließt: das färbt Blizzards Fenster ein (siehe OpenHotkeys).
+  -- Kein Knopf, der das Einstellungsfenster öffnet oder schließt: das färbt Blizzards Fenster ein (siehe OpenSettings).
   aboutCategory = Settings.RegisterCanvasLayoutSubcategory(settingsCategory, page, T.ABOUT)
 end
 
-function OpenAbout()
-  if aboutCategory and Settings and Settings.OpenToCategory then Settings.OpenToCategory(aboutCategory:GetID()) end
-end
 
 -------------------------------------------------------------------------

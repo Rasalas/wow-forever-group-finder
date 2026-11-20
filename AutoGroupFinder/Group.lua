@@ -225,9 +225,13 @@ function Rebuild()
   local demand = wipe(state.demand)
   for _, id in ipairs(api.results()) do
     local info = api.info(id)
+    -- geheime Werte (z. B. in Instanzen) dürfen wir nicht auswerten: Eintrag überspringen
+    if not AllReadable(info, "isDelisted", "hasSelf", "numMembers", "leaderName", "activityIDs", "age",
+        "generalPlaystyle", "numCharFriends", "numBNetFriends", "numGuildMates", "comment") then info = nil end
     if info and not info.isDelisted and not info.hasSelf then
       local solo = info.numMembers == 1
       local p = solo and api.leader(id)
+      if p and not AllReadable(p, "lfgRoles", "level", "classFilename", "areaName") then p = nil end
       if p then
         state.areaTotal = (state.areaTotal or 0) + 1
         if p.areaName and p.areaName ~= "" then

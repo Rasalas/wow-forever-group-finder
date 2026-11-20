@@ -141,3 +141,16 @@ db.preferNear = false
 E.Rebuild()
 check("Option aus, nur nach Alter:", order(), "Unbekannt,Fern,Eingang,Drinnen")
 check("Zonen-Stichprobe:", table.concat(db.areaSample, ","), "Ironforge,Tirisfal Glades,Scarlet Monastery")
+
+print("== Geheime Werte (z. B. in Instanzen)")
+local secret = {}
+issecretvalue = function(v) return secret[v] == true end
+local token = setmetatable({}, { __tostring = function() return "secret" end })
+secret[token] = true
+res(9, "Geheim", { dps = true }, 3, { generalPlaystyle = 2 }); results[9].isDelisted = token
+local ok, err = pcall(E.Rebuild)
+check("Kein Fehler bei geheimen Werten:", ok, true)
+local seenSecret = false
+for _, c in ipairs(E.candidates) do if c.name == "Geheim" then seenSecret = true end end
+check("Eintrag mit geheimen Werten übersprungen:", seenSecret, false)
+issecretvalue = nil

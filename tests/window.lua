@@ -191,12 +191,10 @@ check("Teilen abgeschaltet:", db.shareStats, false)
 check("Minimap-Symbol einzeln:", db.minimapStandalone, true)
 check("Neu geladen:", reloads, 1)
 
-print("== Tastenkürzel")
-local opened
-Settings = { KEYBINDINGS_CATEGORY_ID = 7, OpenToCategory = function(id, name) opened = id .. ":" .. name end }
-local touched = false
-SettingsPanel = setmetatable({}, { __index = function() touched = true return function() end end })
-E.OpenHotkeys()
-advance(1)
-check("Tastaturbelegung bei unserem Abschnitt geöffnet:", opened, "7:" .. _G.BINDING_HEADER_AUTOGROUPFINDER)
-check("Blizzards Einstellungsfenster nicht angefasst:", touched, false)
+print("== Blizzards Einstellungen werden nie vom Add-on geöffnet")
+local opened = 0
+Settings = { KEYBINDINGS_CATEGORY_ID = 7, OpenToCategory = function() opened = opened + 1 end }
+E.OpenSettings()
+SlashCmdList.AUTOGROUPFINDER("config")
+E.ShowOnboarding()
+check("Kein Öffnen durch das Add-on:", opened, 0)
