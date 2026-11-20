@@ -169,3 +169,29 @@ fire("LFG_LIST_SEARCH_RESULTS_RECEIVED")
 local order = {}
 for _, c in ipairs(E.candidates) do order[#order + 1] = c.name end
 check("Gemochte zuerst, „nicht wieder“ fehlt:", table.concat(order, ","), "Gut,Neu")
+
+print("== Gruppen, die dich brauchen (nur Tank/Heiler)")
+local told, typed = {}, {}
+ChatFrame_SendTell = function(n) told[#told + 1] = n end
+ChatEdit_InsertLink = function(t) typed[#typed + 1] = t return true end
+C_LFGList.GetSearchResultMemberCounts = function(id) return results[id].counts end
+for k in pairs(results) do results[k] = nil end
+res(5, "Anfuehrer", { dps = true }, 30, { numMembers = 3, counts = { TANK = 1, HEALER = 0, DAMAGER = 2 } })
+res(6, "Voll", { dps = true }, 30, { numMembers = 4, counts = { TANK = 1, HEALER = 1, DAMAGER = 2 } })
+local myRoles = AutoGroupFinderCharDB.myRoles
+AutoGroupFinderCharDB.myRoles = { DAMAGER = true }
+fire("LFG_LIST_SEARCH_RESULTS_RECEIVED")
+check("Als Schaden keine Gruppenvorschläge:", #E.groupOffers, 0)
+AutoGroupFinderCharDB.myRoles = { HEALER = true, DAMAGER = true }
+fire("LFG_LIST_SEARCH_RESULTS_RECEIVED")
+check("Als Heiler: Gruppe ohne Heiler:", #E.groupOffers == 1 and E.groupOffers[1].name, "Anfuehrer")
+check("Rolle Heiler:", E.groupOffers[1].role, "HEALER")
+E.AskGroup(E.groupOffers[1])
+check("Flüstern an den Anführer geöffnet:", told[1], "Anfuehrer")
+check("Text vorausgefüllt, nicht gesendet:", typed[1] ~= nil and typed[1]:find("Scarlet Library", 1, true) ~= nil, true)
+E.AskGroup(E.groupOffers[1])
+check("Zweite Anfrage gesperrt:", #told, 1)
+party = { "Jemand" }; fire("GROUP_ROSTER_UPDATE"); fire("LFG_LIST_SEARCH_RESULTS_RECEIVED")
+check("In einer Gruppe keine Vorschläge:", #E.groupOffers, 0)
+party = {}; fire("GROUP_ROSTER_UPDATE")
+AutoGroupFinderCharDB.myRoles = myRoles

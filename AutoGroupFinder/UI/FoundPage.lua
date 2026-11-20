@@ -164,6 +164,17 @@ function ShowPlayerMenu(owner, c)
   end)
 end
 
+offerOf = {} -- Zeile -> Gruppe, um die gebeten werden kann
+
+-- Um Aufnahme bitten: nur vorausgefülltes Flüstern, abgeschickt wird mit Enter vom Spieler selbst
+function AskGroup(o)
+  if (db.asked[o.key] or 0) + ASK_COOLDOWN > time() then return end
+  db.asked[o.key] = time()
+  Whisper(o.name)
+  InsertChat(T.ASK_WHISPER:format(ROLE_NAME[o.role], UnitLevel("player"), o.activityText or o.activity or ""))
+  if UpdateUI then UpdateUI() end
+end
+
 -- Ist gerade ein anderer Spieler in diese Zeile gerutscht? Dann kurz keine Klicks annehmen.
 function JustChanged(row) return GetTime() - (row.changedAt or 0) < 0.5 end
 function SetRowKey(row, key)
@@ -241,12 +252,16 @@ function ListRow(i)
   row.btn:SetText(T.INVITE)
   row.btn:SetScript("OnClick", function(self)
     if JustChanged(self:GetParent()) then return end
+    local o = offerOf[self:GetParent()]
+    if o then AskGroup(o) return end
     local c = self:GetParent().cand
     local _, open = Slots()
     local role = c and RoleFor(c, open)
     if role and CanInvite() then Invite(c, role, true) Rebuild() end
   end)
   row:SetScript("OnClick", function(self, button)
+    local o = offerOf[self]
+    if o and not JustChanged(self) and IsShiftKeyDown() then InsertChat(self.sub:IsMouseOver() and o.activityText or Short(o.name)) end
     local c = self.cand
     if not c or JustChanged(self) then return end
     if IsShiftKeyDown() then
@@ -256,6 +271,7 @@ function ListRow(i)
     end
   end)
   row:SetScript("OnEnter", function(self)
+    if offerOf[self] then ShowOfferTooltip(self, offerOf[self]) return end
     local c = self.cand
     if not c then return end
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
@@ -305,6 +321,7 @@ local function HeadRow(n, y, key, text)
   row:SetPoint("TOPLEFT", 0, -y)
   SetRowKey(row, key)
   row.cand = nil
+  offerOf[row] = nil
   row.bg:Hide()
   row.hl:Hide()
   row.headBg:Show()
@@ -325,6 +342,7 @@ local function PlayerRow(n, y, c, role, invitedAt)
   row:SetPoint("TOPLEFT", 0, -y)
   SetRowKey(row, c.key)
   row.cand = c
+  offerOf[row] = nil
   row.bg:Show()
   row.hl:Show()
   row.headBg:Hide()
@@ -379,6 +397,62 @@ local function PlayerRow(n, y, c, role, invitedAt)
   return y + PLAYER_H
 end
 
+function ShowOfferTooltip(owner, o)
+  GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
+  GameTooltip:SetText(o.activityText, 1, 0.82, 0, 1, true)
+  local color = o.class and RAID_CLASS_COLORS[o.class]
+  GameTooltip:AddLine(T.ASK_LEADER:format(Short(o.name)), color and color.r or 1, color and color.g or 1, color and color.b or 1)
+  for _, m in ipairs(ListingMembers({ resultID = o.id, numMembers = o.numMembers }) or {}) do
+    local mc = m.class and RAID_CLASS_COLORS[m.class]
+    GameTooltip:AddLine((m.role and RoleIconText(m.role, 14) .. " " or "") .. Short(m.name) .. (m.level and m.level > 0 and ("  " .. m.level) or ""),
+      mc and mc.r or 1, mc and mc.g or 1, mc and mc.b or 1)
+  end
+  if o.near then GameTooltip:AddLine(NearIcon(o.near) .. " " .. (o.near == 2 and T.TAG_NEAR_TIP or T.TAG_NEAR_ZONE_TIP):format(o.area), 1, 0.82, 0, true) end
+  if type(o.comment) == "string" and o.comment ~= "" then GameTooltip:AddLine("\"" .. o.comment .. "\"", 0.9, 0.9, 0.9, true) end
+  GameTooltip:AddLine(" ")
+  GameTooltip:AddLine(T.ASK_TIP, 0.6, 0.6, 0.6, true)
+  GameTooltip:Show()
+end
+
+-- Gruppe, der deine Rolle fehlt: Symbol der fehlenden Rolle, Anführer, Dungeon, Belegung
+local function GroupRow(n, y, o)
+  local row = ListRow(n)
+  row:SetHeight(PLAYER_H)
+  row:SetPoint("TOPLEFT", 0, -y)
+  SetRowKey(row, "group:" .. o.key)
+  row.cand = nil
+  offerOf[row] = o
+  row.bg:Show() row.hl:Show() row.headBg:Hide() row.head:Hide()
+  SetRoleTexture(row.avatar, o.role, true)
+  row.avatar:Show()
+  local color = o.class and RAID_CLASS_COLORS[o.class]
+  local title = color and color:WrapTextInColorCode(Short(o.name)) or Short(o.name)
+  local tags = {}
+  if o.liked then tags[#tags + 1] = RateTag(1) end
+  if o.friend then tags[#tags + 1] = "|cff82c5ff" .. T.TAG_FRIEND .. "|r" end
+  if o.guild then tags[#tags + 1] = "|cff40ff40" .. T.TAG_GUILD .. "|r" end
+  if o.near then tags[#tags + 1] = NearIcon(o.near) end
+  if #tags > 0 then title = title .. "  " .. table.concat(tags, " ") end
+  row.name:SetText(title)
+  row.name:Show()
+  row.level:SetText("")
+  row.sub:SetText(o.activity)
+  row.sub:Show()
+  row.age:SetText(Age(o))
+  row.age:Show()
+  row.clock:SetShown(HasAtlas("groupfinder-waitdot"))
+  row.style:SetText(("%d/%d"):format(o.numMembers or 0, o.max or 5))
+  row.style:Show()
+  for _, t in ipairs(row.extra) do t:Hide() end
+  if row.cd then row.cd.invitedAt = nil row.cd:Hide() end
+  local asked = (db.asked[o.key] or 0) + ASK_COOLDOWN > time()
+  row.btn:SetText(asked and T.ASKED or T.ASK)
+  row.btn:SetEnabled(not asked)
+  row.btn:Show()
+  row:Show()
+  return y + PLAYER_H
+end
+
 function UpdateFound()
   local summary = ActivitySummary()
   if actDd.OverrideText then actDd:OverrideText(summary) elseif actDd.Text then actDd.Text:SetText(summary) end
@@ -397,6 +471,14 @@ function UpdateFound()
       y = PlayerRow(n, y, p.c, p.role, p.t)
     end
   end
+  if #groupOffers > 0 then
+    n = n + 1
+    y = HeadRow(n, y, "head:groups", T.GROUPS_HEAD:format(#groupOffers))
+    for _, o in ipairs(groupOffers) do
+      n = n + 1
+      y = GroupRow(n, y, o)
+    end
+  end
   local counts, lastRole = {}, nil
   for _, c in ipairs(candidates) do counts[c.role] = (counts[c.role] or 0) + 1 end
   for _, c in ipairs(candidates) do
@@ -413,7 +495,7 @@ function UpdateFound()
   local tr = targetBtn.row
   if targetBtn:IsShown() and not (tr and tr:IsVisible() and tr.cand and tr.cand.key == targetBtn.key) then HideTargetButton() end
   local _, pickedIDs = SearchActivities()
-  local nothing = #candidates == 0 and #invited == 0
+  local nothing = #candidates == 0 and #invited == 0 and #groupOffers == 0
   if #pickedIDs == 0 then
     listEmpty:SetText(T.PICK_ACTIVITY)
   elseif nothing then

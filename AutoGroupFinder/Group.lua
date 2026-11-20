@@ -207,11 +207,17 @@ function PruneState()
   for k, t in pairs(seen) do if now - t > 7200 then seen[k] = nil; state.langOf[k] = nil end end
   for k, d in pairs(InviteInfo.byAddon) do if now - d.t > 600 then InviteInfo.byAddon[k] = nil end end
   for k, t in pairs(db.skipUntil) do if t <= nowEpoch then db.skipUntil[k] = nil end end
+  for k, t in pairs(db.asked) do if t + ASK_COOLDOWN <= nowEpoch then db.asked[k] = nil end end
   Estimate.Prune()
 end
 
+-- Gruppen, denen genau deine seltene Rolle fehlt (nur Tank/Heiler, nur wenn du allein bist)
+groupOffers = {}
+ASK_COOLDOWN = 900 -- denselben Anführer frühestens nach 15 Minuten wieder anfragen
+
 function Rebuild()
   wipe(candidates)
+  wipe(groupOffers)
   if not db then return end
   state.treeVersion = state.treeVersion + 1 -- Auswahl oder Daten können sich geändert haben
   local now = GetTime()
@@ -260,6 +266,27 @@ function Rebuild()
         state.listings[Key(info.leaderName)] = { activity = ActivityName(info, true), activityID = first,
           comp = comp, playstyle = info.generalPlaystyle, listing = true, seenAt = now,
           resultID = id, numMembers = info.numMembers }
+        local lk = Key(info.leaderName)
+        local role
+        for _, r in ipairs({ "TANK", "HEALER" }) do
+          if char.myRoles[r] and comp[r][1] < comp[r][2] then role = r break end
+        end
+        local match
+        for _, a in ipairs(info.activityIDs or {}) do if wanted[a] then match = a break end end
+        if role and match and not solo and not IsInGroup() and lk ~= me and not db.blocked[lk]
+            and (db.ratings[lk] or {}).v ~= -1 and not IsIgnoredName(info.leaderName) then
+          local lp = api.leader(id)
+          if lp and not AllReadable(lp, "areaName", "classFilename") then lp = nil end
+          local area = lp and lp.areaName ~= "" and lp.areaName or nil
+          local o = { id = id, name = info.leaderName, key = lk, role = role, comp = comp,
+            activity = ActivityName(info), activityText = ActivityName(info, true), activityID = match,
+            numMembers = info.numMembers, max = max, class = lp and lp.classFilename, area = area,
+            friend = (info.numCharFriends or 0) + (info.numBNetFriends or 0) > 0,
+            guild = (info.numGuildMates or 0) > 0, liked = (db.ratings[lk] or {}).v == 1,
+            near = area and NearNames(match)[area], comment = info.comment,
+            listedAt = info.age and (now - info.age) or now }
+          groupOffers[#groupOffers + 1] = o
+        end
       end
       -- Nachfrage je Aktivität: Solo-Spieler nach Rolle, dazu suchende Gruppen
       local who = info.leaderName and Key(info.leaderName) or ("#" .. id)
@@ -336,6 +363,13 @@ function Rebuild()
     if pref and (a.lang == pref) ~= (b.lang == pref) then return a.lang == pref end
     if db.preferNear and (a.near or 0) ~= (b.near or 0) then return (a.near or 0) > (b.near or 0) end
     if db.oldestFirst then return a.listedAt < b.listedAt end
+    return a.listedAt > b.listedAt
+  end)
+  table.sort(groupOffers, function(a, b)
+    local af, bf = a.friend or a.guild, b.friend or b.guild
+    if af ~= bf then return af end
+    if a.liked ~= b.liked then return a.liked end
+    if (a.near or 0) ~= (b.near or 0) then return (a.near or 0) > (b.near or 0) end
     return a.listedAt > b.listedAt
   end)
   for r, n in pairs(Supply()) do if n > 0 then state.lastSupply[r] = GetTime() end end

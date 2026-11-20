@@ -119,6 +119,7 @@ DEFAULTS = {
   whisperText = nil,     -- nil = Standardtext
   notify = true,         -- Meldung in der Bildschirmmitte und Taskleiste blinken
   skipUntil = {},        -- key -> time(); übersteht /reload
+  asked = {},            -- Anführer, die du schon um Aufnahme gebeten hast: key -> time()
   showDemand = true,     -- Balken: wie viele warten auf welche Aktivität
   popular = {},          -- activityID -> { Anführer -> time() zuletzt gesehen }
   blocked = {},          -- key -> true: nie wieder einladen

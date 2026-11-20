@@ -13,6 +13,8 @@ You pick your role, the dungeons and a play style and click **Find Group**. The 
 - **Wait-time estimate** from real finished groups (same dungeon, size and missing roles), corrected against its own past errors; optionally shared anonymously with other users
 - **Invite info** under Blizzard's invite popup: dungeon, picture, which roles are filled and which spot is yours
 - **Players Found** page with role, level, zone and a context menu; click the role icon to target
+- **Groups that need you** – alone as a tank or healer, see groups missing exactly your role and ask the leader with a prefilled whisper (you press Enter; each leader at most every 15 minutes)
+- **Your group** page: who is at the dungeon, waypoint to the entrance, level warnings, and rate players (play again / never again)
 - **Group history** per character, **backfill** with one click when someone leaves, raid conversion, ready check
 - Shows up in Titan Panel, ElvUI and other LibDataBroker displays
 - Blizzard look and feel: animated group-finder eye on the minimap, side tabs, a tab inside Blizzard's group finder
