@@ -26,14 +26,14 @@ From [CurseForge](https://www.curseforge.com/wow/addons/auto-group-finder) (Curs
 
 ## Usage
 
-`/gf` opens the window. The first time, a short guide explains the three steps.
+`/gf` opens the window. The first time, a small card asks about automatic invites and sharing wait times. Everything else is in the gear menu.
 
 Blizzard only lets add-ons search the group finder right after a click or key press. While a search is running, right-click the minimap eye, press your key binding (Key Bindings > Auto Group Finder) or click into the game world to search again.
 
 | Command | |
 |---|---|
 | `/gf` | Open or close the window |
-| `/gf config` | Options |
+| `/gf config` | Where to find the options |
 | `/gf start`, `/gf stop` | Start or stop the search |
 | `/gf whisper <text>` | Whisper text sent with invites (`{dungeon}` and `{role}` are filled in) |
 | `/gf minimap [reset]` | Show/hide the minimap icon, or move it back |
