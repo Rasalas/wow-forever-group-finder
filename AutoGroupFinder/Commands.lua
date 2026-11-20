@@ -3,6 +3,10 @@ setfenv(1, ns.env) -- gemeinsamer, privater Namensraum aller Module (siehe Core.
 
 -- Zeigt, was der Client an Group-Finder-Schnittstellen hat.
 function Diag()
+  if UpdateAddOnMemoryUsage and GetAddOnMemoryUsage then
+    UpdateAddOnMemoryUsage()
+    Print(("Memory: %.0f KB"):format(GetAddOnMemoryUsage(ADDON)))
+  end
   Print(("Lua errors: %d"):format(#errors))
   Print(("areaName: %d/%d %s"):format(state.areaSeen or 0, state.areaTotal or 0, table.concat(db and db.areaSample or {}, ", ")))
   for _, e in ipairs(errors) do print("  " .. e) end

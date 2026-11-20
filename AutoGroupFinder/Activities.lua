@@ -17,20 +17,31 @@ function Categories()
 end
 
 -- Steht man an oder in einem Dungeon? Draußen zählt das Gebiet (wie auf der Minimap), drinnen die Instanz.
-function HereDungeon()
-  local here = IsInInstance() and GetRealZoneText() or GetSubZoneText()
-  if not here or here == "" then return nil end
-  local found
+-- Instanzname -> { name, cat, ids }; einmal aufgebaut, neu bei geänderter Aktivitätenliste (InvalidateHere)
+local hereIndex
+function InvalidateHere() hereIndex = nil end
+local function BuildHereIndex()
+  local index, any = {}, false
   for _, c in ipairs(Categories()) do
     for _, id in ipairs(L.GetAvailableActivities(c.id) or {}) do
+      any = true
       local a = L.GetActivityInfoTable(id)
-      if a and (a.mapID or 0) > 0 and (a.maxNumPlayers or 0) >= 5 and GetRealZoneText(a.mapID) == here then
-        found = found or { name = here, cat = c.id, ids = {} }
-        if found.cat == c.id then found.ids[#found.ids + 1] = id end
+      local name = a and (a.mapID or 0) > 0 and (a.maxNumPlayers or 0) >= 5 and GetRealZoneText(a.mapID)
+      if name and name ~= "" then
+        local e = index[name]
+        if not e then e = { name = name, cat = c.id, ids = {} }; index[name] = e end
+        if e.cat == c.id then e.ids[#e.ids + 1] = id end
       end
     end
   end
-  return found
+  return any and index or nil -- leer = Aktivitäten noch nicht geladen, später nochmal
+end
+
+function HereDungeon()
+  local here = IsInInstance() and GetRealZoneText() or GetSubZoneText()
+  if not here or here == "" then return nil end
+  hereIndex = hereIndex or BuildHereIndex()
+  return hereIndex and hereIndex[here]
 end
 
 -- Ein Klick: genau diesen Dungeon wählen und suchen. Fehlt etwas (z. B. Spielstil), zeigt StartQueue den Grund.

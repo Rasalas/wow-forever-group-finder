@@ -63,6 +63,16 @@ function Estimate.AfterResults()
   if mid and mid < math.huge then state.estShown = { at = GetTime() - state.queuedAt, mid = mid } end
 end
 
+-- Ankünfte älter als das Fenster werden nicht mehr gebraucht
+function Estimate.Prune()
+  local now = GetTime()
+  for _, r in ipairs(ROLES) do
+    local keep = {}
+    for _, at in ipairs(state.arrivals[r]) do if now - at < WINDOW then keep[#keep + 1] = at end end
+    state.arrivals[r] = keep
+  end
+end
+
 -- Neuer Kandidat; wer bei den ersten Ergebnissen schon wartete, ist keine Ankunft
 function Estimate.Arrived(c)
   local now = GetTime()

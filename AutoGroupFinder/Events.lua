@@ -133,7 +133,7 @@ function OnRoster()
   end
   for k in pairs(joined) do if not members[k] then joined[k] = nil end end
   Estimate.OnRoster()
-  Rebuild()
+  if state.queued or win:IsShown() then Rebuild() end -- sonst sieht es niemand; das Fenster baut beim Öffnen neu
   if not IsInGroup() then state.completed = false end
   -- Fertige Gruppe wieder unvollständig: Neustart braucht einen Klick, also nur Bescheid geben.
   if not state.queued and state.completed and IsInGroup() and CanInvite() then
@@ -172,8 +172,13 @@ function Tick()
     end
   end
   for _, d in ipairs(drop) do DropPending(d[1], d[2], d[3]) end
-  if state.searching and now - state.searching > 10 then state.searching = nil end
-  if UpdateUI then UpdateUI() end
+  state.ticks = (state.ticks or 0) + 1
+  local full = state.ticks % 5 == 0 -- Alterangaben u. Ä. reichen alle 5 s; Änderungen zeichnen sofort über Rebuild
+  if state.searching and now - state.searching > 10 then state.searching, full = nil, true end
+  if state.ticks % 60 == 0 then PruneState() end
+  if win:IsShown() then
+    if full and UpdateUI then UpdateUI() elseif UpdateNeed then UpdateNeed() end
+  end
 end
 
 ev = CreateFrame("Frame")
@@ -240,6 +245,7 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4)
       StopQueue(T.CHAT_LISTING_GONE)
     end
   elseif event == "LFG_LIST_AVAILABILITY_UPDATE" then
+    InvalidateHere()
     state.here = HereDungeon() -- Dungeon-Liste ist da, Standort neu prüfen
     Rebuild()
   elseif event == "LFG_LIST_SEARCH_RESULTS_RECEIVED" then

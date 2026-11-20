@@ -6,6 +6,15 @@ setfenv(1, ns.env) -- gemeinsamer, privater Namensraum aller Module (siehe Core.
 -------------------------------------------------------------------------
 Eye = { all = {}, mode = "idle", foundUntil = 0 }
 
+-- Still: festes Bild und kein OnUpdate. Blizzards Vorlage rechnet sonst in jedem Bild,
+-- auch wenn sich nichts bewegt; Blizzard zeigt sein Auge nur während einer Suche.
+local function Rest(eye)
+  eye:SetStaticMode(true)
+  local tex = rawget(eye, "texture") -- parentKey aus der Vorlage
+  if tex then tex:Show() end
+  eye:SetScript("OnUpdate", nil)
+end
+
 function Eye.Create(parent, big, level)
   local ok, eye = pcall(CreateFrame, "Button", nil, parent, big and "LFGEyeBigTemplate" or "LFGEyeTemplate")
   if not ok or not eye or not eye.StartSearchingAnimation then return nil end
@@ -22,7 +31,7 @@ function Eye.Create(parent, big, level)
   hooksecurefunc(parent, "SetFrameStrata", Sync)
   hooksecurefunc(parent, "SetFrameLevel", Sync)
   hooksecurefunc(parent, "SetParent", Sync)
-  eye:SetStaticMode(true)
+  Rest(eye)
   eye:Show()
   Eye.all[#Eye.all + 1] = eye
   return eye
@@ -31,9 +40,11 @@ end
 local function Apply(eye, mode)
   eye:StopAnimating()
   if mode == "found" and not eye.EyeFoundInitial then mode = "idle" end -- großes Auge hat keine Fund-Animation
-  eye:SetStaticMode(mode == "idle")
+  if mode == "idle" then Rest(eye) return end
+  eye:SetScript("OnUpdate", eye.OnUpdate)
+  eye:SetStaticMode(false)
   if mode == "search" then eye:StartInitialAnimation() -- geht von selbst in die Suchschleife über
-  elseif mode == "found" then eye:StartFoundAnimationInit() end
+  else eye:StartFoundAnimationInit() end
 end
 
 -- "idle" (still), "search" (sucht) oder "found" (einmal aufleuchten, dann still)

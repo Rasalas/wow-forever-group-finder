@@ -192,6 +192,20 @@ function NearNames(activityID)
   return names
 end
 
+-- Jede Minute: was älter ist als gebraucht, fliegt raus, damit lange Sitzungen nicht wachsen
+function PruneState()
+  local nowEpoch, now = time(), GetTime()
+  for a, seenBy in pairs(db.popular) do
+    for k, t in pairs(seenBy) do if t < nowEpoch - POPULAR_WINDOW then seenBy[k] = nil end end
+    if next(seenBy) == nil then db.popular[a] = nil end
+  end
+  for k, l in pairs(state.listings) do if now - l.seenAt > 1800 then state.listings[k] = nil end end
+  for k, t in pairs(seen) do if now - t > 7200 then seen[k] = nil end end
+  for k, d in pairs(InviteInfo.byAddon) do if now - d.t > 600 then InviteInfo.byAddon[k] = nil end end
+  for k, t in pairs(db.skipUntil) do if t <= nowEpoch then db.skipUntil[k] = nil end end
+  Estimate.Prune()
+end
+
 function Rebuild()
   wipe(candidates)
   if not db then return end
