@@ -248,5 +248,8 @@ ns.L.itIT = {
   ABOUT = "Informazioni",
   ABOUT_TEXT = "Trova automaticamente difensori, guaritori e assaltatori per il tuo gruppo, come la ricerca spedizioni di Retail, ma tramite la ricerca di gruppo di Blizzard in WoW Forever. Gratuito e open source (licenza MIT).",
   ABOUT_CODE = "Codice sorgente, domande e segnalazione di errori:",
+  SHARE = "Consiglia",
+  SHARE_TIP = "Scrive una breve nota sull'add-on in chat, al gruppo se ne hai uno. Invia con Invio.",
+  SHARE_TEXT = "Uso Auto Group Finder, invita tank, guaritori e danno in automatico: %s",
   ABOUT_COPY = "Fai clic, poi Ctrl+C per copiare",
 }

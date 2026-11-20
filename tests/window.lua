@@ -222,3 +222,10 @@ check("Info offen:", E.info:IsShown(), true)
 check("Fenster dazu offen:", win:IsShown(), true)
 E.CloseWindow()
 check("Mit dem Fenster geschlossen:", E.info:IsShown(), false)
+
+print("== Weitersagen")
+local opened
+ChatFrame_OpenChat = function(t) opened = t end
+E.ShareAddon()
+check("Text vorausgefüllt, nicht gesendet:", opened and opened:find(E.REPO_URL, 1, true) ~= nil, true)
+check("Allein: kein Gruppenkanal:", opened:sub(1, 3) ~= "/p ", true)

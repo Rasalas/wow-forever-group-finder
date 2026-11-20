@@ -249,5 +249,8 @@ ns.L.esES = {
   ABOUT = "Acerca de",
   ABOUT_TEXT = "Encuentra automáticamente tanques, sanadores y daño para tu grupo, como el buscador de mazmorras de Retail, pero mediante el buscador de grupos de Blizzard en WoW Forever. Gratis y de código abierto (licencia MIT).",
   ABOUT_CODE = "Código fuente, preguntas y aviso de errores:",
+  SHARE = "Recomendar",
+  SHARE_TIP = "Escribe una nota corta sobre el addon en el chat, al grupo si estás en uno. Envíalo con Intro.",
+  SHARE_TEXT = "Uso Auto Group Finder, invita tanques, sanadores y daño automáticamente: %s",
   ABOUT_COPY = "Haz clic y luego Ctrl+C para copiar",
 }

@@ -634,6 +634,7 @@ if menuOk then
     root:CreateDivider()
     root:CreateButton(T.EDIT_WHISPER, EditWhisper)
     root:CreateButton(T.ONB_SHOW, ShowOnboarding)
+    root:CreateButton(T.SHARE, ShareAddon)
     root:CreateButton(T.ABOUT, ShowInfo)
   end)
 else

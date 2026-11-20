@@ -5,6 +5,13 @@ setfenv(1, ns.env) -- gemeinsamer, privater Namensraum aller Module (siehe Core.
 -- Kein Spendenaufruf im Spiel (Blizzards Add-on-Richtlinie, Regel 5); der steht nur auf GitHub.
 -------------------------------------------------------------------------
 REPO_URL = "https://github.com/Rasalas/wow-forever-group-finder"
+-- Weitersagen: Text nur vorausfüllen, abgeschickt wird mit Enter. In der Gruppe an die Gruppe.
+function ShareAddon()
+  local prefix = IsInRaid() and "/ra " or IsInGroup() and "/p " or ""
+  local open = (ChatFrameUtil and ChatFrameUtil.OpenChat) or ChatFrame_OpenChat
+  if open then open(prefix .. T.SHARE_TEXT:format(REPO_URL)) end
+end
+
 function AddonVersion()
   local get = (C_AddOns and C_AddOns.GetAddOnMetadata) or GetAddOnMetadata
   return get and get(ADDON, "Version") or "?"
@@ -159,9 +166,15 @@ do
   local box = CopyBox(c, REPO_URL, W - 56)
   box:SetPoint("TOPLEFT", code, "BOTTOMLEFT", 6, -6)
   parts[#parts + 1] = box
+  local share = CreateFrame("Button", nil, c, "UIPanelButtonTemplate")
+  share:SetSize(120, 22)
+  share:SetPoint("BOTTOMRIGHT", c, "BOTTOM", -4, 18)
+  share:SetText(T.SHARE)
+  share:SetScript("OnClick", function() info:Hide() ShareAddon() end)
+  Tooltip(share, T.SHARE, T.SHARE_TIP)
   local close = CreateFrame("Button", nil, c, "UIPanelButtonTemplate")
   close:SetSize(120, 22)
-  close:SetPoint("BOTTOM", c, "BOTTOM", 0, 18)
+  close:SetPoint("BOTTOMLEFT", c, "BOTTOM", 4, 18)
   close:SetText(CLOSE or "Close")
   close:SetScript("OnClick", function() info:Hide() end)
   -- Höhe aus den Texten, erst beim Zeigen sind die Zeilen gemessen

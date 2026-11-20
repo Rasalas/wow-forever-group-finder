@@ -253,5 +253,8 @@ ns.L.enUS = {
   ABOUT = "About",
   ABOUT_TEXT = "Automatically finds tanks, healers and damage dealers for your group – similar to the Dungeon Finder in Retail, but through Blizzard's group finder in WoW Forever. Free and open source (MIT license).",
   ABOUT_CODE = "Source code, questions and bug reports:",
+  SHARE = "Tell others",
+  SHARE_TIP = "Puts a short note about the add-on into the chat, to your group if you are in one. Send it with Enter.",
+  SHARE_TEXT = "I use Auto Group Finder, it invites tanks, healers and damage automatically: %s",
   ABOUT_COPY = "Click, then Ctrl+C to copy",
 }
