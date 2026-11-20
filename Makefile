@@ -13,7 +13,7 @@ test:
 deploy: test
 	ssh -o BatchMode=yes $(REMOTE_HOST) "rm -rf '$(REMOTE_ADDONS)/$(ADDON)' && mkdir -p '$(REMOTE_ADDONS)/$(ADDON)'"
 	scp -q -r $(ADDON)/* "$(REMOTE_HOST):$(REMOTE_ADDONS)/$(ADDON)/"
-	@echo "Auf $(REMOTE_HOST) installiert. Neue Dateien in der .toc brauchen einen Neustart von WoW, sonst reicht /reload."
+	@echo "Auf $(REMOTE_HOST) installiert. /reload reicht; nur ein neuer Add-on-Ordner braucht einen Neustart von WoW."
 
 # Tests, dann in den lokalen WoW-Ordner
 install: test
