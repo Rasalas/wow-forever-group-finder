@@ -39,6 +39,13 @@ function BuildMinimap()
   fade:SetToAlpha(1)
   fade:SetDuration(0.8)
 
+  -- Neuere Clients (mit Add-on-Fach an der Minimap) haben einen kleineren Ring; Maße wie LibDBIcon,
+  -- damit das Symbol mittig sitzt und zu anderen Minimap-Knöpfen passt.
+  if AddonCompartmentFrame then
+    mmBorder:SetSize(50, 50)
+    mmBg:SetSize(24, 24) mmBg:ClearAllPoints() mmBg:SetPoint("CENTER")
+    mmIcon:SetSize(18, 18) mmIcon:ClearAllPoints() mmIcon:SetPoint("CENTER")
+  end
   -- Rune statt Auge: Während der Suche zeigt Blizzard an der Minimap schon sein eigenes Auge.
   if mmIcon.SetMask then pcall(mmIcon.SetMask, mmIcon, "Interface\\CharacterFrame\\TempPortraitAlphaMask") end
 
