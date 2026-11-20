@@ -165,6 +165,8 @@ ns.L.ptBR = {
 
   MM_LEFT = "Clique esquerdo: janela",
   MM_RIGHT_SEARCH = "Clique direito: procurar agora",
+  MM_RIGHT_OPEN = "Clique direito: abrir a janela",
+  BROKER_IDLE = "Sem busca",
   MM_SHIFT_RIGHT = "Shift-clique direito: parar de procurar",
   MM_DRAG = "Arrastar: mover pela borda do minimapa · Shift-arrastar: posicionar livremente",
   WIN_RESET_TIP = "Clique duplo na barra de título: volta ao lugar padrão",

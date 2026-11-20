@@ -165,6 +165,8 @@ ns.L.itIT = {
 
   MM_LEFT = "Clic sinistro: finestra",
   MM_RIGHT_SEARCH = "Clic destro: cerca ora",
+  MM_RIGHT_OPEN = "Clic destro: apri la finestra",
+  BROKER_IDLE = "Nessuna ricerca",
   MM_SHIFT_RIGHT = "Maiusc-clic destro: interrompi ricerca",
   MM_DRAG = "Trascina: sposta lungo la minimappa · Maiusc-trascina: posiziona liberamente",
   WIN_RESET_TIP = "Doppio clic sulla barra del titolo: torna alla posizione predefinita",

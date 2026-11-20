@@ -14,6 +14,7 @@ You pick your role, the dungeons and a play style and click **Find Group**. The 
 - **Invite info** under Blizzard's invite popup: dungeon, picture, which roles are filled and which spot is yours
 - **Players Found** page with role, level, zone and a context menu; click the role icon to target
 - **Group history** per character, **backfill** with one click when someone leaves, raid conversion, ready check
+- Shows up in Titan Panel, ElvUI and other LibDataBroker displays
 - Blizzard look and feel: animated group-finder eye on the minimap, side tabs, a tab inside Blizzard's group finder
 - English, Deutsch, Français, Español, Italiano, Português, Русский
 
@@ -65,4 +66,4 @@ make pdf       # printable in-game test checklist (German) from docs/checklist.h
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE). Bundled libraries in `AutoGroupFinder/Libs`: LibStub (public domain), CallbackHandler-1.0 (Ace3 license), LibDataBroker-1.1 (public domain).

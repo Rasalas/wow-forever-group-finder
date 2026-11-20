@@ -1,4 +1,5 @@
 unpack = unpack or table.unpack; math.atan2 = math.atan2 or math.atan; tinsert = table.insert
+strmatch = string.match; strfind = string.find; strsub = string.sub; strlen = string.len; strrep = string.rep; securecallfunction = securecallfunction or function(f, ...) return f(...) end
 GetSubZoneText = GetSubZoneText or function() return "" end; IsInInstance = IsInInstance or function() return false, "none" end
 hooksecurefunc = function(t, k, f) if type(t) == "string" then t, k, f = _G, t, k end local o = t[k]; rawset(t, k, function(...) local r = { o(...) }; f(...); return unpack(r) end) end
 strsplit = function(sep, s) local t = {} for part in (s .. sep):gmatch("(.-)" .. sep) do t[#t + 1] = part end return (unpack or table.unpack)(t) end
@@ -153,3 +154,18 @@ local before = #sounds
 party = { "Tanky", "Healy" }
 fire("GROUP_ROSTER_UPDATE")
 check("Ton aus: still:", #sounds, before)
+
+print("== Datenquelle für Titan Panel / ElvUI")
+local ldb = LibStub:GetLibrary("LibDataBroker-1.1")
+local obj = ldb:GetDataObjectByName(E.T.TITLE)
+check("Datenquelle angemeldet:", obj ~= nil, true)
+local changes = 0
+ldb.RegisterCallback(ns, "LibDataBroker_AttributeChanged_" .. E.T.TITLE .. "_text", function() changes = changes + 1 end)
+E.StopQueue(); party = {}; fire("GROUP_ROSTER_UPDATE")
+E.UpdateBroker()
+check("Ohne Suche:", obj.text, E.T.BROKER_IDLE)
+E.StartQueue(); E.UpdateBroker()
+check("Während der Suche Uhr und Rollen:", obj.text:match("^%d+:%d%d") ~= nil, true)
+local before = changes
+E.UpdateBroker()
+check("Ohne Änderung keine Meldung an die Leisten:", changes, before)

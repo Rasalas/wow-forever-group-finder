@@ -165,6 +165,8 @@ ns.L.deDE = {
 
   MM_LEFT = "Linksklick: Fenster",
   MM_RIGHT_SEARCH = "Rechtsklick: jetzt suchen",
+  MM_RIGHT_OPEN = "Rechtsklick: Fenster öffnen",
+  BROKER_IDLE = "Sucht nicht",
   MM_SHIFT_RIGHT = "Shift-Rechtsklick: Suche beenden",
   MM_DRAG = "Ziehen: am Minimap-Rand verschieben · Shift-Ziehen: frei platzieren",
   WIN_RESET_TIP = "Doppelklick auf die Titelleiste: zurück an den Standardplatz",

@@ -196,6 +196,7 @@ function Tick()
   if state.searching and now - state.searching > 10 then state.searching, full = nil, true end
   if state.ticks % 60 == 0 then PruneState() end
   UpdateNudge()
+  if UpdateBroker then UpdateBroker() end
   if win:IsShown() then
     if full and UpdateUI then UpdateUI() elseif UpdateNeed then UpdateNeed() end
   end

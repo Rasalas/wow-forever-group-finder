@@ -166,6 +166,8 @@ ns.L.esES = {
 
   MM_LEFT = "Clic izquierdo: ventana",
   MM_RIGHT_SEARCH = "Clic derecho: buscar ahora",
+  MM_RIGHT_OPEN = "Clic derecho: abrir la ventana",
+  BROKER_IDLE = "Sin búsqueda",
   MM_SHIFT_RIGHT = "Mayús-clic derecho: dejar de buscar",
   MM_DRAG = "Arrastrar: mover por el borde del minimapa · Mayús-arrastrar: colocar libremente",
   WIN_RESET_TIP = "Doble clic en la barra de título: volver al lugar predeterminado",

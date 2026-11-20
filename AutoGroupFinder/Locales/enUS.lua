@@ -170,6 +170,8 @@ ns.L.enUS = {
 
   MM_LEFT = "Left-click: window",
   MM_RIGHT_SEARCH = "Right-click: search now",
+  MM_RIGHT_OPEN = "Right-click: open the window",
+  BROKER_IDLE = "Not searching",
   MM_SHIFT_RIGHT = "Shift-right-click: stop searching",
   MM_DRAG = "Drag: move along the minimap · Shift-drag: place anywhere",
   WIN_RESET_TIP = "Double-click the title bar: back to the default place",

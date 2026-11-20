@@ -165,6 +165,8 @@ ns.L.frFR = {
 
   MM_LEFT = "Clic gauche : fenêtre",
   MM_RIGHT_SEARCH = "Clic droit : chercher maintenant",
+  MM_RIGHT_OPEN = "Clic droit : ouvrir la fenêtre",
+  BROKER_IDLE = "Pas de recherche",
   MM_SHIFT_RIGHT = "Maj-clic droit : arrêter la recherche",
   MM_DRAG = "Glisser : déplacer autour de la minicarte · Maj-glisser : placer librement",
   WIN_RESET_TIP = "Double-clic sur la barre de titre : retour à la place par défaut",

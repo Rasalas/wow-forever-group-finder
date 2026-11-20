@@ -8,6 +8,10 @@
 ## IconTexture: Interface\Icons\INV_Misc_GroupNeedMore
 ## AddonCompartmentFunc: AutoGroupFinder_OnCompartmentClick
 
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
+Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+
 Locales\enUS.lua
 Locales\deDE.lua
 Locales\frFR.lua
@@ -37,6 +41,7 @@ UI\Minimap.lua
 UI\BlizzardLink.lua
 UI\Onboarding.lua
 UI\Nudge.lua
+UI\Broker.lua
 Events.lua
 TestMode.lua
 Commands.lua
