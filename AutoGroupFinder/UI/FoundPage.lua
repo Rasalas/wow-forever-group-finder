@@ -82,12 +82,29 @@ end
 HEAD_H, PLAYER_H = 28, 58
 listRows = {}
 
+-- Nähe zum Dungeon als Symbol in der Namenszeile: 2 = am/im Dungeon, 1 = Zone des Eingangs
+function NearIcon(level)
+  if level == 2 then
+    if HasAtlas("Dungeon") then return "|A:Dungeon:14:14|a" end
+    if FileExists("Interface\\Minimap\\Dungeon") then return "|TInterface\\Minimap\\Dungeon:14:14|t" end
+    return "|cffffd100" .. T.TAG_NEAR .. "|r"
+  elseif level == 1 then
+    if HasAtlas("Waypoint-MapPin-Untracked") then return "|A:Waypoint-MapPin-Untracked:14:14|a" end
+    return "|cffd9c08c" .. T.TAG_NEAR_ZONE .. "|r"
+  end
+end
+
 -- Rechtsklick auf einen Spieler: Aktionen wie bei Blizzard
 function ShowPlayerMenu(owner, c)
   if not (MenuUtil and MenuUtil.CreateContextMenu) then Whisper(c.name) return end
   MenuUtil.CreateContextMenu(owner, function(_, root)
     root:CreateTitle(Short(c.name))
     root:CreateButton(T.WHISPER, function() Whisper(c.name) end)
+    -- Ins Ziel nehmen dürfen Add-ons nicht selbst; der Befehl steht dann im Chat, Enter führt ihn aus.
+    root:CreateButton(T.CTX_TARGET, function()
+      local open = (ChatFrameUtil and ChatFrameUtil.OpenChat) or ChatFrame_OpenChat
+      if open then open("/target " .. c.name) end
+    end)
     for _, r in ipairs(ROLES) do
       if c.roles[r] then
         root:CreateButton(T.CTX_INVITE_AS:format(ROLE_NAME[r]), function()
@@ -195,7 +212,11 @@ function ListRow(i)
     for _, r in ipairs(ROLES) do if c.roles[r] then roles[#roles + 1] = ROLE_NAME[r] end end
     GameTooltip:AddLine(table.concat(roles, ", "), 1, 1, 1)
     GameTooltip:AddLine(c.activityText, 1, 0.82, 0, true)
-    if c.area then GameTooltip:AddLine((ZONE or "Zone") .. ": " .. c.area, 0.8, 0.8, 0.8) end
+    if c.near then
+      GameTooltip:AddLine(NearIcon(c.near) .. " " .. (c.near == 2 and T.TAG_NEAR_TIP or T.TAG_NEAR_ZONE_TIP):format(c.area), 1, 0.82, 0, true)
+    elseif c.area then
+      GameTooltip:AddLine((ZONE or "Zone") .. ": " .. c.area, 0.8, 0.8, 0.8)
+    end
     if c.playstyle and c.playstyle > 0 and PLAYSTYLE_NAME[c.playstyle] then
       GameTooltip:AddLine(PLAYSTYLE_NAME[c.playstyle], 0.13, 1, 0.13)
     end
@@ -263,8 +284,7 @@ function UpdateFound()
     local tags = {}
     if c.friend then tags[#tags + 1] = "|cff82c5ff" .. T.TAG_FRIEND .. "|r" end
     if c.guild then tags[#tags + 1] = "|cff40ff40" .. T.TAG_GUILD .. "|r" end
-    if c.near == 2 then tags[#tags + 1] = "|cffffd100" .. T.TAG_NEAR .. "|r" end
-    if c.near == 1 then tags[#tags + 1] = "|cffd9c08c" .. T.TAG_NEAR_ZONE .. "|r" end
+    if c.near then tags[#tags + 1] = NearIcon(c.near) end
     if #tags > 0 then title = title .. "  " .. table.concat(tags, " ") end
     row.name:SetText(title)
     row.name:Show()

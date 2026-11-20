@@ -35,6 +35,8 @@ ns.L.ruRU = {
   TAG_GUILD = "Гильдия",
   TAG_NEAR = "У подземелья",
   TAG_NEAR_ZONE = "Рядом",
+  TAG_NEAR_TIP = "У подземелья или внутри — место по данным Blizzard: %s",
+  TAG_NEAR_ZONE_TIP = "В зоне входа — место по данным Blizzard: %s",
   CHAT_IN_INSTANCE = "Вы вошли в подземелье – поиск остановлен.",
   CHAT_IN_COMBAT = "Не во время боя.",
   SETTINGS_LANGUAGES = "Языки",
@@ -122,6 +124,7 @@ ns.L.ruRU = {
   LEVEL = "Уровень %d",
   CTX_INVITE_AS = "Пригласить как: %s",
   CTX_SKIP = "Не предлагать в течение часа",
+  CTX_TARGET = "Взять в цель (/target — затем Enter)",
   ROW_HINT = "Правый щелчок: действия · Shift-щелчок: вставить имя или подземелье в чат",
   AGE_S = "%dс", AGE_M = "%dмин",
 

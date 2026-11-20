@@ -37,6 +37,8 @@ ns.L.enUS = {
   TAG_GUILD = "Guild",
   TAG_NEAR = "At the dungeon",
   TAG_NEAR_ZONE = "Nearby",
+  TAG_NEAR_TIP = "At or in the dungeon – location reported by Blizzard: %s",
+  TAG_NEAR_ZONE_TIP = "In the zone of the entrance – location reported by Blizzard: %s",
   CHAT_IN_INSTANCE = "You entered an instance – search stopped.",
   CHAT_IN_COMBAT = "Not during combat.",
   SETTINGS_LANGUAGES = "Languages",
@@ -127,6 +129,7 @@ ns.L.enUS = {
   LEVEL = "Level %d",
   CTX_INVITE_AS = "Invite as %s",
   CTX_SKIP = "Don't suggest for an hour",
+  CTX_TARGET = "Target (/target – then press Enter)",
   ROW_HINT = "Right-click: options · Shift-click: put the name or dungeon into chat",
   AGE_S = "%ds", AGE_M = "%dm",
 

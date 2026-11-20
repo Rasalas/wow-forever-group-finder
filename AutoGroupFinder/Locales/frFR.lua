@@ -35,6 +35,8 @@ ns.L.frFR = {
   TAG_GUILD = "Guilde",
   TAG_NEAR = "Au donjon",
   TAG_NEAR_ZONE = "À proximité",
+  TAG_NEAR_TIP = "Au donjon ou dedans – lieu selon Blizzard : %s",
+  TAG_NEAR_ZONE_TIP = "Dans la zone de l'entrée – lieu selon Blizzard : %s",
   CHAT_IN_INSTANCE = "Vous êtes entré dans une instance – recherche arrêtée.",
   CHAT_IN_COMBAT = "Pas pendant un combat.",
   SETTINGS_LANGUAGES = "Langues",
@@ -122,6 +124,7 @@ ns.L.frFR = {
   LEVEL = "Niveau %d",
   CTX_INVITE_AS = "Inviter en tant que %s",
   CTX_SKIP = "Ne plus proposer pendant une heure",
+  CTX_TARGET = "Cibler (/target – puis Entrée)",
   ROW_HINT = "Clic droit : actions · Maj-clic : mettre le nom ou le donjon dans la discussion",
   AGE_S = "%ds", AGE_M = "%dmin",
 

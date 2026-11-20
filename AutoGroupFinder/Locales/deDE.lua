@@ -35,6 +35,8 @@ ns.L.deDE = {
   TAG_GUILD = "Gilde",
   TAG_NEAR = "Am Dungeon",
   TAG_NEAR_ZONE = "In der Nähe",
+  TAG_NEAR_TIP = "Am oder im Dungeon – Ort laut Blizzard: %s",
+  TAG_NEAR_ZONE_TIP = "In der Zone des Eingangs – Ort laut Blizzard: %s",
   CHAT_IN_INSTANCE = "Instanz betreten – Suche beendet.",
   CHAT_IN_COMBAT = "Nicht während eines Kampfes.",
   SETTINGS_LANGUAGES = "Sprachen",
@@ -122,6 +124,7 @@ ns.L.deDE = {
   LEVEL = "Stufe %d",
   CTX_INVITE_AS = "Als %s einladen",
   CTX_SKIP = "Eine Stunde nicht vorschlagen",
+  CTX_TARGET = "Ins Ziel nehmen (/target – dann Enter)",
   ROW_HINT = "Rechtsklick: Aktionen · Shift-Klick: Name oder Dungeon in den Chat",
   AGE_S = "%ds", AGE_M = "%dm",
 
