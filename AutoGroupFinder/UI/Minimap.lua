@@ -44,17 +44,12 @@ function BuildMinimap()
   if mmEye then
     mmEye:SetSize(30, 30)
     mmEye:EnableMouse(false) -- Klicks, Ziehen und Tooltip bleiben beim Knopf
-    mmIcon:Hide()
-    if standalone then
-      -- wie Blizzards Warteschlangen-Auge: ohne Rahmen
-      mmEye:SetPoint("CENTER")
-      mmBg:Hide(); mmBorder:Hide()
-      local hl = mm:GetHighlightTexture(); if hl then hl:SetAlpha(0) end
-    else
-      -- wie ein normaler Minimap-Knopf: Auge im runden Rahmen
-      mmEye:SetScale(0.5)
-      mmEye:SetPoint("CENTER", mmIcon, "CENTER")
-    end
+    -- Das Auge bringt seinen eigenen Ring mit; unser Rahmen würde einen zweiten darum legen.
+    mmIcon:Hide(); mmBg:Hide(); mmBorder:Hide()
+    local hl = mm:GetHighlightTexture(); if hl then hl:SetAlpha(0) end
+    mmEye:SetPoint("CENTER")
+    -- eingesammelt: so groß wie die anderen Knöpfe (31 px), einzeln: wie Blizzards Auge (44 px)
+    if not standalone then mmEye:SetScale(31 / 44) end
   end
 
   mm:SetMovable(true)
