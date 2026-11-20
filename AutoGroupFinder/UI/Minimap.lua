@@ -3,7 +3,9 @@ setfenv(1, ns.env) -- gemeinsamer, privater Namensraum aller Module (siehe Core.
 
 -- Minimap-Symbol
 -------------------------------------------------------------------------
-mm = CreateFrame("Button", "AutoGroupFinderMinimapButton", Minimap)
+-- Bewusst kein Name auf "MinimapButton": Sammel-Add-ons wie MinimapButtonButton erkennen Knöpfe daran.
+-- Das Auge ist eine Statusanzeige wie Blizzards eigenes und bleibt sichtbar.
+mm = CreateFrame("Button", "AutoGroupFinderEye", Minimap)
 mm:SetSize(31, 31)
 mm:SetFrameStrata("MEDIUM")
 mm:SetFrameLevel(8)
