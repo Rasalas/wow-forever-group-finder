@@ -5,6 +5,7 @@ setfenv(1, ns.env) -- gemeinsamer, privater Namensraum aller Module (siehe Core.
 -------------------------------------------------------------------------
 tabs = {}
 function ShowPage(i)
+  if i == 4 and not IsInGroup() then i = 1 end -- Gruppenseite nur in einer Gruppe
   db.page = i
   if i == 1 then state.here = HereDungeon() end
   for j, p in ipairs(pages) do p:SetShown(j == i) end
@@ -39,7 +40,7 @@ function MakeSideTab(parent, iconPath, tip, onClick)
 end
 
 for i, iconPath in ipairs(TAB_ICONS) do
-  local tip = ({ T.TAB_FINDER, T.TAB_FOUND, T.TAB_HISTORY })[i]
+  local tip = ({ T.TAB_FINDER, T.TAB_FOUND, T.TAB_HISTORY, T.TAB_GROUP })[i]
   local tab = MakeSideTab(win, iconPath, tip, function()
     ShowPage(i)
     if i == 2 then DoSearch(true) end -- Reiterklick ist ein echter Klick, Suchen also erlaubt
@@ -146,11 +147,14 @@ UpdateUI = function()
     for _, cb in ipairs(fallbackChecks) do cb:SetChecked(db[cb.key]) end
   elseif db.page == 2 then
     UpdateFound()
-  else
+  elseif db.page == 3 then
     History.Update()
+  else
+    GroupPage.Update()
   end
+  if tabs[4] then tabs[4]:SetShown(IsInGroup()) end
   if win.SetTitle then
-    win:SetTitle(({ T.TITLE, T.FOUND_TITLE:format(#candidates), T.TAB_HISTORY })[db.page] or T.TITLE)
+    win:SetTitle(({ T.TITLE, T.FOUND_TITLE:format(#candidates), T.TAB_HISTORY, T.TAB_GROUP })[db.page] or T.TITLE)
   end
   backBtn:SetShown(db.page == 1)
   backBtn:SetEnabled(db.view == "activities" and not state.queued)

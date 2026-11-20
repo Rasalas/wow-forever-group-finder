@@ -23,6 +23,8 @@ do
       if C_FriendList and C_FriendList.AddFriend then
         root:CreateButton(T.ADD_FRIEND, function() C_FriendList.AddFriend(m.name) end)
       end
+      root:CreateCheckbox(RateTag(1) .. " " .. T.RATE_GOOD, function() return Rating(m.name) == 1 end, function() Rate(m.name, 1) end)
+      root:CreateCheckbox(RateTag(-1) .. " " .. T.RATE_BAD, function() return Rating(m.name) == -1 end, function() Rate(m.name, -1) end)
       root:CreateButton(db.blocked[Key(m.name)] and T.CTX_UNBLOCK or T.CTX_BLOCK, function() ToggleBlocked(m.name) end)
     end)
   end
@@ -97,7 +99,7 @@ do
         local color = m.class and RAID_CLASS_COLORS[m.class]
         r.name:SetText(color and color:WrapTextInColorCode(Short(m.name)) or Short(m.name))
         r.name:Show()
-        r.level:SetText((m.level and m.level > 0) and m.level or "")
+        r.level:SetText(((m.level and m.level > 0) and m.level or "") .. "  " .. RateTag(Rating(m.name)))
         r.level:Show()
         r:Show()
       end

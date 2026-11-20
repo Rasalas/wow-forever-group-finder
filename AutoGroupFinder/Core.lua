@@ -83,7 +83,7 @@ function LangName(loc)
 end
 COMM_PREFIX = "AutoGrpFinder" -- versteckte Addon-Nachrichten zwischen Nutzern
 TAB_ICONS = { "Interface\\ICONS\\INV_SideTab_GroupFinder_c60", "Interface\\ICONS\\INV_SideTab_GroupBrowsing_c60",
-  "Interface\\ICONS\\INV_Misc_Book_09" }
+  "Interface\\ICONS\\INV_Misc_Book_09", "Interface\\ICONS\\INV_Misc_GroupLooking" }
 
 -- Gruppengrößen mit Standard-Rollenverteilung (inklusive dir), in den Einstellungen änderbar
 SIZES = { 5, 10, 20, 40 }
@@ -109,6 +109,7 @@ DEFAULTS = {
   preferFriends = true,  -- Freunde und Gildenmitglieder zuerst
   shareStats = true,     -- Wartezeiten mit anderen Nutzern teilen: Gilde, Kanal, eigene Gruppe (Estimate.lua)
   fills = {},            -- fertige Gruppen: eigene und geteilte Wartezeiten
+  ratings = {},          -- Spieler -> { v = 1 (gerne wieder) | -1 (nicht wieder), t }
   calib = {},            -- tatsächlich / geschätzt, um den Schätzfehler zu lernen
   inviteStats = { TANK = { sent = 0, joined = 0 }, HEALER = { sent = 0, joined = 0 }, DAMAGER = { sent = 0, joined = 0 } },
   nudge = true,          -- „Bin noch da“-Knopf, wenn länger nicht gesucht wurde

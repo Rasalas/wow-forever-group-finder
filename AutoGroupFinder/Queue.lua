@@ -24,6 +24,7 @@ function StartQueue()
   state.queued, state.queuedAt, state.lastSearchAt, state.searching = true, GetTime(), 0, nil
   wipe(state.lastSupply)
   Estimate.OnStart()
+  char.groupActivityID = ids[1]
   local okList, err = api.list({
     activityIDs = ids,
     generalPlaystyle = db.playstyle,
@@ -49,6 +50,8 @@ end
 
 function FinishQueue()
   Estimate.RecordFill(GetTime() - state.queuedAt, state.lastJoinRole)
+  char.lastFill = { s = GetTime() - state.queuedAt, t = time() }
+  db.page = 4 -- beim nächsten Öffnen die Gruppenübersicht
   state.completed, state.backfillNoted = true, false
   StopQueue(T.CHAT_COMPLETE)
   Eye.Set("found")

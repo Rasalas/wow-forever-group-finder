@@ -103,7 +103,7 @@ function RunTest(shots)
     list = function() return true end,
     unlist = function() end,
     setRole = function() return true end,
-    whisper = function(name, text) Print("[Test] → " .. name .. ": " .. text) end,
+    whisper = function(name, text) Print("[Test] > " .. name .. ": " .. text) end,
     canInvite = function() return true end,
     readyCheck = function() Print("[Test] ready check") end,
     comm = function() end,

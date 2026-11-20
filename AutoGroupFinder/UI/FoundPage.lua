@@ -266,6 +266,7 @@ function ListRow(i)
     for _, r in ipairs(ROLES) do if c.roles[r] then roles[#roles + 1] = ROLE_NAME[r] end end
     GameTooltip:AddLine(table.concat(roles, ", "), 1, 1, 1)
     GameTooltip:AddLine(c.activityText, 1, 0.82, 0, true)
+    if c.liked then GameTooltip:AddLine(RateTag(1) .. " " .. T.RATE_GOOD, 0.25, 1, 0.25) end
     if c.near then
       GameTooltip:AddLine(NearIcon(c.near) .. " " .. (c.near == 2 and T.TAG_NEAR_TIP or T.TAG_NEAR_ZONE_TIP):format(c.area), 1, 0.82, 0, true)
     elseif c.area then
@@ -334,6 +335,7 @@ local function PlayerRow(n, y, c, role, invitedAt)
   local title = Short(c.name)
   title = color and color:WrapTextInColorCode(title) or title
   local tags = {}
+  if c.liked then tags[#tags + 1] = RateTag(1) end
   if c.friend then tags[#tags + 1] = "|cff82c5ff" .. T.TAG_FRIEND .. "|r" end
   if c.guild then tags[#tags + 1] = "|cff40ff40" .. T.TAG_GUILD .. "|r" end
   if c.near then tags[#tags + 1] = NearIcon(c.near) end

@@ -30,6 +30,7 @@ UI\Window.lua
 UI\FinderPage.lua
 UI\FoundPage.lua
 UI\HistoryPage.lua
+UI\GroupPage.lua
 UI\Footer.lua
 Settings.lua
 UI\Minimap.lua

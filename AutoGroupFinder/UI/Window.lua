@@ -224,7 +224,7 @@ function Scroller(parent, anchor, left, top, right, bottom)
   return sf
 end
 
-pages = { CreateFrame("Frame", nil, win), CreateFrame("Frame", nil, win), CreateFrame("Frame", nil, win) }
+pages = { CreateFrame("Frame", nil, win), CreateFrame("Frame", nil, win), CreateFrame("Frame", nil, win), CreateFrame("Frame", nil, win) }
 for _, p in ipairs(pages) do p:SetAllPoints() end
 finder, found = pages[1], pages[2]
 

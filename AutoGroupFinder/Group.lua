@@ -280,7 +280,7 @@ function Rebuild()
       end
       -- Kandidaten nur aus Solo-Einträgen: wer mit anderen gelistet ist, steckt schon in einer Gruppe.
       local k = solo and info.leaderName and Key(info.leaderName)
-      if k and r and not db.blocked[k] and not IsIgnoredName(info.leaderName)
+      if k and r and not db.blocked[k] and (db.ratings[k] or {}).v ~= -1 and not IsIgnoredName(info.leaderName)
           and (not db.samePlaystyle or db.playstyle == 0 or info.generalPlaystyle == db.playstyle)
           and k ~= me and not members[k] and not pending[k] and (db.skipUntil[k] or 0) <= time() then
         local matches = {}
@@ -307,6 +307,7 @@ function Rebuild()
             area = p.areaName ~= "" and p.areaName or nil,
           }
           if state.lastSearchLang then state.langOf[k] = state.lastSearchLang end
+          c.liked = (db.ratings[k] or {}).v == 1
           c.lang = state.langOf[k]
           for _, e in ipairs(matches) do
             local n = c.area and NearNames(e.id)[c.area]
@@ -329,6 +330,7 @@ function Rebuild()
       local af, bf = a.friend or a.guild, b.friend or b.guild
       if af ~= bf then return af end
     end
+    if a.liked ~= b.liked then return a.liked end
     local pref = db.preferLang ~= "none" and db.preferLang
     if pref and (a.lang == pref) ~= (b.lang == pref) then return a.lang == pref end
     if db.preferNear and (a.near or 0) ~= (b.near or 0) then return (a.near or 0) > (b.near or 0) end
