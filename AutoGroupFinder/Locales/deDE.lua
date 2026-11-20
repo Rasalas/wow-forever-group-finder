@@ -242,6 +242,4 @@ ns.L.deDE = {
   ABOUT_TEXT = "Findet automatisch Tanks, Heiler und Schaden für deine Gruppe – ähnlich dem Dungeon-Finder in Retail, aber über Blizzards Gruppensuche in WoW Forever. Kostenlos und quelloffen (MIT-Lizenz).",
   ABOUT_CODE = "Quellcode, Fragen und Fehler melden:",
   ABOUT_COPY = "Klicken, dann Strg+C zum Kopieren",
-  ABOUT_PRIVACY_TITLE = "Datenschutz",
-  ABOUT_PRIVACY = "Das Add-on hat keinen eigenen Server und sammelt keine Nutzungsdaten. Gespeichert wird nur auf deinem Rechner (in WoWs SavedVariables): Einstellungen, dein Gruppenverlauf, gesperrte Spieler, Wartezeiten und für 30 Minuten die Namen aus der Gruppensuche (für die Beliebtheitsanzeige). Verschickt werden nur unsichtbare Add-on-Nachrichten an andere Spieler: wofür du jemanden einlädst (an den Eingeladenen) und – abschaltbar – Wartezeiten ohne Namen.",
 }

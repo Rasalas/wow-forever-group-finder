@@ -139,7 +139,7 @@ info.dim = info:CreateTexture(nil, "BACKGROUND")
 info.dim:SetAllPoints()
 info.dim:SetColorTexture(0, 0, 0, 0.6)
 do
-  local W = 400
+  local W = 340
   local c = CreateFrame("Frame", nil, info, "BackdropTemplate")
   c:SetWidth(W)
   c:SetPoint("TOP", info, "TOP", 0, -40)
@@ -155,15 +155,10 @@ do
     parts[#parts + 1] = fs
     return fs
   end
-  Text(T.ABOUT_TEXT, "GameFontHighlightSmall", 10)
-  local code = Text(T.ABOUT_CODE, "GameFontNormal", 14)
+  local code = Text(T.ABOUT_CODE, "GameFontHighlightSmall", 14)
   local box = CopyBox(c, REPO_URL, W - 56)
-  box:SetPoint("TOPLEFT", code, "BOTTOMLEFT", 6, -4)
-  local hint = Label(c, T.ABOUT_COPY, "GameFontDisableSmall", "TOPLEFT", box, "BOTTOMLEFT", -6, -2)
-  parts[#parts + 1] = hint
-  Text(T.ABOUT_PRIVACY_TITLE, "GameFontNormal", 14)
-  Text(T.ABOUT_PRIVACY, "GameFontHighlightSmall", 4)
-  Text(T.SETTINGS_PATH, "GameFontDisableSmall", 12)
+  box:SetPoint("TOPLEFT", code, "BOTTOMLEFT", 6, -6)
+  parts[#parts + 1] = box
   local close = CreateFrame("Button", nil, c, "UIPanelButtonTemplate")
   close:SetSize(120, 22)
   close:SetPoint("BOTTOM", c, "BOTTOM", 0, 18)
@@ -171,9 +166,9 @@ do
   close:SetScript("OnClick", function() info:Hide() end)
   -- Höhe aus den Texten, erst beim Zeigen sind die Zeilen gemessen
   info:SetScript("OnShow", function()
-    local h = 22 + 60 + 18
-    for _, fs in ipairs(parts) do h = h + (fs:GetStringHeight() or 14) + 8 end
-    c:SetHeight(math.min(h + 34, win:GetHeight() - 70))
+    local h = 22 + 60
+    for _, fs in ipairs(parts) do h = h + ((fs.GetStringHeight and fs:GetStringHeight()) or fs:GetHeight() or 14) + 8 end
+    c:SetHeight(math.min(h, win:GetHeight() - 70))
   end)
 end
 info:Hide()
@@ -197,11 +192,6 @@ function RegisterAboutPage()
   local box = CopyBox(page, REPO_URL, 420)
   box:SetPoint("TOPLEFT", codeLabel, "BOTTOMLEFT", 6, -6)
   Label(page, T.ABOUT_COPY, "GameFontDisableSmall", "LEFT", box, "RIGHT", 10, 0)
-  local privacy = Label(page, T.ABOUT_PRIVACY_TITLE, "GameFontNormal", "TOPLEFT", box, "BOTTOMLEFT", -6, -24)
-  local ptext = Label(page, T.ABOUT_PRIVACY, "GameFontHighlightSmall", "TOPLEFT", privacy, "BOTTOMLEFT", 0, -6)
-  ptext:SetWidth(560)
-  ptext:SetJustifyH("LEFT")
-  ptext:SetSpacing(2)
   -- Kein Knopf, der das Einstellungsfenster öffnet oder schließt: das färbt Blizzards Fenster ein (siehe OpenSettings).
   aboutCategory = Settings.RegisterCanvasLayoutSubcategory(settingsCategory, page, T.ABOUT)
 end

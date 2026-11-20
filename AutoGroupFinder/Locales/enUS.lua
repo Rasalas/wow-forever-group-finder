@@ -247,6 +247,4 @@ ns.L.enUS = {
   ABOUT_TEXT = "Automatically finds tanks, healers and damage dealers for your group – similar to the Dungeon Finder in Retail, but through Blizzard's group finder in WoW Forever. Free and open source (MIT license).",
   ABOUT_CODE = "Source code, questions and bug reports:",
   ABOUT_COPY = "Click, then Ctrl+C to copy",
-  ABOUT_PRIVACY_TITLE = "Privacy",
-  ABOUT_PRIVACY = "The add-on has no server of its own and collects no usage data. Everything is stored only on your computer (in WoW's SavedVariables): settings, your group history, blocked players, wait times and, for 30 minutes, the names from the group finder (for the popularity display). The only things sent are invisible add-on messages to other players: what you invite someone for (to the invited player) and – can be turned off – wait times without names.",
 }

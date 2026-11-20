@@ -242,6 +242,4 @@ ns.L.ptBR = {
   ABOUT_TEXT = "Encontra automaticamente tanques, curadores e dano para o seu grupo – como o localizador de masmorras do Retail, mas pelo localizador de grupos da Blizzard no WoW Forever. Gratuito e de código aberto (licença MIT).",
   ABOUT_CODE = "Código-fonte, dúvidas e relatos de erro:",
   ABOUT_COPY = "Clique e depois Ctrl+C para copiar",
-  ABOUT_PRIVACY_TITLE = "Privacidade",
-  ABOUT_PRIVACY = "O addon não tem servidor próprio e não coleta dados de uso. Tudo fica salvo só no seu computador (nas SavedVariables do WoW): configurações, seu histórico de grupos, jogadores bloqueados, tempos de espera e, por 30 minutos, os nomes do localizador de grupos (para a indicação de popularidade). Só são enviadas mensagens de addon invisíveis a outros jogadores: para o que você convida alguém (ao jogador convidado) e – desligável – tempos de espera sem nomes.",
 }

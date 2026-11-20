@@ -243,6 +243,4 @@ ns.L.esES = {
   ABOUT_TEXT = "Encuentra automáticamente tanques, sanadores y daño para tu grupo, como el buscador de mazmorras de Retail, pero mediante el buscador de grupos de Blizzard en WoW Forever. Gratis y de código abierto (licencia MIT).",
   ABOUT_CODE = "Código fuente, preguntas y aviso de errores:",
   ABOUT_COPY = "Haz clic y luego Ctrl+C para copiar",
-  ABOUT_PRIVACY_TITLE = "Privacidad",
-  ABOUT_PRIVACY = "El addon no tiene servidor propio ni recopila datos de uso. Todo se guarda solo en tu ordenador (en las SavedVariables de WoW): ajustes, tu historial de grupos, jugadores bloqueados, tiempos de espera y, durante 30 minutos, los nombres del buscador de grupos (para la indicación de popularidad). Solo se envían mensajes de addon invisibles a otros jugadores: para qué invitas a alguien (al jugador invitado) y, desactivable, tiempos de espera sin nombres.",
 }

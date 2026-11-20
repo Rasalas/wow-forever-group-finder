@@ -242,6 +242,4 @@ ns.L.frFR = {
   ABOUT_TEXT = "Trouve automatiquement tanks, soigneurs et dégâts pour votre groupe – comme l'outil Donjons de Retail, mais via la recherche de groupe de Blizzard dans WoW Forever. Gratuit et open source (licence MIT).",
   ABOUT_CODE = "Code source, questions et signalement de bugs :",
   ABOUT_COPY = "Cliquez puis Ctrl+C pour copier",
-  ABOUT_PRIVACY_TITLE = "Confidentialité",
-  ABOUT_PRIVACY = "L'add-on n'a pas de serveur et ne collecte aucune donnée d'utilisation. Tout est stocké uniquement sur votre ordinateur (dans les SavedVariables de WoW) : paramètres, historique de groupes, joueurs bloqués, temps d'attente et, pendant 30 minutes, les noms de la recherche de groupe (pour l'affichage de popularité). Seuls des messages d'add-on invisibles sont envoyés à d'autres joueurs : pour quoi vous invitez quelqu'un (au joueur invité) et – désactivable – des temps d'attente sans noms.",
 }

@@ -242,6 +242,4 @@ ns.L.itIT = {
   ABOUT_TEXT = "Trova automaticamente difensori, guaritori e assaltatori per il tuo gruppo, come la ricerca spedizioni di Retail, ma tramite la ricerca di gruppo di Blizzard in WoW Forever. Gratuito e open source (licenza MIT).",
   ABOUT_CODE = "Codice sorgente, domande e segnalazione di errori:",
   ABOUT_COPY = "Fai clic, poi Ctrl+C per copiare",
-  ABOUT_PRIVACY_TITLE = "Privacy",
-  ABOUT_PRIVACY = "L'addon non ha un proprio server e non raccoglie dati di utilizzo. Tutto viene salvato solo sul tuo computer (nelle SavedVariables di WoW): impostazioni, cronologia dei gruppi, giocatori bloccati, tempi di attesa e, per 30 minuti, i nomi dalla ricerca di gruppo (per l'indicatore di popolarità). Vengono inviati solo messaggi addon invisibili ad altri giocatori: per cosa inviti qualcuno (al giocatore invitato) e, disattivabile, tempi di attesa senza nomi.",
 }
