@@ -258,7 +258,8 @@ function Rebuild()
         end
         comp.EMPTY = math.max(0, max - used)
         state.listings[Key(info.leaderName)] = { activity = ActivityName(info, true), activityID = first,
-          comp = comp, playstyle = info.generalPlaystyle, listing = true, seenAt = now }
+          comp = comp, playstyle = info.generalPlaystyle, listing = true, seenAt = now,
+          resultID = id, numMembers = info.numMembers }
       end
       -- Nachfrage je Aktivität: Solo-Spieler nach Rolle, dazu suchende Gruppen
       local who = info.leaderName and Key(info.leaderName) or ("#" .. id)
@@ -340,6 +341,43 @@ function Rebuild()
   for r, n in pairs(Supply()) do if n > 0 then state.lastSupply[r] = GetTime() end end
   if not state.lastSearchLang then state.supplyAll = Supply() end
   if UpdateUI then UpdateUI() end
+end
+
+-- Mitglieder einer eingetragenen Gruppe, solange Blizzard den Eintrag noch kennt
+function ListingMembers(l)
+  if not (l and l.resultID and L.GetSearchResultPlayerInfo) then return nil end
+  local list = {}
+  for i = 1, l.numMembers or 0 do
+    local ok, p = pcall(L.GetSearchResultPlayerInfo, l.resultID, i)
+    if ok and AllReadable(p, "name", "classFilename", "level", "assignedRole") and p.name then
+      local role = p.assignedRole
+      if role ~= "TANK" and role ~= "HEALER" and role ~= "DAMAGER" then role = nil end
+      list[#list + 1] = { name = p.name, class = p.classFilename, level = p.level, role = role }
+    end
+  end
+  return #list > 0 and list or nil
+end
+
+-- Eigene Gruppe für die Einladungsnachricht: "Name~KLASSE~T/H/D~Stufe;..."
+local ROLE_LETTER, LETTER_ROLE = { TANK = "T", HEALER = "H", DAMAGER = "D" }, { T = "TANK", H = "HEALER", D = "DAMAGER" }
+function EncodeMembers()
+  local _, me = Filled()
+  local _, myClass = UnitClass("player")
+  local list = { { name = UnitName("player"), class = myClass, role = me, level = UnitLevel("player") } }
+  for _, m in ipairs(History.Snapshot()) do list[#list + 1] = m end
+  local out = {}
+  for _, m in ipairs(list) do
+    out[#out + 1] = ("%s~%s~%s~%d"):format((m.name or "?"):gsub("[~;\t]", ""), m.class or "", ROLE_LETTER[m.role] or "", m.level or 0)
+  end
+  return table.concat(out, ";")
+end
+function DecodeMembers(s)
+  if not s or s == "" then return nil end
+  local list = {}
+  for name, class, r, level in s:gmatch("([^~;]+)~([^~;]*)~([^~;]*)~(%d+)") do
+    list[#list + 1] = { name = name, class = class ~= "" and class or nil, role = LETTER_ROLE[r], level = tonumber(level) }
+  end
+  return #list > 0 and list or nil
 end
 
 function ToggleBlocked(name)

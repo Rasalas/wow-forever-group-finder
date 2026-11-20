@@ -31,6 +31,21 @@ do
   box.line = box:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
   box.line:SetJustifyH("LEFT")
   box:Hide()
+  -- Drüberfahren: wer schon in der Gruppe ist
+  local boxMembers
+  box:EnableMouse(true)
+  box:SetScript("OnEnter", function(self)
+    if not boxMembers then return end
+    GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
+    GameTooltip:SetText(self.title:GetText() or T.TITLE)
+    for _, m in ipairs(boxMembers) do
+      local color = m.class and RAID_CLASS_COLORS[m.class]
+      local name = color and color:WrapTextInColorCode(Short(m.name)) or Short(m.name)
+      GameTooltip:AddDoubleLine((m.role and RoleIconText(m.role) .. " " or "") .. name, m.level and m.level > 0 and m.level or "", 1, 1, 1, 0.8, 0.8, 0.8)
+    end
+    GameTooltip:Show()
+  end)
+  box:SetScript("OnLeave", GameTooltip_Hide)
   box:SetScript("OnUpdate", function(self)
     if not (self.dialog and self.dialog:IsShown()) then self:Hide() end
   end)
@@ -96,6 +111,8 @@ do
     local styleName = data.playstyle and _G["GROUP_FINDER_GENERAL_PLAYSTYLE" .. data.playstyle]
     if styleName and styleName ~= "" then parts[#parts + 1] = "|cffb8b8b8" .. styleName .. "|r" end
     if data.listing then parts[#parts + 1] = "|cffb8b8b8" .. T.INVITE_FROM_LISTING .. "|r" end
+    boxMembers = data.members or ListingMembers(data)
+    if boxMembers then parts[#parts + 1] = "|cffb8b8b8" .. T.INVITE_MEMBERS:format(#boxMembers) .. "|r" end
     box.line:ClearAllPoints()
     box.line:SetPoint("TOPLEFT", box.slots.slots[1], "BOTTOMLEFT", 0, -8)
     box.line:SetText(table.concat(parts, " · "))

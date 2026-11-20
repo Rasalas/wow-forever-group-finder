@@ -63,6 +63,7 @@ ns.L.frFR = {
   DEMAND_BASIS = "Compté uniquement à partir de vos recherches – une tendance, pas une statistique.",
   COMM_INVITED = "%s vous invite : %s",
   INVITE_FROM_LISTING = "d'après son inscription dans la recherche de groupe",
+  INVITE_MEMBERS = "%d joueurs",
   FAKE_INVITATION = "%s vous invite dans un groupe.",
   TEST_INVITE_BUTTON = "[Test] Simple exemple – rien n'a été accepté ni refusé.",
   CHAT_WHISPER_SET = "Texte du chuchotement : %s",

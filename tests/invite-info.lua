@@ -183,3 +183,26 @@ local w3 = rawget(box, "slots")
 local d3 = {}
 for i = 1, 5 do d3[i] = rawget(w3.empties[i], "_shown") and "leer" or (rawget(w3.slots[i], "_shown") and ((rawget(w3.slots[i], "_desat") and "blass") or "farbig") or "-") end
 print("slots:", table.concat(d3, " "), "ring:", rawget(w3.rings[1], "_shown"))
+
+print("== Mitglieder auf der Einladungskarte")
+local E = ns.env
+local function check(label, got, want)
+  got, want = tostring(got), tostring(want)
+  print(label, got, got == want and "ok" or ("FEHLER, erwartet " .. want))
+  if got ~= want then error(label .. ": " .. got .. " statt " .. want) end
+end
+local list = E.DecodeMembers("Tanky~WARRIOR~T~34;Heal-Realm~PRIEST~H~33;Odd~~~0")
+check("Mitglieder gelesen:", list and #list, 3)
+check("Rolle und Klasse:", list[1].role .. "/" .. list[1].class .. "/" .. list[1].level, "TANK/WARRIOR/34")
+check("Ohne Rolle bleibt leer:", list[3].role, nil)
+check("Eigene Gruppe kodiert:", E.EncodeMembers():match("^[^~]+~[^~]*~[THD]?~%d+") ~= nil, true)
+C_LFGList.GetSearchResultPlayerInfo = function(id, i)
+  return ({ { name = "Lead", classFilename = "MAGE", level = 30, assignedRole = "DAMAGER" },
+            { name = "Tank", classFilename = "WARRIOR", level = 31, assignedRole = "TANK" } })[i]
+end
+local members = E.ListingMembers({ resultID = 5, numMembers = 2 })
+check("Mitglieder aus der Gruppensuche:", members and (members[1].name .. "," .. members[2].role), "Lead,TANK")
+issecretvalue = function(v) return v == "Tank" end
+members = E.ListingMembers({ resultID = 5, numMembers = 2 })
+check("Geheime Einträge übersprungen:", members and #members, 1)
+issecretvalue = nil

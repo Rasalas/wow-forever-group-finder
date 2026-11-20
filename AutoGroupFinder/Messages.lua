@@ -5,7 +5,7 @@ setfenv(1, ns.env) -- gemeinsamer, privater Namensraum aller Module (siehe Core.
 function OnAddonMessage(prefix, message, _, sender)
   if prefix ~= COMM_PREFIX or not message or not sender then return end
   if message:sub(1, 2) == "v=" then Estimate.OnNet(message, sender) return end -- Format mit benannten Feldern
-  local kind, activity, role, _, _, playstyle, enc, activityID = strsplit("\t", message)
+  local kind, activity, role, _, _, playstyle, enc, activityID, members = strsplit("\t", message)
   if kind == "INV" then
     local comp, i = {}, 0
     for pair in (enc or ""):gmatch("[^;]+") do
@@ -14,7 +14,7 @@ function OnAddonMessage(prefix, message, _, sender)
       if ROLES[i] and f then comp[ROLES[i]] = { tonumber(f), tonumber(n) } end
     end
     local data = { activity = activity, role = role, playstyle = tonumber(playstyle),
-      comp = comp, activityID = tonumber(activityID), t = GetTime() }
+      comp = comp, activityID = tonumber(activityID), t = GetTime(), members = DecodeMembers(members) }
     InviteInfo.byAddon[Key(sender)] = data
     Print(T.COMM_INVITED:format(Short(sender), (activity or "?") .. " · " .. (ROLE_NAME[role] or role or "?")))
     -- Nachricht kann nach dem Einladungsfenster ankommen

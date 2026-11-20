@@ -74,7 +74,7 @@ function Invite(c, role, byClick)
   for _, r in ipairs(ROLES) do enc[#enc + 1] = comp[r][1] .. "," .. comp[r][2] end
   api.comm("INV", table.concat({ (c.activityText or c.activity or ""):sub(1, 120), role,
     math.max(1, api.groupSize()), select(3, Target()), db.playstyle or 0, table.concat(enc, ";"),
-    c.matchedActivity or "" }, "\t"), c.name)
+    c.matchedActivity or "", EncodeMembers() }, "\t"), c.name)
   if db.inviteWhisper then
     if byClick then
       api.whisper(c.name, WhisperText(c, role))

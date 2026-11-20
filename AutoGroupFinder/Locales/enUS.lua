@@ -68,6 +68,7 @@ ns.L.enUS = {
   DEMAND_BASIS = "Counted from your searches only – a rough trend, not a statistic.",
   COMM_INVITED = "%s invites you: %s",
   INVITE_FROM_LISTING = "from their group finder listing",
+  INVITE_MEMBERS = "%d players",
   FAKE_INVITATION = "%s invites you to a group.",
   TEST_INVITE_BUTTON = "[Test] Example only – nothing was accepted or declined.",
   CHAT_WHISPER_SET = "Whisper text: %s",

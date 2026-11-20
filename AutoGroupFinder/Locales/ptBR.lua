@@ -63,6 +63,7 @@ ns.L.ptBR = {
   DEMAND_BASIS = "Contado só a partir das suas buscas – uma tendência, não uma estatística.",
   COMM_INVITED = "%s convida você: %s",
   INVITE_FROM_LISTING = "segundo a inscrição no localizador de grupos",
+  INVITE_MEMBERS = "%d jogadores",
   FAKE_INVITATION = "%s convidou você para um grupo.",
   TEST_INVITE_BUTTON = "[Teste] Só um exemplo – nada foi aceito nem recusado.",
   CHAT_WHISPER_SET = "Texto do sussurro: %s",
