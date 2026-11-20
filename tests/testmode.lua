@@ -56,7 +56,9 @@ function strtrim(s) return (s:gsub("^%s+", ""):gsub("%s+$", "")) end
 strlower = string.lower; wipe = function(t) for k in pairs(t) do t[k] = nil end return t end
 SlashCmdList = {}; SOUNDKIT = { READY_CHECK = 1 }; RAID_CLASS_COLORS = {}
 function GameTooltip_Hide() end
-C_Texture = { GetAtlasInfo = function(a) return {} end }
+Vector2DMixin = {}
+-- Wie im Spiel: Blizzards C-Funktionen suchen Mixins roh im Namensraum des Aufrufers.
+C_Texture = { GetAtlasInfo = function(a) if not rawget(getfenv(2), "Vector2DMixin") then error("unable to find mixin or metatable (Vector2DMixin)") end return {} end }
 ERR_INVITE_PLAYER_S = "You have invited %s to join your group."
 ERR_DECLINE_GROUP_S = "%s declines your group invitation."
 ERR_ALREADY_IN_GROUP_S = "%s is already in a group."

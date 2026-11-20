@@ -4,6 +4,10 @@ local ADDON, ns = ...
 -- globaler Tabelle, Unbekanntes wird in _G nachgeschlagen. Echte Globale stehen als _G.Name im Code.
 local env = setmetatable({ ADDON = ADDON, ns = ns, T = ns.T, SLASH = "/gf" }, { __index = _G })
 ns.env = env
+-- Blizzards C-Funktionen (z. B. C_Texture.GetAtlasInfo) suchen Mixins roh im Namensraum des Aufrufers, ohne __index.
+for k, v in pairs(_G) do
+  if type(k) == "string" and k:sub(-5) == "Mixin" then env[k] = v end
+end
 setfenv(1, env)
 
 function Print(msg)
@@ -16,8 +20,10 @@ if geterrorhandler and seterrorhandler then
   local prev = geterrorhandler()
   seterrorhandler(function(msg, ...)
     local text = tostring(msg)
-    if text:find("AutoGroupFinder", 1, true) and #errors < 30 then
-      errors[#errors + 1] = date("%H:%M:%S ") .. text
+    local stack = debugstack and debugstack(2) or ""
+    if #errors < 30 and (text:find("AutoGroupFinder", 1, true) or stack:find("AutoGroupFinder", 1, true)) then
+      local where = stack:match("AddOns/AutoGroupFinder/[^\n]*") or ""
+      errors[#errors + 1] = date("%H:%M:%S ") .. text .. (text:find("AutoGroupFinder", 1, true) and "" or " @ " .. where)
     end
     return prev(msg, ...)
   end)
