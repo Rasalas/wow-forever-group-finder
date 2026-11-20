@@ -20,76 +20,45 @@ function CopyBox(parent, text, width)
 end
 
 -------------------------------------------------------------------------
--- Kurzanleitung: drei Bilder statt Text, darunter die Einstellungen, die man kennen sollte
+-- Erster Start: kleine Karte über dem abgedunkelten Fenster mit den Einstellungen, die man kennen sollte
 -------------------------------------------------------------------------
 onboarding = CreateFrame("Frame", nil, win)
-onboarding:SetPoint("TOPLEFT", win, "TOPLEFT", 4, -24)
-onboarding:SetPoint("BOTTOMRIGHT", win, "BOTTOMRIGHT", -4, 4)
+onboarding:SetPoint("TOPLEFT", win, "TOPLEFT", 2, -22)
+onboarding:SetPoint("BOTTOMRIGHT", win, "BOTTOMRIGHT", -2, 2)
 onboarding:SetFrameLevel(win:GetFrameLevel() + 100)
-onboarding:EnableMouse(true) -- nichts darunter anklickbar, solange die Anleitung offen ist
-onboarding.bg = onboarding:CreateTexture(nil, "BACKGROUND")
-onboarding.bg:SetAllPoints()
-onboarding.bg:SetColorTexture(0.06, 0.05, 0.04, 1)
-onboarding.title = Label(onboarding, T.ONB_TITLE, "GameFontNormalLarge", "TOP", onboarding, "TOP", 0, -18)
+onboarding:EnableMouse(true) -- nichts darunter anklickbar, solange die Karte offen ist
+onboarding.dim = onboarding:CreateTexture(nil, "BACKGROUND")
+onboarding.dim:SetAllPoints()
+onboarding.dim:SetColorTexture(0, 0, 0, 0.6)
 
--- Drei Schritte nebeneinander: Bild, Nummer, zwei bis fünf Wörter
-local COL = (WIN_W - 8) / 3
-local function Step(i, caption)
-  local holder = CreateFrame("Frame", nil, onboarding)
-  holder:SetSize(COL - 10, 64)
-  holder:SetPoint("TOP", onboarding, "TOPLEFT", COL * (i - 0.5), -56)
-  local text = Label(onboarding, i .. ".  " .. caption, "GameFontHighlight", "TOP", holder, "BOTTOM", 0, -8)
-  text:SetWidth(COL - 14)
-  return holder
+local CARD_W = 340
+local card = CreateFrame("Frame", nil, onboarding, "BackdropTemplate")
+card:SetWidth(CARD_W)
+card:SetPoint("TOP", onboarding, "TOP", 0, -70)
+if card.SetBackdrop and BACKDROP_DARK_DIALOG_32_32 then
+  card:SetBackdrop(BACKDROP_DARK_DIALOG_32_32)
+else
+  local bg = card:CreateTexture(nil, "BACKGROUND")
+  bg:SetAllPoints()
+  bg:SetColorTexture(0.06, 0.05, 0.04, 1)
 end
-local s1 = Step(1, T.ONB_S1)
-for k, role in ipairs(ROLES) do
-  local t = s1:CreateTexture(nil, "ARTWORK")
-  t:SetSize(40, 40)
-  t:SetPoint("CENTER", s1, "CENTER", (k - 2) * 34, 0)
-  SetRoleTexture(t, role, true)
-end
-local s2 = Step(2, T.ONB_S2)
-local card = s2:CreateTexture(nil, "ARTWORK")
-card:SetSize(COL - 22, 56)
-card:SetPoint("CENTER")
-if not Atlas(card, "groupfinder-button-dungeons") then card:SetColorTexture(0.2, 0.25, 0.35, 1) end
-local s3 = Step(3, T.ONB_S3)
-local eye = s3:CreateTexture(nil, "ARTWORK")
-eye:SetSize(60, 60)
-eye:SetPoint("CENTER")
-if not Atlas(eye, "groupfinder-eye-frame") then eye:SetTexture(ICON) end
-for i = 1, 2 do -- Pfeile zwischen den Schritten
-  local arrow = onboarding:CreateTexture(nil, "ARTWORK")
-  arrow:SetSize(22, 22)
-  arrow:SetPoint("CENTER", onboarding, "TOPLEFT", COL * i, -88)
-  arrow:SetTexture("Interface\\Buttons\\UI-SpellbookIcon-NextPage-Up")
-end
-
--- Einstellungen mit kurzer Beschriftung; Erklärung im Tooltip
-local line = onboarding:CreateTexture(nil, "ARTWORK")
-line:SetPoint("LEFT", onboarding, "TOPLEFT", 20, -196)
-line:SetPoint("RIGHT", onboarding, "TOPRIGHT", -20, -196)
-if not AtlasSized(line, "groupfinder-ScrollLine") then line:SetColorTexture(0.5, 0.4, 0.25, 0.5) line:SetHeight(1) end
-local setupTitle = Label(onboarding, T.ONB_SETUP, "GameFontNormal", "TOPLEFT", onboarding, "TOPLEFT", 26, -212)
+onboarding.card = card
+card.title = Label(card, T.ONB_TITLE, "GameFontNormalLarge", "TOP", card, "TOP", 0, -22)
 
 onboarding.checks = {}
+local ROW = 28
 local function Check(key, label, tip, sub)
-  local prev = onboarding.checks[#onboarding.checks]
-  local cb = BlizzCheck(onboarding, 26)
-  if prev then cb:SetPoint("TOPLEFT", prev, "BOTTOMLEFT", 0, prev.sub and -14 or -4)
-  else cb:SetPoint("TOPLEFT", setupTitle, "BOTTOMLEFT", -4, -8) end
+  local cb = BlizzCheck(card, 26)
+  cb:SetPoint("TOPLEFT", card, "TOPLEFT", 24, -54 - #onboarding.checks * ROW)
   cb.key = key
-  cb.label = Label(onboarding, label, "GameFontHighlight", "LEFT", cb, "RIGHT", 4, 0)
-  if sub then
-    cb.sub = Label(onboarding, sub, "GameFontDisableSmall", "TOPLEFT", cb.label, "BOTTOMLEFT", 0, -1)
-  end
+  cb.label = Label(card, label, "GameFontHighlight", "LEFT", cb, "RIGHT", 4, sub and 5 or 0)
+  if sub then cb.sub = Label(card, sub, "GameFontDisableSmall", "TOPLEFT", cb.label, "BOTTOMLEFT", 0, -1) end
   Tooltip(cb, label, tip)
   onboarding.checks[#onboarding.checks + 1] = cb
   return cb
 end
-Check("autoInvite", T.ONB_AUTO, T.OPT_AUTOINVITE_TIP)
-Check("shareStats", T.ONB_SHARE2, T.OPT_SHARE_TIP:format(SHARE_CHANNEL))
+Check("autoInvite", T.ONB_AUTO, T.ONB_AUTO_TIP)
+Check("shareStats", T.ONB_SHARE2, T.ONB_SHARE_TIP)
 
 -- Sammelt ein anderes Add-on Minimap-Symbole ein? Dann fragen, ob das Auge einzeln bleiben soll.
 function MinimapCollector()
@@ -98,44 +67,56 @@ function MinimapCollector()
   if owner and owner ~= Minimap and owner ~= UIParent then return T.ONB_COLLECTOR end
 end
 
-onboarding.go = CreateFrame("Button", nil, onboarding, "UIPanelButtonTemplate")
-onboarding.go:SetSize(170, 28)
-onboarding.go:SetPoint("BOTTOM", onboarding, "BOTTOM", 0, 14)
-
-local keyBtn = CreateFrame("Button", nil, onboarding, "UIPanelButtonTemplate")
-keyBtn:SetSize(170, 22)
-keyBtn:SetPoint("BOTTOM", onboarding.go, "TOP", 0, 10)
-keyBtn:SetText(T.ONB_KEY)
-keyBtn:SetScript("OnClick", function()
+-- Taste festlegen: kleiner Link mit Schlüssel, kein zweiter großer Knopf
+local keyLink = CreateFrame("Button", nil, card)
+keyLink:SetHeight(20)
+keyLink.icon = keyLink:CreateTexture(nil, "ARTWORK")
+keyLink.icon:SetSize(16, 16)
+keyLink.icon:SetPoint("LEFT", 5, 0)
+keyLink.icon:SetTexture("Interface\\Icons\\INV_Misc_Key_03")
+keyLink.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+keyLink.text = Label(keyLink, T.ONB_KEY, "GameFontNormalSmall", "LEFT", keyLink.icon, "RIGHT", 9, 0)
+keyLink:SetWidth(keyLink.text:GetStringWidth() + 34)
+keyLink:SetScript("OnEnter", function(self) self.text:SetTextColor(1, 1, 1) end)
+keyLink:SetScript("OnLeave", function(self) self.text:SetTextColor(1, 0.82, 0) end)
+keyLink:SetScript("OnClick", function()
   if Settings and Settings.OpenToCategory and Settings.KEYBINDINGS_CATEGORY_ID then
     Settings.OpenToCategory(Settings.KEYBINDINGS_CATEGORY_ID, _G.BINDING_HEADER_AUTOGROUPFINDER)
   end
 end)
-Tooltip(keyBtn, T.ONB_KEY, T.BIND_NEXT)
+
+onboarding.go = CreateFrame("Button", nil, card, "UIPanelButtonTemplate")
+onboarding.go:SetSize(160, 26)
+onboarding.go:SetPoint("BOTTOM", card, "BOTTOM", 0, 20)
 
 local mmCheck -- nur da, wenn ein Sammel-Add-on erkannt wurde
 local function NeedsReload() return mmCheck and (mmCheck:GetChecked() and true or false) ~= (db.minimapStandalone and true or false) end
 local function UpdateGo() onboarding.go:SetText(NeedsReload() and T.ONB_RELOAD or T.ONB_GO) end
 
+-- Höhe und Link-Position hängen davon ab, ob die Minimap-Zeile dazukommt
+local function Layout()
+  local rows = #onboarding.checks
+  local hasKey = Settings and Settings.KEYBINDINGS_CATEGORY_ID and true or false
+  keyLink:SetShown(hasKey)
+  keyLink:ClearAllPoints()
+  keyLink:SetPoint("TOPLEFT", card, "TOPLEFT", 24, -54 - rows * ROW - 6)
+  card:SetHeight(54 + rows * ROW + (hasKey and 30 or 0) + 70)
+end
+
 onboarding:SetScript("OnShow", function()
   local collector = MinimapCollector()
   if collector and not mmCheck then
-    mmCheck = Check("minimapStandalone", T.ONB_MM, T.OPT_MM_STANDALONE_TIP, T.ONB_MM_SUB:format(collector))
+    mmCheck = Check("minimapStandalone", T.ONB_MM, T.ONB_MM_TIP, T.ONB_MM_SUB:format(collector))
     mmCheck:HookScript("OnClick", UpdateGo)
   end
-  for _, cb in ipairs(onboarding.checks) do
-    cb:SetChecked(db[cb.key] and true or false)
-  end
-  keyBtn:SetShown(Settings and Settings.KEYBINDINGS_CATEGORY_ID and true or false)
+  for _, cb in ipairs(onboarding.checks) do cb:SetChecked(db[cb.key] and true or false) end
+  Layout()
   UpdateGo()
 end)
 
 onboarding.go:SetScript("OnClick", function()
   local reload = NeedsReload()
-  for _, cb in ipairs(onboarding.checks) do
-    if cb.key ~= "minimapStandalone" then db[cb.key] = cb:GetChecked() and true or false end
-  end
-  if mmCheck then db.minimapStandalone = mmCheck:GetChecked() and true or false end
+  for _, cb in ipairs(onboarding.checks) do db[cb.key] = cb:GetChecked() and true or false end
   Estimate.UpdateChannel()
   db.onboarded = ONBOARDING_VERSION
   onboarding:Hide()
@@ -144,7 +125,7 @@ end)
 onboarding:Hide()
 
 function ShowOnboarding() OpenWindow() onboarding:Show() end
-ONBOARDING_VERSION = 2 -- erhöhen, wenn sich die Anleitung so ändert, dass man sie nochmal sehen sollte
+ONBOARDING_VERSION = 3 -- erhöhen, wenn man die Karte nach einem Update nochmal sehen sollte
 win:HookScript("OnShow", function() if db and db.onboarded ~= ONBOARDING_VERSION then onboarding:Show() end end)
 
 -------------------------------------------------------------------------
