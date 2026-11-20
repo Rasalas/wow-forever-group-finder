@@ -35,6 +35,16 @@ fade:SetFromAlpha(0.2)
 fade:SetToAlpha(1)
 fade:SetDuration(0.8)
 
+-- Blizzards Auge statt Symbol und Rand, wie der Warteschlangen-Knopf an der Minimap
+mmEye = Eye.Create(mm, false, mm:GetFrameLevel() + 1)
+if mmEye then
+  mmEye:SetSize(30, 30)
+  mmEye:SetPoint("CENTER")
+  mmEye:EnableMouse(false) -- Klicks, Ziehen und Tooltip bleiben beim Knopf
+  mmBg:Hide(); mmIcon:Hide(); mmBorder:Hide()
+  local hl = mm:GetHighlightTexture(); if hl then hl:SetAlpha(0) end
+end
+
 function PlaceMinimap()
   local a = math.rad(db.minimap.angle)
   local r = (Minimap:GetWidth() / 2) + 5
@@ -73,13 +83,19 @@ mm:SetScript("OnEnter", function(self)
   if state.queued then GameTooltip:AddLine(T.MM_SHIFT_RIGHT, 0.7, 0.7, 0.7) end
   GameTooltip:Show()
 end)
-mm:SetScript("OnLeave", GameTooltip_Hide)
+mm:SetScript("OnLeave", function()
+  GameTooltip:Hide()
+  if mmEye then mmEye.cursorOnButton = false; mmEye:OnLeave() end
+end)
+mm:HookScript("OnEnter", function() if mmEye then mmEye.cursorOnButton = true; mmEye:OnEnter() end end)
+mm:HookScript("OnClick", function() if mmEye then mmEye:OnClick() end end)
 
 UpdateMinimap = function()
   if not db then return end
   mm:SetShown(not db.minimap.hide)
-  mmGlow:SetShown(state.queued)
-  if state.queued then
+  Eye.Set(state.queued and "search" or "idle")
+  mmGlow:SetShown(state.queued and not mmEye)
+  if state.queued and not mmEye then
     if not pulse:IsPlaying() then pulse:Play() end
   else
     pulse:Stop()

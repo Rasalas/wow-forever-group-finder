@@ -44,6 +44,7 @@ end
 function FinishQueue()
   state.completed, state.backfillNoted = true, false
   StopQueue(T.CHAT_COMPLETE)
+  Eye.Set("found")
   Ding()
   if Notify then Notify(T.CHAT_COMPLETE) end
 end

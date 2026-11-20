@@ -18,7 +18,17 @@ win:SetScript("OnDragStop", win.StopMovingOrSizing)
 win:Hide()
 tinsert(UISpecialFrames, "AutoGroupFinderFrame") -- Esc schließt
 if win.SetTitle then win:SetTitle(T.TITLE) end
-if win.SetPortraitToAsset then pcall(win.SetPortraitToAsset, win, ICON) end
+-- Porträt wie in Blizzards Gruppensuche: das große Auge, animiert während der Suche
+portraitEye = Eye.Create(win, true, win:GetFrameLevel() + 20)
+if portraitEye then
+  portraitEye:SetSize(64, 64)
+  portraitEye:SetPoint("CENTER", win, "TOPLEFT", 25, -22)
+  portraitEye:SetScript("OnClick", portraitEye.OnClick)
+  local p = win.GetPortrait and win:GetPortrait()
+  if p then p:SetAlpha(0) end
+elseif win.SetPortraitToAsset then
+  pcall(win.SetPortraitToAsset, win, ICON)
+end
 
 function Label(parent, text, font, ...)
   local fs = parent:CreateFontString(nil, "OVERLAY", font or "GameFontNormal")
