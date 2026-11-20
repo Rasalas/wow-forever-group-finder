@@ -80,6 +80,7 @@ ns.L.ruRU = {
   CHAT_LIST_FAILED = "Не удалось разместить заявку группы: %s",
   PICK_ACTIVITY = "Отметьте хотя бы один пункт.",
   COMPOSITION_TIP = "Сколько игроков этой роли должно быть в собранной группе, включая вас.",
+  COMPOSITION = "Состав (%d игроков)",
   SETTINGS = "Настройки…",
   SETTINGS_PATH = "Другие настройки: Esc > Настройки > Модификации > Auto Group Finder",
   SETTINGS_GENERAL = "Общие",

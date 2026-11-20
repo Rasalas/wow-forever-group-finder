@@ -80,6 +80,7 @@ ns.L.frFR = {
   CHAT_LIST_FAILED = "Impossible d'inscrire votre groupe : %s",
   PICK_ACTIVITY = "Cochez au moins une entrée.",
   COMPOSITION_TIP = "Nombre de joueurs de ce rôle dans le groupe complet, vous compris.",
+  COMPOSITION = "Composition (%d joueurs)",
   SETTINGS = "Paramètres…",
   SETTINGS_PATH = "Autres réglages : Échap > Options > AddOns > Auto Group Finder",
   SETTINGS_GENERAL = "Général",

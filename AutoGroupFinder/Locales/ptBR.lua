@@ -80,6 +80,7 @@ ns.L.ptBR = {
   CHAT_LIST_FAILED = "Não foi possível inscrever seu grupo: %s",
   PICK_ACTIVITY = "Marque pelo menos uma entrada.",
   COMPOSITION_TIP = "Quantos jogadores desta função o grupo completo deve ter, incluindo você.",
+  COMPOSITION = "Composição (%d jogadores)",
   SETTINGS = "Configurações…",
   SETTINGS_PATH = "Mais ajustes: Esc > Opções > AddOns > Auto Group Finder",
   SETTINGS_GENERAL = "Geral",

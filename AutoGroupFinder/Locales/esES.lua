@@ -81,6 +81,7 @@ ns.L.esES = {
   CHAT_LIST_FAILED = "No se pudo inscribir tu grupo: %s",
   PICK_ACTIVITY = "Marca al menos una entrada.",
   COMPOSITION_TIP = "Cuántos jugadores de este rol debe tener el grupo completo, tú incluido.",
+  COMPOSITION = "Composición (%d jugadores)",
   SETTINGS = "Opciones…",
   SETTINGS_PATH = "Más ajustes: Esc > Opciones > AddOns > Auto Group Finder",
   SETTINGS_GENERAL = "General",

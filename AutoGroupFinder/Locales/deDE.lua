@@ -80,6 +80,7 @@ ns.L.deDE = {
   CHAT_LIST_FAILED = "Gruppe konnte nicht eingetragen werden: %s",
   PICK_ACTIVITY = "Mindestens einen Eintrag anhaken.",
   COMPOSITION_TIP = "Wie viele Spieler dieser Rolle die fertige Gruppe haben soll, dich eingeschlossen.",
+  COMPOSITION = "Aufteilung (%d Spieler)",
   SETTINGS = "Einstellungen…",
   SETTINGS_PATH = "Weitere Einstellungen: Esc > Optionen > AddOns > Auto Group Finder",
   SETTINGS_GENERAL = "Allgemein",

@@ -80,6 +80,7 @@ ns.L.itIT = {
   CHAT_LIST_FAILED = "Impossibile iscrivere il tuo gruppo: %s",
   PICK_ACTIVITY = "Spunta almeno una voce.",
   COMPOSITION_TIP = "Quanti giocatori di questo ruolo deve avere il gruppo completo, te compreso.",
+  COMPOSITION = "Composizione (%d giocatori)",
   SETTINGS = "Impostazioni…",
   SETTINGS_PATH = "Altre impostazioni: Esc > Opzioni > AddOn > Auto Group Finder",
   SETTINGS_GENERAL = "Generale",

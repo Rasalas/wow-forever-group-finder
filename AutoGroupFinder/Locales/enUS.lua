@@ -85,6 +85,7 @@ ns.L.enUS = {
   CHAT_LIST_FAILED = "Could not list your group: %s",
   PICK_ACTIVITY = "Tick at least one entry.",
   COMPOSITION_TIP = "How many players of this role the finished group should have, including you.",
+  COMPOSITION = "Composition (%d players)",
   SETTINGS = "Settings…",
   SETTINGS_PATH = "More settings: Esc > Options > AddOns > Auto Group Finder",
   SETTINGS_GENERAL = "General",

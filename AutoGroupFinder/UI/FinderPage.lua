@@ -619,6 +619,17 @@ if menuOk then
     for _, loc in ipairs(LANGUAGES) do
       lang:CreateRadio(LangName(loc), function(v) return db.preferLang == v end, SetLang, loc)
     end
+    -- Aufteilung für die Größe der gewählten Aktivitäten; lange Listen scrollen
+    local size = Target()
+    local need = db.need[size]
+    local comp = root:CreateButton(T.COMPOSITION:format(size))
+    for _, role in ipairs(ROLES) do
+      local r = comp:CreateButton(("%s: %d"):format(ROLE_PLURAL[role], need[role] or 0))
+      for n = 0, size do
+        r:CreateRadio(tostring(n), function(v) return need[role] == v end, function(v) need[role] = v Rebuild() end, n)
+      end
+      if size > 10 and r.SetScrollMode then r:SetScrollMode(300) end
+    end
     root:CreateDivider()
     root:CreateButton(T.EDIT_WHISPER, EditWhisper)
     root:CreateButton(T.ONB_SHOW, ShowOnboarding)
