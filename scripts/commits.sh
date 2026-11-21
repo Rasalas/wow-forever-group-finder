@@ -14,12 +14,16 @@ if [[ -z $range ]]; then
 fi
 
 breaking=() features=() fixes=() other=()
+reverted=$'\x1d' # Betreffzeilen zurückgenommener Commits; beide fehlen in den Notizen
 type_re='^([a-z]+)(\([^)]*\))?(!)?: (.*)$'
 while IFS= read -r -d $'\x1e' entry; do
   entry=${entry#$'\n'}
   subject=${entry%%$'\x1f'*}
   body=${entry#*$'\x1f'}
   [[ -z $subject || $subject =~ ^Version\ [0-9] ]] && continue
+  # neuere Commits kommen zuerst: der Revert steht vor dem Original
+  if [[ $subject =~ ^Revert\ \"(.*)\"$ ]]; then reverted+="${BASH_REMATCH[1]}"$'\x1d'; continue; fi
+  [[ $reverted == *$'\x1d'"$subject"$'\x1d'* ]] && continue
   if [[ $subject =~ $type_re ]]; then
     type=${BASH_REMATCH[1]} bang=${BASH_REMATCH[3]} text=${BASH_REMATCH[4]}
     if [[ -n $bang || $body == *"BREAKING CHANGE"* || $body == *"BREAKING-CHANGE"* ]]; then breaking+=("$text"); continue; fi
