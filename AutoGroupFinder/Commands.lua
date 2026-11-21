@@ -87,6 +87,49 @@ function ApiDump()
     end
   end
   table.sort(d.listingFrames)
+  -- Was ist in Forever wirklich an? Spielregeln, Systeme, vorhandene C_-Namensräume
+  d.rules, d.systems, d.ns = {}, {}, {}
+  if Enum and Enum.GameRule and C_GameRules and C_GameRules.IsGameRuleActive then
+    for name, v in pairs(Enum.GameRule) do
+      local ok, on = pcall(C_GameRules.IsGameRuleActive, v)
+      if ok and on then
+        local okF, f = pcall(C_GameRules.GetGameRuleAsFloat, v)
+        d.rules[#d.rules + 1] = name .. ((okF and f and f ~= 0 and f ~= 1) and ("=" .. tostring(f)) or "")
+      end
+    end
+    table.sort(d.rules)
+  end
+  local function try(label, fn, ...)
+    local r = { pcall(fn or error, ...) }
+    local out = {}
+    for i = 2, #r do out[#out + 1] = type(r[i]) == "table" and ("#" .. #r[i]) or tostring(r[i]) end
+    d.systems[label] = (r[1] and "" or "ERR ") .. table.concat(out, ",")
+  end
+  local G = _G
+  try("preset", C_GameRules and C_GameRules.GetForeverExperiencePreset)
+  try("recentAllies", G.C_RecentAllies and C_RecentAllies.IsSystemEnabled)
+  try("socialQueue", G.C_SocialQueue and C_SocialQueue.IsSystemEnabled)
+  try("damageMeter", G.C_DamageMeter and C_DamageMeter.IsDamageMeterAvailable)
+  try("lootHistory", G.C_LootHistory and C_LootHistory.GetAllEncounterInfos)
+  try("questSession", G.C_QuestSession and C_QuestSession.CanStart)
+  try("newcomer", G.C_PlayerMentorship and C_PlayerMentorship.IsActivePlayerConsideredNewcomer)
+  try("mentorLevel", G.C_PlayerMentorship and C_PlayerMentorship.GetMentorLevelRequirement)
+  try("premadeStyle", api.GetPremadeGroupFinderStyle)
+  try("applications", api.GetApplications)
+  try("leavers", api.GetGroupLeaverCountsByRole)
+  try("calendar", G.C_Calendar and C_Calendar.GetNumDayEvents, 0, 1)
+  try("clubFinder", G.C_ClubFinder and C_ClubFinder.IsEnabled)
+  try("ping", G.C_Ping and C_Ping.GetDefaultPingOptions)
+  try("encounterTimeline", G.C_EncounterTimeline and C_EncounterTimeline.IsFeatureEnabled)
+  try("raidLocks", G.GetNumSavedInstances)
+  for k, v in pairs(G) do
+    if type(k) == "string" and k:match("^C_") and type(v) == "table" then
+      local n = 0
+      for _, f in pairs(v) do if type(f) == "function" then n = n + 1 end end
+      d.ns[#d.ns + 1] = k .. ":" .. n
+    end
+  end
+  table.sort(d.ns)
   db.apiDump = d
   Print("API-Daten gespeichert, jetzt /reload.")
 end
