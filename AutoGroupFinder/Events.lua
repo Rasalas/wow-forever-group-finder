@@ -175,6 +175,7 @@ function History.Track()
     return
   end
   local e = state.historyEntry or ContinuesLast()
+  if not e and #History.Snapshot() == 0 then return end -- noch niemand da (Einladung läuft)
   if not e then
     e = { t = time(), name = GetRealZoneText and GetRealZoneText() or "?", members = {} }
     table.insert(char.history, 1, e)
@@ -184,6 +185,7 @@ function History.Track()
   local inInstance, kind = IsInInstance()
   if inInstance and (kind == "party" or kind == "raid") then
     local name = GetInstanceInfo()
+    e.kind = kind
     if not e.instance then
       e.name, e.instance = name, true
     elseif name and not e.name:find(name, 1, true) then
@@ -348,6 +350,9 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4, arg5)
     if not char.history then
       char.history = db.history or {}
       db.history = nil -- gehört ab jetzt dem Charakter, der zuerst eingeloggt hat
+    end
+    for i = #char.history, 1, -1 do -- leere Einträge aus älteren Versionen
+      if #(char.history[i].members or {}) == 0 then table.remove(char.history, i) end
     end
     db.myRoles, db.myRole = nil, nil
     -- Auswahl pro Charakter (activityID -> true/false, nil = nach Stufe); die alte Account-Auswahl passte nicht zu jedem

@@ -256,4 +256,18 @@ INSTANCE = "Dalaran"; fire("PLAYER_ENTERING_WORLD", false, false)
 fire("ENCOUNTER_END", 3001, "Archmage", 1, 5, 1); fire("ENCOUNTER_END", 3002, "Kel", 1, 5, 0)
 INSTANCE = nil; fire("PLAYER_ENTERING_WORLD", false, false)
 check("18) Archmage nicht gelernt:", db.finalBoss[90].Archmage, nil)
+print("== Kein leerer Eintrag")
+party = {}; fire("GROUP_ROSTER_UPDATE")
+local before = #AutoGroupFinderCharDB.history
+local wasInGroup = IsInGroup
+IsInGroup = function() return true end -- Gruppe da, aber noch niemand sonst
+fire("GROUP_ROSTER_UPDATE")
+check("19) ohne Mitspieler kein Eintrag:", #AutoGroupFinderCharDB.history, before)
+IsInGroup = wasInGroup
+local kinds = {}
+for _, fr in ipairs(frames) do
+  local k, t = rawget(fr, "kind"), rawget(fr, "title")
+  if k and t and rawget(fr, "_shown") and rawget(t, "_shown") ~= false then kinds[#kinds + 1] = tostring(rawget(k, "_shown")) end
+end
+check("20) Dungeon-Einträge mit Symbol:", kinds[1], "true")
 time = os.time

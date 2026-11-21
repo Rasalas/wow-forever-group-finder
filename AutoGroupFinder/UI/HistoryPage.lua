@@ -89,7 +89,11 @@ do
     row.hl = row:CreateTexture(nil, "HIGHLIGHT")
     row.hl:SetAllPoints()
     row.hl:SetColorTexture(1, 1, 1, 0.05)
-    row.title = Label(row, "", "GameFontNormal", "LEFT", row, "LEFT", 14, 0)
+    -- Dungeon- und Raidläufe mit dem Symbol der Minimap, alles andere ohne
+    row.kind = row:CreateTexture(nil, "ARTWORK")
+    row.kind:SetSize(16, 16)
+    row.kind:SetPoint("LEFT", 10, 0)
+    row.title = Label(row, "", "GameFontNormal", "LEFT", row, "LEFT", 30, 0)
     row.date = Label(row, "", "GameFontDisableSmall", "RIGHT", row, "RIGHT", -12, 0)
     row.icon = row:CreateTexture(nil, "ARTWORK")
     row.icon:SetSize(20, 20)
@@ -126,6 +130,10 @@ do
       row.headBg:Show()
       row.title:SetText((e.name or "?") .. Summary(e))
       row.title:Show()
+      local icon = e.instance and (e.kind == "raid" and "Raid" or "Dungeon")
+      if icon and not Atlas(row.kind, icon) then row.kind:SetTexture("Interface\\Minimap\\Dungeon") end
+      row.kind:SetShown(icon and true or false)
+      row.title:SetFontObject(e.instance and "GameFontNormal" or "GameFontHighlight")
       row.date:SetText(Duration(e) .. date(T.DATE_FMT, e.t))
       row.date:Show()
       row.icon:Hide() row.name:Hide() row.level:Hide()
@@ -137,7 +145,7 @@ do
         r:SetPoint("TOPLEFT", 0, -y)
         y = y + MEMBER
         r.member, r.entryIndex = m, nil
-        r.headBg:Hide() r.title:Hide() r.date:Hide()
+        r.headBg:Hide() r.title:Hide() r.date:Hide() r.kind:Hide()
         if m.role then SetRoleTexture(r.icon, m.role, false) end
         r.icon:SetShown(m.role ~= nil)
         local color = m.class and RAID_CLASS_COLORS[m.class]
