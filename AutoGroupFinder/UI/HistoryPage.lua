@@ -141,9 +141,9 @@ do
         local color = m.class and RAID_CLASS_COLORS[m.class]
         r.name:SetText(color and color:WrapTextInColorCode(Short(m.name)) or Short(m.name))
         r.name:Show()
-        -- früh gegangen: mindestens 5 Minuten vor dem Ende der Gruppe
+        -- früh gegangen: vor dem letzten Boss, sonst mindestens 5 Minuten vor dem Ende der Gruppe
         local stay = m.left and m.left - (m.joined or e.t)
-        local early = stay and (e.ended or e.last or m.left) - m.left >= 300
+        local early = stay and (e.done and m.left < e.done or not e.done and (e.ended or e.last or m.left) - m.left >= 300)
         r.level:SetText(((m.level and m.level > 0) and m.level or "") .. "  " .. RateTag(Rating(m.name))
           .. (early and ("  |cff999999" .. T.H_LEFT_AFTER:format(Mins(stay)) .. "|r") or ""))
         r.level:Show()

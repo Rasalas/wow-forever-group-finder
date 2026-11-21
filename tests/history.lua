@@ -211,4 +211,23 @@ end
 check("9) Kopf mit Bossen und Wipe:", head and head:gsub("|T.-|t", "S"):gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", ""), "Gnomeregan  S1  1× Wipe")
 check("10) Abgang nach 8,5 Min:", dd and dd:match("ging nach %d+ Min"), "ging nach 9 Min")
 check("11) Dauer vor dem Datum:", dateText and dateText:match("^%d+ Min"), "38 Min")
+print("== Nach dem letzten Boss geht niemand früh")
+party = { "A", "B" }; fire("GROUP_ROSTER_UPDATE")
+local h2 = AutoGroupFinderCharDB.history[1]
+INSTANCE = "Gnomeregan"; fire("PLAYER_ENTERING_WORLD", false, false)
+C_EncounterJournal = { GetInstanceForGameMap = function() return 231 end }
+EJ_GetEncounterInfoByIndex = function(i) if i == 1 then return "Thermaplugg", "", 0, 0, "", 231, 2902, 90 end end
+GetInstanceInfo = function() return INSTANCE or "Scarlet Library", "party", 1, "", 5, 0, false, 90 end
+clock = clock + 1200; fire("ENCOUNTER_END", 2902, "Thermaplugg", 1, 5, 1)
+check("12) Lauf geschafft:", h2.done, clock)
+clock = clock + 60; party = { "A" }; fire("GROUP_ROSTER_UPDATE")
+clock = clock + 1200; party = {}; fire("GROUP_ROSTER_UPDATE")
+E.History.Update()
+local early2
+for _, fr in ipairs(frames) do
+  local lvl = rawget(fr, "level")
+  local l = lvl and rawget(lvl, "_text")
+  if rawget(fr, "member") and rawget(fr, "member").name == "B" and type(l) == "string" then early2 = l:find("ging nach") ~= nil end
+end
+check("13) B ging nach dem Boss: kein Vermerk:", early2, false)
 time = os.time

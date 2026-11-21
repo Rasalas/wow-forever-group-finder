@@ -361,6 +361,7 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4, arg5)
     -- encounterID, name, difficulty, size, success; in Instanzen evtl. geheim
     if Readable(arg1) and Readable(arg5) and (arg5 == 1 or arg5 == true) and arg1 == LastBossID() then
       state.runDone = true
+      if state.historyEntry then state.historyEntry.done = time() end -- wer danach geht, ging nicht früh
     end
     if Readable(arg5) then History.Boss(arg2, arg5 == 1 or arg5 == true) end
   elseif event == "LFG_LIST_AVAILABILITY_UPDATE" then
