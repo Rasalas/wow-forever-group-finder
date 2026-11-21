@@ -10,6 +10,10 @@ function Diag()
   Print(("Lua errors: %d"):format(#errors))
   Print(("areaName: %d/%d %s"):format(state.areaSeen or 0, state.areaTotal or 0, table.concat(db and db.areaSample or {}, ", ")))
   for _, e in ipairs(errors) do print("  " .. e) end
+  if IsInInstance() then
+    local id, name = LastBossID()
+    Print(("Last boss: %s (%s)"):format(tostring(name), tostring(id)))
+  end
   Print("Client: " .. tostring(select(4, GetBuildInfo())) .. " / " .. tostring((GetBuildInfo())))
   local api = C_LFGList
   Print("C_LFGList: " .. tostring(api ~= nil))
