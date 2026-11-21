@@ -17,10 +17,18 @@ end
 
 -- Gibt die Belegung inklusive dir zurück und welche deiner Rollen du übernimmst:
 -- die seltenste, die noch fehlt (Tank vor Heiler vor Schaden).
+-- Eingeladene Rolle, bis das Add-on sie gesetzt hat; danach zählt die Rolle in der Gruppe,
+-- damit ein Tausch per Rechtsklick aufs Porträt übernommen wird.
+function MemberRole(k, unit)
+  local actual = api.unitRole(unit)
+  if roleQueue[k] == nil and (actual == "TANK" or actual == "HEALER" or actual == "DAMAGER") then return actual end
+  return joined[k] or expired[k] or actual
+end
+
 function Filled()
   local f = { TANK = 0, HEALER = 0, DAMAGER = 0 }
   for k, unit in pairs(MemberKeys()) do
-    local r = joined[k] or expired[k] or api.unitRole(unit)
+    local r = MemberRole(k, unit)
     if r ~= "TANK" and r ~= "HEALER" then r = "DAMAGER" end -- ohne Rolle zählt als Schaden
     f[r] = f[r] + 1
   end

@@ -156,7 +156,7 @@ do
       local _, class = UnitClass and UnitClass(unit)
       if not Readable(class) then class = nil end
       local color = class and RAID_CLASS_COLORS[class]
-      local role = unit == "player" and select(2, Filled()) or joined[Key(name)] or api.unitRole(unit)
+      local role = unit == "player" and select(2, Filled()) or MemberRole(Key(name), unit)
       if not Readable(role) or (role ~= "TANK" and role ~= "HEALER") then role = "DAMAGER" end
       SetRoleTexture(row.role, role, false)
       row.name:SetText(color and color:WrapTextInColorCode(Short(name)) or Short(name))

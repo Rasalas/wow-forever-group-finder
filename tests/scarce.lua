@@ -245,3 +245,16 @@ party = { "T", "H", "D1" }
 fire("GROUP_ROSTER_UPDATE")
 check("22) kein Weitersuchen, kein Knopf:", E.state.resume, nil)
 check("23) Gemeldet, nur leise:", E.state.backfillNoted, true)
+
+print("== Rolle in der Gruppe getauscht")
+reset()
+E.StartQueue()
+results10(with({ { "Tank3", { tank = true } } }))
+newInvites()
+join("Tank3")
+check("24) Als Tank eingeladen, Rolle noch nicht gesetzt:", E.Filled().TANK, 1)
+for k in pairs(E.roleQueue) do E.roleQueue[k] = nil end -- vom Add-on gesetzt
+local was = UnitGroupRolesAssigned
+UnitGroupRolesAssigned = function() return "DAMAGER" end -- Anführer stellt per Rechtsklick um
+check("25) Getauschte Rolle zählt:", E.Filled().TANK, 0)
+UnitGroupRolesAssigned = was
