@@ -278,8 +278,8 @@ barTop:SetPoint("LEFT", actView, "TOPLEFT", 0, -42)
 barTop:SetPoint("RIGHT", actView, "TOPRIGHT", 0, -42)
 if not AtlasSized(barTop, "groupfinder-ScrollLine") then barTop:SetColorTexture(0.5, 0.4, 0.25, 0.5) barTop:SetHeight(1) end
 barBottom = actView:CreateTexture(nil, "ARTWORK")
-barBottom:SetPoint("LEFT", actView, "BOTTOMLEFT", 0, 68)
-barBottom:SetPoint("RIGHT", actView, "BOTTOMRIGHT", 0, 68)
+barBottom:SetPoint("LEFT", actView, "BOTTOMLEFT", 0, 46)
+barBottom:SetPoint("RIGHT", actView, "BOTTOMRIGHT", 0, 46)
 if not AtlasSized(barBottom, "groupfinder-ScrollLine") then barBottom:SetColorTexture(0.5, 0.4, 0.25, 0.5) barBottom:SetHeight(1) end
 
 voiceDd = Dropdown(actView, 220, VOICE_OPTIONS, nil,
@@ -289,37 +289,7 @@ voiceDd = Dropdown(actView, 220, VOICE_OPTIONS, nil,
 Label(actView, VOICE_CHAT or T.VOICE_CHAT, "GameFontNormalSmall", "RIGHT", voiceDd, "LEFT", -8, 0)
 
 -- Aktivitäten als Baum wie bei Blizzard: Gruppe mit Plus/Minus, Einträge eine Stufe eingerückt
-tree = Scroller(actView, actView, 22, -48, -12, 74)
-
--- Beschreibung: Add-ons können sie nicht setzen, aber der Client nimmt beim Eintragen den Text aus
--- Blizzards Feld „More details“ mit. Wir zeigen ihn nur an (lesen, nie schreiben: Taint).
-function BlizzComment()
-  local c = _G.LFGListingComment
-  local eb = c and (c.EditBox or (c.GetScrollChild and c:GetScrollChild()))
-  if not (eb and eb.GetText) then return nil end
-  local ok, text = pcall(eb.GetText, eb)
-  if not (ok and Readable(text) and type(text) == "string") then return nil end
-  text = strtrim(text)
-  return text ~= "" and text or nil, eb
-end
-details = CreateFrame("Frame", nil, actView)
-details:SetPoint("BOTTOMLEFT", actView, "BOTTOMLEFT", 22, 46)
-details:SetPoint("RIGHT", actView, "RIGHT", -20, 0)
-details:SetHeight(18)
-details:EnableMouse(true)
-details.text = Label(details, "", "GameFontDisableSmall", "LEFT", details, "LEFT", 0, 0)
-details.text:SetPoint("RIGHT", details, "RIGHT")
-details.text:SetJustifyH("LEFT")
-details.text:SetWordWrap(false)
-Tooltip(details, T.DETAILS_TITLE, T.DETAILS_TIP)
-function UpdateDetails()
-  local text, eb = BlizzComment()
-  if eb and not details.hooked and eb.HookScript then
-    details.hooked = true
-    eb:HookScript("OnTextChanged", function() if win:IsShown() then UpdateDetails() end end)
-  end
-  details.text:SetText(T.DETAILS_TITLE .. ": " .. (text and ("|cffffffff" .. text:gsub("\n", " ") .. "|r") or "–"))
-end
+tree = Scroller(actView, actView, 22, -48, -12, 52)
 
 -- Leiste „Du bist hier“ über der Liste, wenn man an oder in einem Dungeon steht
 hereBar = CreateFrame("Frame", nil, actView)
@@ -571,7 +541,6 @@ function UpdateFinder()
   npf.check:SetChecked(db.newPlayerFriendly)
   if showActs then
     levelCheck:SetChecked(db.allLevels)
-    UpdateDetails()
     for _, dd in ipairs(dropdowns) do if dd.cycle then dd.cycle() end end
     UpdateTree()
   else
