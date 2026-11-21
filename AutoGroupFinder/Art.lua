@@ -35,9 +35,9 @@ function Art.Dungeon(activityID)
   if c ~= nil then return c or nil end
   local result = false
   local a = activityID and L.GetActivityInfoTable(activityID)
-  if a and a.mapID and C_EncounterJournal and C_EncounterJournal.GetInstanceForGameMap and EJ_GetInstanceInfo then
-    local ok, jid = pcall(C_EncounterJournal.GetInstanceForGameMap, a.mapID)
-    if ok and jid then
+  if a and a.mapID and EJ_GetInstanceInfo then
+    local jid = JournalInstance(a.mapID, a.fullName)
+    if jid then
       local ok2, _, _, _, _, _, button = pcall(EJ_GetInstanceInfo, jid)
       if ok2 and button and button ~= 0 and button ~= "" then result = { file = button, coords = { 0, 1, 0, 1 }, aspect = 1.81 } end
     end

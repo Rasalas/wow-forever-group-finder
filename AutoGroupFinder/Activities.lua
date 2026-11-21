@@ -16,6 +16,45 @@ function Categories()
   return out
 end
 
+-- Journal-Instanz zu einer Karte. Forevers neue Dungeons stehen in einer eigenen Stufe des Journals und
+-- fehlen in GetInstanceForGameMap; dann per Name suchen. Blizzards Journal nie umschalten, solange es offen ist.
+local journalIDs = {}
+local function SameName(a, b)
+  return type(a) == "string" and type(b) == "string" and a ~= "" and b ~= ""
+    and (a == b or a:find(b, 1, true) ~= nil or b:find(a, 1, true) ~= nil)
+end
+function JournalInstance(mapID, name)
+  local key = mapID or name
+  if key == nil then return nil end
+  if journalIDs[key] ~= nil then return journalIDs[key] or nil end
+  local ej = C_EncounterJournal
+  if mapID and ej and ej.GetInstanceForGameMap then
+    local ok, jid = pcall(ej.GetInstanceForGameMap, mapID)
+    if ok and jid and jid ~= 0 then journalIDs[key] = jid return jid end
+  end
+  if not (name and EJ_GetNumTiers and EJ_SelectTier and EJ_GetInstanceByIndex) then return nil end
+  local journal = _G.EncounterJournal
+  if journal and journal:IsShown() then return nil end -- später nochmal
+  local okP, prev = pcall(EJ_GetCurrentTier or error)
+  local okN, tiers = pcall(EJ_GetNumTiers)
+  local found
+  for t = (okN and tiers or 0), 1, -1 do -- Forevers Stufe ist die neueste
+    pcall(EJ_SelectTier, t)
+    for _, raid in ipairs({ false, true }) do
+      for i = 1, 100 do
+        local ok, id, iname = pcall(EJ_GetInstanceByIndex, i, raid)
+        if not (ok and id) then break end
+        if SameName(iname, name) then found = id break end
+      end
+      if found then break end
+    end
+    if found then break end
+  end
+  if okP and prev then pcall(EJ_SelectTier, prev) end
+  journalIDs[key] = found or false
+  return found
+end
+
 -- Steht man an oder in einem Dungeon? Draußen zählt das Gebiet (wie auf der Minimap), drinnen die Instanz.
 -- Instanzname -> { name, cat, ids }; einmal aufgebaut, neu bei geänderter Aktivitätenliste (InvalidateHere)
 local hereIndex

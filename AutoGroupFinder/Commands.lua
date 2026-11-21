@@ -15,13 +15,9 @@ function Diag()
     Print(("Last boss: %s (%s)"):format(tostring(name), tostring(id)))
     -- Schritte einzeln, um zu sehen, wo das Journal nichts liefert
     local iname, _, _, _, _, _, _, mapID = GetInstanceInfo()
-    local ej = C_EncounterJournal or {}
-    local okJ, jid = pcall(ej.GetInstanceForGameMap or error, mapID)
-    local uiMap = C_Map and C_Map.GetBestMapForUnit and C_Map.GetBestMapForUnit("player")
-    local okU, jidUi = pcall(EJ_GetInstanceForMap or error, uiMap)
-    Print(("Journal: %s map=%s ui=%s jid=%s/%s jidUi=%s select=%s"):format(tostring(iname), tostring(mapID),
-      tostring(uiMap), tostring(okJ), tostring(jid), tostring(okU and jidUi), tostring(EJ_SelectInstance ~= nil)))
-    local useJid = (okJ and jid) or (okU and jidUi)
+    local useJid = JournalInstance(mapID, iname)
+    Print(("Journal: %s map=%s jid=%s tiers=%s"):format(tostring(iname), tostring(mapID), tostring(useJid),
+      tostring(EJ_GetNumTiers and select(2, pcall(EJ_GetNumTiers)))))
     if useJid then
       if EJ_GetInstanceInfo then Print("  instance: " .. tostring((select(1, pcall(EJ_GetInstanceInfo, useJid))) and select(2, pcall(EJ_GetInstanceInfo, useJid)))) end
       for i = 1, 8 do

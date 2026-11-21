@@ -210,3 +210,19 @@ E.Rebuild()
 _, qids = E.SearchActivities()
 check("14) Ohne Quests wieder nach Stufe:", table.concat(qids, ","), "859")
 
+
+print("== Journal: Forevers Dungeons per Name")
+local tier = 1
+C_EncounterJournal = { GetInstanceForGameMap = function(m) return m == 90 and 231 or nil end }
+EJ_GetNumTiers = function() return 2 end
+EJ_GetCurrentTier = function() return tier end
+EJ_SelectTier = function(t) tier = t end
+EJ_GetInstanceByIndex = function(i, raid)
+  local list = tier == 2 and not raid and { { 1301, "Dalaran" }, { 1302, "Hall of Thanes" } } or (tier == 1 and not raid and { { 231, "Gnomeregan" } }) or {}
+  local e = list[i]
+  if e then return e[1], e[2] end
+end
+check("17) bekannte Karte direkt:", E.JournalInstance(90, "Gnomeregan"), 231)
+check("18) Forever per Name:", E.JournalInstance(2959, "City of Dalaran"), 1301)
+check("19) Stufe zurückgestellt:", tier, 1)
+check("20) unbekannt bleibt nil:", E.JournalInstance(9999, "Nirgendwo"), nil)

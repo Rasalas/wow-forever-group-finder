@@ -179,10 +179,10 @@ RUN_DONE_AFTER = 1500
 local lastBoss = {}
 function LastBossID()
   if not (GetInstanceInfo and C_EncounterJournal and C_EncounterJournal.GetInstanceForGameMap and EJ_GetEncounterInfoByIndex) then return end
-  local mapID = select(8, GetInstanceInfo())
+  local iname, _, _, _, _, _, _, mapID = GetInstanceInfo()
   if lastBoss[mapID] then return lastBoss[mapID].id, lastBoss[mapID].name end
-  local ok, jid = pcall(C_EncounterJournal.GetInstanceForGameMap, mapID)
-  if not (ok and jid) then return end
+  local jid = JournalInstance(mapID, iname)
+  if not jid then return end
   local journal = _G.EncounterJournal
   if EJ_SelectInstance and not (journal and journal:IsShown()) then pcall(EJ_SelectInstance, jid) end
   local id, bossName

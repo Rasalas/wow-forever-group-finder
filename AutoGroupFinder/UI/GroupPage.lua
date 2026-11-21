@@ -10,7 +10,7 @@ GroupPage = {}
 function DungeonEntrance(activityID)
   local a = activityID and L.GetActivityInfoTable(activityID)
   if not (a and a.mapID and C_EncounterJournal and C_EncounterJournal.GetDungeonEntrancesForMap) then return end
-  local jid = C_EncounterJournal.GetInstanceForGameMap and C_EncounterJournal.GetInstanceForGameMap(a.mapID)
+  local jid = JournalInstance(a.mapID, a.fullName)
   local inst = GetRealZoneText(a.mapID)
   local maps = {}
   for _, ui in ipairs(DUNGEON_ZONES[a.mapID] or {}) do maps[#maps + 1] = ui end
