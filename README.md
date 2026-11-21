@@ -13,6 +13,7 @@ You pick your role, the dungeons and a play style and click **Find Group**. The 
 
 - **Automatic invites** for exactly the open spots; declines, busy and unreachable players are skipped for a while
 - **Rare roles first** – plentiful roles (usually damage) wait until tanks and healers have joined
+- **Mixed classes** – within a role, classes and armor types the group lacks come first (less fighting over loot)
 - **Players at the dungeon first**, based on the zone Blizzard reports for each listing
 - **Quick start at the dungeon** – stand in front of it and search for exactly that dungeon with one click
 - **Wait-time estimate** from real finished groups (same dungeon, size and missing roles), corrected against its own past errors; optionally shared anonymously with other users

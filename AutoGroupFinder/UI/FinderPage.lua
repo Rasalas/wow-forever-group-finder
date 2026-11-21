@@ -516,6 +516,7 @@ OPTIONS = {
   { "levelCheck", T.OPT_LEVEL, T.OPT_LEVEL_TIP, function() Rebuild() end },
   { "preferFriends", T.OPT_FRIENDS, T.OPT_FRIENDS_TIP, function() Rebuild() end },
   { "preferNear", T.OPT_NEAR, T.OPT_NEAR_TIP, function() Rebuild() end },
+  { "mixClasses", T.OPT_MIX, T.OPT_MIX_TIP, function() Rebuild() end },
   { "hereSuggest", T.OPT_HERE, T.OPT_HERE_TIP, function() Rebuild() end },
   { "nudge", T.OPT_NUDGE, T.OPT_NUDGE_TIP:format(NUDGE_AFTER), function() UpdateNudge() end },
   { "shareStats", T.OPT_SHARE, T.OPT_SHARE_TIP, function() Estimate.UpdateChannel() end },

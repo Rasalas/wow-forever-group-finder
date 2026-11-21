@@ -11,6 +11,7 @@ Like the old meeting stones, but on top of Blizzard's group finder in WoW Foreve
 - **Invites for exactly the open spots**: declines, busy and unreachable players are skipped for a while
 - **Tanks and healers first**: damage dealers wait until the rare roles have joined (optional: nobody until a tank is in)
 - **Players at the dungeon first**, using the zone the group finder shows for each player
+- **Mixed classes**: classes and armor types your group doesn't have yet come first, so there's less fighting over loot
 - **One click at the dungeon**: stand in front of it and search for exactly that dungeon
 - **Wait-time estimate** from real finished groups, optionally shared anonymously between users
 - **Who invites you and why**: a card under the invite shows dungeon, group and your role

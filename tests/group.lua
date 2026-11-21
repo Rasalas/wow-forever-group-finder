@@ -201,3 +201,26 @@ E.pending["Alpha Skullcrusher"] = { t = 0, confirmed = true, manual = true }
 local lines = table.concat(E.StatusLines(), " | ")
 check("Tooltip ohne Fehler, nur Name:", lines:find("Alpha Skullcrusher", 1, true) ~= nil and not lines:find("Alpha Skullcrusher (", 1, true), true)
 E.pending["Alpha Skullcrusher"] = nil
+
+print("== Klassen mischen (ich bin Magier)")
+for k in pairs(results) do results[k] = nil end
+db.ratings = {}
+AutoGroupFinderCharDB.myRoles = { DAMAGER = true }
+local function dd(id, name, class, age) res(id, name, { dps = true }, age, { generalPlaystyle = 2 }) results[id].p.classFilename = class end
+dd(11, "Magier1", "MAGE", 1)
+dd(12, "Hexer1", "WARLOCK", 2)
+dd(13, "Jaeger1", "HUNTER", 50)
+dd(14, "Druide1", "DRUID", 60)
+local function order()
+  fire("LFG_LIST_SEARCH_RESULTS_RECEIVED")
+  local o = {}
+  for _, c in ipairs(E.candidates) do o[#o + 1] = c.name end
+  return table.concat(o, ",")
+end
+db.mixClasses = false
+check("Aus: Neueste zuerst:", order(), "Magier1,Hexer1,Jaeger1,Druide1")
+db.mixClasses = true
+check("An: fremde Klasse und Rüstung vor Stoff:", order(), "Jaeger1,Druide1,Hexer1,Magier1")
+E.pending["Jaeger1"] = { role = "DAMAGER", t = 0, confirmed = true, c = { class = "HUNTER" } }
+check("Jäger eingeladen: Druide vor Stoffträgern:", order(), "Druide1,Hexer1,Magier1")
+E.pending["Jaeger1"] = nil

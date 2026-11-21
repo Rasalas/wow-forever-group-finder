@@ -87,14 +87,19 @@ end
 function AutoInvite()
   if not (state.queued and db.autoInvite and CanInvite()) or InCombatLockdown() then return end
   local held = HeldRoles()
-  for _, c in ipairs(candidates) do
+  -- Nach jeder Einladung neu sortieren: die Gruppe hat sich geändert (Klassen mischen)
+  for _ = 1, 40 do
     if RoomLeft() <= 0 then break end
-    local _, open = Slots()
-    for r in pairs(held) do open[r] = 0 end
-    local role = not pending[c.key] and RoleFor(c, open)
-    if role then Invite(c, role) end
+    local invited
+    for _, c in ipairs(candidates) do
+      local _, open = Slots()
+      for r in pairs(held) do open[r] = 0 end
+      local role = not pending[c.key] and RoleFor(c, open)
+      if role then Invite(c, role) invited = true break end
+    end
+    Rebuild()
+    if not invited then break end
   end
-  Rebuild()
 end
 
 -- Selbst eingeladen: mitzählen, damit für diesen Platz niemand zusätzlich eingeladen wird.

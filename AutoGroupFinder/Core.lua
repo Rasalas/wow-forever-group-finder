@@ -115,6 +115,7 @@ DEFAULTS = {
   nudge = true,          -- „Bin noch da“-Knopf, wenn länger nicht gesucht wurde
   hereSuggest = true,    -- am Dungeon eine Karte zum Sofort-Suchen anbieten
   preferNear = true,     -- Spieler am Dungeon (Zone des Eingangs oder schon drin) zuerst
+  mixClasses = true,     -- bei gleicher Rolle andere Klassen und Rüstungsarten zuerst
   inviteWhisper = false, -- beim Einladen kurz anflüstern
   whisperText = nil,     -- nil = Standardtext
   notify = true,         -- Meldung in der Bildschirmmitte und Taskleiste blinken

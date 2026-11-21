@@ -221,6 +221,27 @@ end
 groupOffers = {}
 ASK_COOLDOWN = 900 -- denselben Anführer frühestens nach 15 Minuten wieder anfragen
 
+-- Gemischte Gruppe: weniger Streit um Beute. Gleiche Klasse wiegt doppelt, gleiche Rüstung einfach.
+ARMOR = { MAGE = "cloth", PRIEST = "cloth", WARLOCK = "cloth", ROGUE = "leather", DRUID = "leather",
+  HUNTER = "mail", SHAMAN = "mail", WARRIOR = "plate", PALADIN = "plate" }
+function GroupClasses()
+  local classes, armor = {}, {}
+  local function add(class)
+    if not class or not Readable(class) then return end
+    classes[class] = (classes[class] or 0) + 1
+    local a = ARMOR[class]
+    if a then armor[a] = (armor[a] or 0) + 1 end
+  end
+  add(select(2, UnitClass("player")))
+  for _, unit in pairs(MemberKeys()) do add(select(2, UnitClass(unit))) end
+  for _, p in pairs(pending) do add(p.c and p.c.class) end
+  return classes, armor
+end
+function Overlap(class, classes, armor)
+  if not class then return 0 end
+  return 2 * (classes[class] or 0) + (armor[ARMOR[class] or ""] or 0)
+end
+
 function Rebuild()
   wipe(candidates)
   wipe(groupOffers)
@@ -358,6 +379,8 @@ function Rebuild()
     end
   end
   -- Tanks, dann Heiler, dann Schaden; innerhalb einer Rolle standardmäßig die Neuesten zuerst.
+  local classes, armor = GroupClasses()
+  for _, c in ipairs(candidates) do c.overlap = db.mixClasses and Overlap(c.class, classes, armor) or 0 end
   table.sort(candidates, function(a, b)
     if a.role ~= b.role then return ROLE_ORDER[a.role] < ROLE_ORDER[b.role] end
     if db.preferFriends then
@@ -368,6 +391,7 @@ function Rebuild()
     local pref = db.preferLang ~= "none" and db.preferLang
     if pref and (a.lang == pref) ~= (b.lang == pref) then return a.lang == pref end
     if db.preferNear and (a.near or 0) ~= (b.near or 0) then return (a.near or 0) > (b.near or 0) end
+    if a.overlap ~= b.overlap then return a.overlap < b.overlap end -- leichte Vorliebe für gemischte Gruppen
     if db.oldestFirst then return a.listedAt < b.listedAt end
     return a.listedAt > b.listedAt
   end)
