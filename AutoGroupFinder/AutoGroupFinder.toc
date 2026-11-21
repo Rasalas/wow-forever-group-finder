@@ -46,5 +46,6 @@ UI\Onboarding.lua
 UI\Nudge.lua
 UI\Broker.lua
 Events.lua
+Records.lua
 TestMode.lua
 Commands.lua

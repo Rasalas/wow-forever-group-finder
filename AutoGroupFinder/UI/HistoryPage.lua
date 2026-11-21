@@ -100,6 +100,36 @@ do
     return s >= 60 and (T.H_MIN:format(Mins(s)) .. " · ") or ""
   end
 
+  local function Num(n)
+    if n >= 1e6 then return ("%.1fM"):format(n / 1e6) end
+    if n >= 1e4 then return ("%.0fk"):format(n / 1e3) end
+    if n >= 1e3 then return ("%.1fk"):format(n / 1e3) end
+    return tostring(math.floor(n))
+  end
+  -- Schaden, Heilung und Tode je Spieler aus Blizzards Schadensmesser, nach Schaden sortiert
+  local function MeterLines(r)
+    local list = {}
+    for name, v in pairs(r.meter or {}) do list[#list + 1] = { name = name, v = v } end
+    if #list == 0 then return end
+    table.sort(list, function(a, b) return (a.v.d or 0) > (b.v.d or 0) end)
+    GameTooltip:AddLine(" ")
+    GameTooltip:AddDoubleLine(T.H_METER, T.H_METER_COLS, 1, 0.82, 0, 0.6, 0.6, 0.6)
+    for _, x in ipairs(list) do
+      local color = x.v.c and RAID_CLASS_COLORS[x.v.c]
+      local right = Num(x.v.d or 0) .. "  |cff60ff60" .. Num(x.v.h or 0) .. "|r" .. (x.v.x and ("  " .. SKULL .. x.v.x) or "")
+      GameTooltip:AddDoubleLine(Short(x.name), right, color and color.r or 1, color and color.g or 1, color and color.b or 1, 1, 1, 1)
+    end
+  end
+  local function LootLines(r, encounterID, used)
+    for k, l in pairs(r.loot or {}) do
+      if not used[k] and (encounterID == nil or l.enc == encounterID) then
+        used[k] = true
+        local color = l.c and RAID_CLASS_COLORS[l.c]
+        GameTooltip:AddDoubleLine("   " .. l.link, Short(l.who), 1, 1, 1, color and color.r or 1, color and color.g or 1, color and color.b or 1)
+      end
+    end
+  end
+
   local function EntryTooltip(owner, e)
     if not (e.wait or e.runs) then return end
     GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
@@ -110,11 +140,17 @@ do
       local function line(t, text, red)
         if t then GameTooltip:AddDoubleLine(text, Clock(t), red and 1 or 1, red and 0.4 or 1, red and 0.4 or 1, 0.6, 0.6, 0.6) end
       end
+      local used = {}
       line(r.enter, T.H_ENTER)
       line(r.first, T.H_FIRST)
-      for _, b in ipairs(r.bosses) do line(b.t, b.ok and b.n or T.H_WIPE:format(b.n), not b.ok) end
+      for _, b in ipairs(r.bosses) do
+        line(b.t, b.ok and b.n or T.H_WIPE:format(b.n), not b.ok)
+        if b.ok and b.id then LootLines(r, b.id, used) end
+      end
+      LootLines(r, nil, used) -- Beute ohne erkannten Boss
       line(r.last, T.H_LAST)
       line(r.exit, T.H_EXIT)
+      MeterLines(r)
     end
     GameTooltip:Show()
   end

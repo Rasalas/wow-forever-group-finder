@@ -127,6 +127,8 @@ function History.Exit(r)
   if not r or r.exit then return end
   r.exit = time()
   LearnFinal(r)
+  if History.MeterUpdate then History.MeterUpdate(r) end
+  r.meterBase, r.meterLast, r.meterAcc = nil, nil, nil -- nur das Ergebnis aufheben
 end
 
 function History.Run(e)
@@ -203,6 +205,7 @@ function History.Track()
       -- nach /reload drinnen ist das Betreten unbekannt (instanceSince fehlt dann)
       e.runs[#e.runs + 1] = { name = name, map = select(8, GetInstanceInfo()), enter = char.instanceSince,
         kills = 0, wipes = 0, bosses = {} }
+      if History.MeterStart then History.MeterStart(e.runs[#e.runs]) end
     end
   else
     History.Exit(History.Run(e))

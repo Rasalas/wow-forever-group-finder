@@ -299,4 +299,35 @@ party = { "Quester" }; fire("GROUP_ROSTER_UPDATE")
 clock = clock + 900; party = {}; fire("GROUP_ROSTER_UPDATE")
 check("33) längere Gruppe bleibt:", #AutoGroupFinderCharDB.history, n0 + 1)
 time = os.time
+print("== Schadensmesser und Beute")
+time = function() return clock end
+local overall = { [0] = {}, [2] = {}, [9] = {} }
+C_DamageMeter = {
+  IsDamageMeterAvailable = function() return true end,
+  GetCombatSessionFromType = function(_, kind) return { combatSources = overall[kind] } end,
+}
+C_LootHistory = { GetSortedInfoForDrop = function(enc, key)
+  return { itemHyperlink = "[Gnomish Gear]", winner = { playerName = "Tank", playerClass = "WARRIOR" } } end }
+overall[0] = { { name = "Tank", classFilename = "WARRIOR", totalAmount = 1000 } } -- vor dem Dungeon
+party = {}; fire("GROUP_ROSTER_UPDATE"); INSTANCE = nil; fire("PLAYER_ENTERING_WORLD", false, false)
+party = { "Tank", "Heal" }; fire("GROUP_ROSTER_UPDATE")
+local hm = AutoGroupFinderCharDB.history[1]
+INSTANCE = "Gnomeregan"; fire("PLAYER_ENTERING_WORLD", false, false)
+overall[0] = { { name = "Tank", classFilename = "WARRIOR", totalAmount = 5000 }, { name = "Heal", classFilename = "PRIEST", totalAmount = 300 } }
+overall[2] = { { name = "Heal", classFilename = "PRIEST", totalAmount = 8000 } }
+fire("PLAYER_REGEN_ENABLED")
+fire("DAMAGE_METER_RESET") -- Spieler setzt den Messer zurück
+overall[0] = { { name = "Tank", classFilename = "WARRIOR", totalAmount = 2000 } }
+overall[2] = {}
+overall[9] = { { name = "Heal", classFilename = "PRIEST", totalAmount = 1 } }
+fire("ENCOUNTER_END", 2940, "Thermaplugg", 1, 5, 1)
+fire("LOOT_HISTORY_UPDATE_DROP", 2940, 1)
+clock = clock + 60; INSTANCE = nil; fire("PLAYER_ENTERING_WORLD", false, false)
+local m = hm.runs[1].meter
+check("34) Schaden ab Betreten, über Zurücksetzen hinweg:", m.Tank.d, 4000 + 2000)
+check("35) Heilung:", m.Heal.h, 8000)
+check("36) Tod:", m.Heal.x, 1)
+check("37) Beute beim Boss:", hm.runs[1].loot["2940:1"].who, "Tank")
+check("38) nur Ergebnis gespeichert:", hm.runs[1].meterBase, nil)
+time = os.time
 time = os.time
