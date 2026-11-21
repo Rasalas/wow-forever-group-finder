@@ -19,6 +19,19 @@ function Diag()
     for i = 2, #info do parts[#parts + 1] = tostring(info[i]) end
     Print("Instance: " .. table.concat(parts, " | "))
     local lfgID = info[11]
+    -- Ohne Nummer: die Dungeonbrowser-Tabelle nach Name oder Karte durchsuchen
+    if not lfgID and GetLFGDungeonInfo then
+      local found = {}
+      for id = 1, 4000 do
+        local ok, r = pcall(function() return { GetLFGDungeonInfo(id) } end)
+        if ok and r[1] then
+          local hit = r[1] == info[2] or tostring(r[1]):find("Dalaran", 1, true)
+          for j = 2, #r do if r[j] == info[9] then hit = true end end
+          if hit then found[#found + 1] = id .. "=" .. tostring(r[1]) lfgID = lfgID or id end
+        end
+      end
+      Print("LFG scan: " .. (#found > 0 and table.concat(found, ", ") or "nichts"))
+    end
     Print(("LFG funcs: num=%s info=%s"):format(tostring(GetLFGDungeonNumEncounters ~= nil), tostring(GetLFGDungeonEncounterInfo ~= nil)))
     if lfgID and GetLFGDungeonNumEncounters then
       local ok, total, done = pcall(GetLFGDungeonNumEncounters, lfgID)
