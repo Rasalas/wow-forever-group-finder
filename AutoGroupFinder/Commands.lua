@@ -172,7 +172,7 @@ function _G.AutoGroupFinder_Slash(msg, raw)
   elseif msg == "start" then
     StartQueue()
   elseif msg == "stop" then
-    StopQueue(T.CHAT_STOPPED)
+    StopQueue(T.CHAT_STOPPED, true)
   elseif msg == "minimap reset" then
     db.minimap.free, db.minimap.angle = nil, DEFAULTS.minimap.angle
     db.minimap.hide = false

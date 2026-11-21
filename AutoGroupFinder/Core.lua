@@ -196,6 +196,7 @@ real = {
     if L.HasActiveEntryInfo and L.HasActiveEntryInfo() then return pcall(L.UpdateListing, data) end
     return pcall(L.CreateListing, data)
   end,
+  listed = function() return L.HasActiveEntryInfo and L.HasActiveEntryInfo() or false end,
   unlist = function()
     if L.HasActiveEntryInfo and L.HasActiveEntryInfo() and L.RemoveListing then pcall(L.RemoveListing) end
   end,

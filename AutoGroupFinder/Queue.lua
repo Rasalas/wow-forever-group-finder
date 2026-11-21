@@ -24,7 +24,7 @@ function StartQueue(resume)
   local rem = Slots()
   if not AnyLeft(rem) then Print(T.CHAT_NO_ROLE) return end
   state.queued, state.queuedAt, state.lastSearchAt, state.searching = true, resume and resume.since or GetTime(), 0, nil
-  state.resume, state.runDone = nil, nil
+  state.resume, state.runDone, state.unlist = nil, nil, nil
   wipe(state.lastSupply)
   Estimate.OnStart()
   char.groupActivityID = ids[1]
@@ -47,9 +47,10 @@ function StartQueue(resume)
   UpdateMinimap()
 end
 
-function StopQueue(msg)
+-- click: Aufruf aus Klick oder Taste. Austragen ist geschützt; sonst erledigt es der nächste Klick.
+function StopQueue(msg, click)
   state.queued = false
-  api.unlist()
+  if click then api.unlist() else state.unlist = true end
   if msg then Print(msg) end
   UpdateMinimap()
   if UpdateUI then UpdateUI() end

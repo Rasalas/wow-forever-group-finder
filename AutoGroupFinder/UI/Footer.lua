@@ -92,7 +92,7 @@ mainBtn:SetScript("OnClick", function()
   if GroupReady() then
     api.readyCheck()
   elseif state.queued then
-    StopQueue(T.CHAT_STOPPED)
+    StopQueue(T.CHAT_STOPPED, true)
   else
     StartQueue()
   end

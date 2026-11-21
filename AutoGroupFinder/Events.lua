@@ -30,6 +30,10 @@ roleQueue = {}
 -- Suchen, Eintragen); jede weitere im selben Klick wird blockiert (ADDON_ACTION_BLOCKED). Darum diese
 -- Warteschlange: jeder Klick erledigt höchstens eine vorgemerkte Aktion.
 local function NextRestricted()
+  if state.unlist then
+    state.unlist = nil
+    if not state.queued and api.listed() then return function() api.unlist() end end
+  end
   if IsInGroup() and UnitIsGroupLeader("player") then
     local members = MemberKeys()
     for k, role in pairs(roleQueue) do

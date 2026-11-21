@@ -88,7 +88,7 @@ C_LFGList = {
   HasActiveEntryInfo = function() return LISTED end,
   CreateListing = function(d) LISTED = true; print("LIST playstyle=" .. tostring(d.generalPlaystyle) .. " voice=" .. tostring(d.voiceMode) .. " npf=" .. tostring(d.newPlayerFriendly) .. " acts=" .. #d.activityIDs) return true end,
   UpdateListing = function() print("UPDATE LISTING") return true end,
-  RemoveListing = function() LISTED = false; print("UNLIST") end,
+  RemoveListing = function() if not CLICK then error("RemoveListing ist geschützt: nur nach Klick") end LISTED = false; print("UNLIST") end,
   GetActivityGroupInfo = function() return "Scarlet Monastery", 1 end,
   GetActivityInfoTable = function(id)
     local r = { [10] = { "Scarlet Library", 33, 41 }, [11] = { "Gnomeregan", 29, 38 }, [12] = { "Deadmines", 17, 26 }, [13] = { "Razorfen Kraul", 29, 38 } }
@@ -97,6 +97,7 @@ C_LFGList = {
   end,
 }
 C_PartyInfo = { InviteUnit = function(n) invites[#invites+1] = n; print("INVITE", n) end }
+local function click() CLICK = true; rawget(WorldFrame, "_scripts").OnMouseDown(); CLICK = false end
 local function fire(e, ...) for _, f in ipairs(frames) do local s = rawget(f, "_scripts"); if s and s.OnEvent then s.OnEvent(f, e, ...) end end end
 local function sys(m) fire("CHAT_MSG_SYSTEM", m) end
 
@@ -136,12 +137,12 @@ ns.env.StartQueue()
 fire("LFG_LIST_SEARCH_RESULTS_RECEIVED")
 print("invites:", table.concat(invites, ","), "(Lowbie übersprungen, Freund Buddy vor Fresh)")
 print("whispers before click:", #whispers)
-rawget(WorldFrame, "_scripts").OnMouseDown()
+click()
 print("whispers after click:", table.concat(whispers, " | "))
 party = { "Buddy", "Heal" }
 fire("GROUP_ROSTER_UPDATE")
 print("roles before click:", #roles, "notices:", table.concat(notices, " | "), "flash:", flashed)
-rawget(WorldFrame, "_scripts").OnMouseDown()
+click()
 print("roles after click:", table.concat(roles, ","))
 print("== backfill")
 res(5, "D1", { dps = true }, 10, { generalPlaystyle = 2 }); res(6, "D2", { dps = true }, 11, { generalPlaystyle = 2 })
@@ -149,6 +150,11 @@ fire("LFG_LIST_SEARCH_RESULTS_RECEIVED")
 for _, n in ipairs({ "D1", "D2" }) do sys("You have invited " .. n .. " to join your group.") end
 party = { "Buddy", "Heal", "D1", "D2" }
 fire("GROUP_ROSTER_UPDATE")
+-- Austragen ist geschützt: erst der nächste Klick erledigt es
+assert(LISTED, "Eintrag darf ohne Klick nicht entfernt werden")
+click()
+assert(not LISTED, "nächster Klick trägt aus")
+click() -- kein zweites Austragen
 notices = {}
 party = { "Heal", "D1", "D2" }
 GetUnitName = function(u) return party[tonumber(u:match("%d+"))] end

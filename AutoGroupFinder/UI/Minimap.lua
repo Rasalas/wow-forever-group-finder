@@ -83,7 +83,7 @@ function BuildMinimap()
   mm:SetScript("OnClick", function(_, button)
     if button == "RightButton" then
       if IsShiftKeyDown() then
-        if state.queued then StopQueue(T.CHAT_STOPPED) end
+        if state.queued then StopQueue(T.CHAT_STOPPED, true) end
       else
         AutoGroupFinder_Next()
       end
