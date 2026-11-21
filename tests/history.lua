@@ -214,10 +214,13 @@ check("11) Dauer vor dem Datum:", dateText and dateText:match("^%d+ Min"), "38 M
 print("== Nach dem letzten Boss geht niemand früh")
 party = { "A", "B" }; fire("GROUP_ROSTER_UPDATE")
 local h2 = AutoGroupFinderCharDB.history[1]
-INSTANCE = "Gnomeregan"; fire("PLAYER_ENTERING_WORLD", false, false)
 GetInstanceInfo = function() return INSTANCE or "Scarlet Library", "party", 1, "", 5, 0, false, 90 end
+INSTANCE = "Gnomeregan"; fire("PLAYER_ENTERING_WORLD", false, false)
 clock = clock + 1200; fire("ENCOUNTER_END", 2940, "Thermaplugg", 1, 5, 1)
 check("12) Lauf geschafft:", h2.done, clock)
+fire("ENCOUNTER_END", 2768, "Grubbis", 1, 5, 1); fire("ENCOUNTER_END", 2768, "Grubbis", 1, 5, 1)
+local n, of = E.History.Progress(h2.runs[1])
+check("12b) Fortschritt aus den Spieldaten:", n .. "/" .. of, "2/11")
 clock = clock + 60; party = { "A" }; fire("GROUP_ROSTER_UPDATE")
 clock = clock + 1200; party = {}; fire("GROUP_ROSTER_UPDATE")
 E.History.Update()

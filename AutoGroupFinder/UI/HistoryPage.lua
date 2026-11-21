@@ -39,16 +39,18 @@ do
     end)
   end
 
-  local SKULL = "|TInterface\\TargetingFrame\\UI-TargetingFrame-Skull:0|t"
   local function Mins(s) return math.max(1, math.floor(s / 60 + 0.5)) end
   local function Clock(t) return date("%H:%M", t) end
 
   -- Kopfzeile: Bosse und Wipes neben dem Namen, Dauer vor dem Datum
   local function Summary(e)
-    local kills, wipes = 0, 0
-    for _, r in ipairs(e.runs or {}) do kills, wipes = kills + r.kills, wipes + r.wipes end
+    local kills, wipes, total = 0, 0, 0
+    for _, r in ipairs(e.runs or {}) do
+      local n, of = History.Progress(r)
+      kills, wipes, total = kills + (n or r.kills), wipes + r.wipes, total + (of or 0)
+    end
     local parts = {}
-    if kills > 0 then parts[#parts + 1] = SKULL .. kills end
+    if kills > 0 or total > 0 then parts[#parts + 1] = SKULL .. kills .. (total > 0 and ("/" .. total) or "") end
     if wipes > 0 then parts[#parts + 1] = "|cffff6060" .. T.H_WIPES:format(wipes) .. "|r" end
     return #parts > 0 and ("  |cff999999" .. table.concat(parts, "  ") .. "|r") or ""
   end

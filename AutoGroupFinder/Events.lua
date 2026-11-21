@@ -133,11 +133,20 @@ function History.Run(e)
   local r = e and e.runs and e.runs[#e.runs]
   return r and not r.exit and r or nil
 end
-function History.Boss(name, ok)
+function History.Boss(id, name, ok)
   local r = History.Run(state.historyEntry)
   if not r then return end
   if ok then r.kills = r.kills + 1 else r.wipes = r.wipes + 1 end
-  r.bosses[#r.bosses + 1] = { n = Readable(name) and name or "?", t = time(), ok = ok or nil }
+  r.bosses[#r.bosses + 1] = { id = Readable(id) and id or nil, n = Readable(name) and name or "?", t = time(), ok = ok or nil }
+end
+-- Besiegte Bosse von allen laut Spieldaten (Encounters.lua); nil, wenn der Dungeon unbekannt ist
+function History.Progress(r)
+  local list = r and r.map and ENCOUNTERS[r.map]
+  if not list then return nil end
+  local dead, n = {}, 0
+  for _, b in ipairs(r.bosses) do if b.ok and b.id then dead[b.id] = true end end
+  for _, id in ipairs(list) do if dead[id] then n = n + 1 end end
+  return n, #list
 end
 function History.Fight(start)
   local r = History.Run(state.historyEntry)
@@ -385,7 +394,7 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4, arg5)
       state.runDone = true
       if state.historyEntry then state.historyEntry.done = time() end -- wer danach geht, ging nicht früh
     end
-    if Readable(arg5) then History.Boss(arg2, arg5 == 1 or arg5 == true) end
+    if Readable(arg5) then History.Boss(arg1, arg2, arg5 == 1 or arg5 == true) end
   elseif event == "LFG_LIST_AVAILABILITY_UPDATE" then
     InvalidateHere()
     state.here = HereDungeon() -- Dungeon-Liste ist da, Standort neu prüfen

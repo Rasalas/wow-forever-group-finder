@@ -212,7 +212,7 @@ check("14) Ohne Quests wieder nach Stufe:", table.concat(qids, ","), "859")
 
 
 print("== Journal: Forevers Dungeons per Name")
-local tier = 1
+local tier = 1 -- würde sich ändern, wenn das Add-on das Journal umschaltet
 C_EncounterJournal = { GetInstanceForGameMap = function(m) return m == 90 and 231 or nil end }
 EJ_GetNumTiers = function() return 2 end
 EJ_GetCurrentTier = function() return tier end
@@ -222,10 +222,9 @@ EJ_GetInstanceByIndex = function(i, raid)
   local e = list[i]
   if e then return e[1], e[2] end
 end
-check("17) bekannte Karte direkt:", E.JournalInstance(90, "Gnomeregan"), 231)
-check("18) Forever per Name:", E.JournalInstance(2959, "City of Dalaran"), 1301)
-check("19) Stufe zurückgestellt:", tier, 1)
-check("20) unbekannt bleibt nil:", E.JournalInstance(9999, "Nirgendwo"), nil)
+check("17) bekannte Karte direkt:", E.JournalInstance(90), 231)
+check("18) Forever-Dungeon: nichts, kein Umschalten:", E.JournalInstance(2959), nil)
+check("19) Stufe unberührt:", tier, 1)
 
 print("== Endboss aus den Spieldaten")
 check("21) City of Dalaran:", E.ENCOUNTERS[2959][#E.ENCOUNTERS[2959]], 3303)

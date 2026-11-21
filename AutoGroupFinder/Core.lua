@@ -262,6 +262,8 @@ function RateTag(v, size)
 end
 
 -- Offene Plätze als Symbole: eines je Platz, bei vielen „Symbol ×N“
+SKULL = "|TInterface\\TargetingFrame\\UI-TargetingFrame-Skull:0|t"
+
 function NeedIcons(rem)
   if rem.any then return rem.any > 0 and T.ANY_PLAYERS:format(rem.any) or "" end
   local parts = {}

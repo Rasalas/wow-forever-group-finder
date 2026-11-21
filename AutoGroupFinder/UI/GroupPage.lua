@@ -10,7 +10,7 @@ GroupPage = {}
 function DungeonEntrance(activityID)
   local a = activityID and L.GetActivityInfoTable(activityID)
   if not (a and a.mapID and C_EncounterJournal and C_EncounterJournal.GetDungeonEntrancesForMap) then return end
-  local jid = JournalInstance(a.mapID, a.fullName)
+  local jid = JournalInstance(a.mapID)
   local inst = GetRealZoneText(a.mapID)
   local maps = {}
   for _, ui in ipairs(DUNGEON_ZONES[a.mapID] or {}) do maps[#maps + 1] = ui end
@@ -137,6 +137,8 @@ do
     if fill and time() - fill.t < 4 * 3600 then parts[#parts + 1] = T.GROUP_FILLED:format(math.max(1, math.floor(fill.s / 60 + 0.5))) end
     local run = inside and char.instanceSince and math.floor((time() - char.instanceSince) / 60)
     if run and run >= 1 then parts[#parts + 1] = T.GROUP_RUN:format(run) end
+    local done, total = History.Progress(inside and History.Run(state.historyEntry))
+    if total then parts[#parts + 1] = SKULL .. " " .. done .. "/" .. total end
     local fit, known = GroupFit()
     if #fit > 1 or (fit[1] and fit[1].n < known) then
       local f = {}

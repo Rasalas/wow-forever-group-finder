@@ -36,7 +36,7 @@ function Art.Dungeon(activityID)
   local result = false
   local a = activityID and L.GetActivityInfoTable(activityID)
   if a and a.mapID and EJ_GetInstanceInfo then
-    local jid = JournalInstance(a.mapID, a.fullName)
+    local jid = JournalInstance(a.mapID)
     if jid then
       local ok2, _, _, _, _, _, button = pcall(EJ_GetInstanceInfo, jid)
       if ok2 and button and button ~= 0 and button ~= "" then result = { file = button, coords = { 0, 1, 0, 1 }, aspect = 1.81 } end
