@@ -230,4 +230,30 @@ for _, fr in ipairs(frames) do
   if rawget(fr, "member") and rawget(fr, "member").name == "B" and type(l) == "string" then early2 = l:find("ging nach") ~= nil end
 end
 check("13) B ging nach dem Boss: kein Vermerk:", early2, false)
+print("== Endboss lernen ohne Journal")
+EJ_GetEncounterInfoByIndex = nil
+db.finalBoss = {}
+party = { "A", "B" }; fire("GROUP_ROSTER_UPDATE")
+INSTANCE = "Dalaran"; fire("PLAYER_ENTERING_WORLD", false, false)
+clock = clock + 600; fire("ENCOUNTER_END", 3001, "Archmage", 1, 5, 1)
+clock = clock + 600; fire("ENCOUNTER_END", 3002, "Kel", 1, 5, 0)
+clock = clock + 120; fire("ENCOUNTER_END", 3002, "Kel", 1, 5, 1)
+clock = clock + 300; INSTANCE = nil; fire("PLAYER_ENTERING_WORLD", false, false)
+check("14) gelernt:", db.finalBoss[90] and db.finalBoss[90].Kel, 1)
+check("15) als Endboss:", E.FinalBossName(90), "Kel")
+party = {}; fire("GROUP_ROSTER_UPDATE")
+party = { "C" }; fire("GROUP_ROSTER_UPDATE")
+local h3 = AutoGroupFinderCharDB.history[1]
+INSTANCE = "Dalaran"; fire("PLAYER_ENTERING_WORLD", false, false)
+clock = clock + 900; fire("ENCOUNTER_END", 3002, "Kel", 1, 5, 1)
+check("16) nächster Lauf erkennt das Ende:", h3.done, clock)
+check("17) Lauf gilt als fertig:", E.RunDone(), true)
+print("== Abbruch nach Wipe lernt nichts")
+INSTANCE = nil; fire("PLAYER_ENTERING_WORLD", false, false)
+party = {}; fire("GROUP_ROSTER_UPDATE")
+party = { "D" }; fire("GROUP_ROSTER_UPDATE")
+INSTANCE = "Dalaran"; fire("PLAYER_ENTERING_WORLD", false, false)
+fire("ENCOUNTER_END", 3001, "Archmage", 1, 5, 1); fire("ENCOUNTER_END", 3002, "Kel", 1, 5, 0)
+INSTANCE = nil; fire("PLAYER_ENTERING_WORLD", false, false)
+check("18) Archmage nicht gelernt:", db.finalBoss[90].Archmage, nil)
 time = os.time
