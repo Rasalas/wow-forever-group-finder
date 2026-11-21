@@ -361,6 +361,7 @@ function SetPicked(entries, value)
   Rebuild()
 end
 
+QUEST_ICON = "|TInterface\\GossipFrame\\ActiveQuestIcon:12:12|t"
 BAR_W = 50 -- Breite der Balkenspalte
 
 function TreeRow(i)
@@ -394,11 +395,14 @@ function TreeRow(i)
   end)
   row:SetScript("OnEnter", function(self)
     self.check:LockHighlight()
-    if not (db.showDemand and self.activity) then return end
-    local d = state.demand[self.activity]
-    local popular = Popularity(self.activity)
+    local demand = db.showDemand and self.activity
+    if not (demand or self.quests) then return end
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
     GameTooltip:SetText(self.linkText)
+    for _, q in ipairs(self.quests or {}) do GameTooltip:AddLine(q, 1, 1, 1) end
+    if not demand then GameTooltip:Show() return end
+    local d = state.demand[self.activity]
+    local popular = Popularity(self.activity)
     if popular == 0 and state.lastSearchAt == 0 then
       GameTooltip:AddLine(T.DEMAND_NO_DATA, 0.6, 0.6, 0.6, true)
     else
@@ -457,7 +461,7 @@ function UpdateTree()
   local function header(text, entries, groupID, collapsed)
     n = n + 1
     local row = TreeRow(n)
-    row.activity = nil
+    row.activity, row.quests = nil, nil
     row.bar:Hide()
     local picked = 0
     for _, e in ipairs(entries) do if IsPicked(e) then picked = picked + 1 end end
@@ -499,7 +503,8 @@ function UpdateTree()
     row.check:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check")
     EntryFont(e, row.name)
     EntryFont(e, row.level)
-    row.name:SetText(e.name)
+    row.quests = e.quests
+    row.name:SetText(e.quests and (e.name .. "  " .. QUEST_ICON .. #e.quests) or e.name)
     row.linkText = e.name
     row.level:SetText(e.lo > 0 and ("(%d - %d)"):format(e.lo, e.hi) or "")
     row:Show()

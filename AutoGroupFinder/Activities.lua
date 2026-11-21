@@ -61,6 +61,45 @@ function CurrentCategory()
   return cats[1] and cats[1].id
 end
 
+-- Questlog nach Zonen: Überschrift -> Questtitel. Eine Quest lässt sich nicht in den Eintrag schreiben
+-- (GetActivityIDForQuestID wirft Fehler, Kommentare sind geschützt), die Zone schon.
+local questZones
+function InvalidateQuests() questZones = nil end
+local function Norm(s) return (s or ""):lower():gsub("^the ", "") end
+local function QuestLine(i)
+  if C_QuestLog and C_QuestLog.GetInfo then
+    local q = C_QuestLog.GetInfo(i)
+    if q then return q.title, q.isHeader end
+  elseif GetQuestLogTitle then
+    local title, _, _, isHeader = GetQuestLogTitle(i)
+    return title, isHeader
+  end
+end
+function QuestZones()
+  if questZones then return questZones end
+  questZones = {}
+  local n = (C_QuestLog and C_QuestLog.GetNumQuestLogEntries and C_QuestLog.GetNumQuestLogEntries())
+    or (GetNumQuestLogEntries and GetNumQuestLogEntries()) or 0
+  local zone
+  for i = 1, n do
+    local title, isHeader = QuestLine(i)
+    if type(title) == "string" then
+      if isHeader then
+        zone = Norm(title)
+        questZones[zone] = questZones[zone] or {}
+      elseif zone then
+        table.insert(questZones[zone], title)
+      end
+    end
+  end
+  return questZones
+end
+function QuestsFor(e)
+  local z = QuestZones()
+  local list = z[Norm(e.full)] or z[Norm(e.name)]
+  return list and #list > 0 and list or nil
+end
+
 function ActivityEntry(id, lvl)
   local a = L.GetActivityInfoTable(id)
   if not a then return nil end
@@ -68,6 +107,7 @@ function ActivityEntry(id, lvl)
   return {
     id = id,
     name = (a.shortName and a.shortName ~= "") and a.shortName or a.fullName or "?",
+    full = a.fullName,
     lo = lo, hi = hi, order = a.orderIndex or 0, max = a.maxNumPlayers or 0,
     fits = not ((lo > 0 and lo > lvl) or (hi > 0 and hi < lvl)),
   }
@@ -93,7 +133,11 @@ function ActivityTree(catOverride)
   local ci = L.GetLfgCategoryInfo and L.GetLfgCategoryInfo(cat)
   tree.auto = type(ci) == "table" and ci.autoChooseActivity == true
   local lvl = UnitLevel("player")
-  local function visible(e) return e.fits or db.allLevels or char.activities[e.id] end
+  local zones = cat == QUEST_CATEGORY
+  local function visible(e)
+    if zones then e.quests = QuestsFor(e) end
+    return e.fits or e.quests or db.allLevels or char.activities[e.id]
+  end
   for _, id in ipairs(L.GetAvailableActivities(cat, 0) or {}) do
     local e = ActivityEntry(id, lvl)
     if e then e.auto = tree.auto end
@@ -124,6 +168,10 @@ function ActivityTree(catOverride)
   for _, g in ipairs(tree.groups) do
     for _, e in ipairs(g.items) do tree.all[#tree.all + 1] = e end
   end
+  -- Zonen mit eigenen Quests sind vorgewählt; ohne Quests wie sonst nach Stufe
+  local anyQuest = false
+  for _, e in ipairs(tree.all) do anyQuest = anyQuest or e.quests ~= nil end
+  if anyQuest then for _, e in ipairs(tree.all) do e.default = e.quests ~= nil end end
   state.trees[cat or 0] = { version = state.treeVersion, tree = tree }
   return tree
 end
@@ -146,7 +194,7 @@ end
 function IsPicked(e)
   if e.auto then return true end
   local v = char.activities[e.id]
-  if v == nil then return e.fits end
+  if v == nil then if e.default ~= nil then return e.default end return e.fits end
   return v
 end
 

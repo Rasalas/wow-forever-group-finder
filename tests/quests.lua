@@ -190,3 +190,22 @@ check("10b) Menüs bauen ohne Fehler:", pcall(E.RefreshMenus), true)
 db.category = 2
 E.Rebuild(); E.UpdateUI()
 check("11) Dungeons: keine Leiste:", E.groupBar:IsShown(), false)
+
+print("== Quests im Log wählen die Zone vor")
+local LOG = { { title = "Loch Modan", isHeader = true }, { title = "Ironband's Excavation" }, { title = "Excavation Progress Report" },
+  { title = "Gnomeregan", isHeader = true }, { title = "Data Rescue" } }
+C_QuestLog = { GetNumQuestLogEntries = function() return #LOG end, GetInfo = function(i) return LOG[i] end }
+for k in pairs(AutoGroupFinderCharDB.activities) do AutoGroupFinderCharDB.activities[k] = nil end
+db.category = 116
+fire("QUEST_LOG_UPDATE")
+E.Rebuild()
+local _, qids = E.SearchActivities()
+check("12) Nur die Zone mit Quests (auch unter der Stufe):", table.concat(qids, ","), "857")
+local loch
+for _, e in ipairs(E.ActivityTree().all) do if e.id == 857 then loch = e end end
+check("13) Quests der Zone bekannt:", loch and #loch.quests, 2)
+LOG = {}
+fire("QUEST_LOG_UPDATE")
+E.Rebuild()
+_, qids = E.SearchActivities()
+check("14) Ohne Quests wieder nach Stufe:", table.concat(qids, ","), "859")

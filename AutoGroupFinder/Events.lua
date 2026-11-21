@@ -249,7 +249,7 @@ end
 
 ev = CreateFrame("Frame")
 for _, e in ipairs({ "ADDON_LOADED", "PLAYER_LOGIN", "PLAYER_LEVEL_UP", "PLAYER_REGEN_ENABLED", "CHAT_MSG_ADDON",
-    "PARTY_INVITE_REQUEST",
+    "PARTY_INVITE_REQUEST", "QUEST_LOG_UPDATE",
     "PLAYER_ENTERING_WORLD", "ZONE_CHANGED", "ZONE_CHANGED_INDOORS", "ZONE_CHANGED_NEW_AREA", "ENCOUNTER_END",
     "LFG_LIST_SEARCH_RESULTS_RECEIVED", "LFG_LIST_SEARCH_RESULT_UPDATED", "LFG_LIST_SEARCH_FAILED",
     "LFG_LIST_AVAILABILITY_UPDATE", "LFG_LIST_ACTIVE_ENTRY_UPDATE", "GROUP_ROSTER_UPDATE", "CHAT_MSG_SYSTEM" }) do
@@ -350,6 +350,10 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4, arg5)
   elseif event:match("^ZONE_CHANGED") then
     state.here = HereDungeon()
     if UpdateUI then UpdateUI() end
+  elseif event == "QUEST_LOG_UPDATE" then
+    InvalidateQuests()
+    state.treeVersion = state.treeVersion + 1
+    if win:IsShown() and db.view == "activities" and CurrentCategory() == QUEST_CATEGORY then UpdateUI() end
   elseif event == "PLAYER_ENTERING_WORLD" then
     state.here = HereDungeon()
     if arg1 then -- Einloggen oder Charakterwechsel, nicht /reload: Fenster beginnt auf der Startseite

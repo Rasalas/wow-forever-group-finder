@@ -5,6 +5,7 @@ setfenv(1, ns.env) -- gemeinsamer, privater Namensraum aller Module (siehe Core.
 -------------------------------------------------------------------------
 -- Außerhalb von Dungeons: Größe und Rollen je Kategorie (Quests & Zones, Battlegrounds, Custom).
 -- sizes = Auswahl; ohne sizes gibt die Aktivität die Größe vor.
+QUEST_CATEGORY = 116
 GROUP_SETUP = {
   [116] = { size = 2, any = true, sizes = { 2, 3, 4, 5 } },
   [118] = { any = true },
