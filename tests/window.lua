@@ -246,3 +246,11 @@ ChatFrame_OpenChat = function(t) opened = t end
 E.ShareAddon()
 check("Text vorausgefüllt, nicht gesendet:", opened and opened:find(E.REPO_URL, 1, true) ~= nil, true)
 check("Allein: kein Gruppenkanal:", opened:sub(1, 3) ~= "/p ", true)
+
+print("== Umloggen: zurück zur Startseite")
+local db = AutoGroupFinderDB
+db.view, db.category = "activities", 6
+for _, f in ipairs(frames) do local s = rawget(f, "_scripts"); if s and s.OnEvent then s.OnEvent(f, "PLAYER_ENTERING_WORLD", false, true) end end
+check("/reload behält die Ansicht:", db.view .. "," .. tostring(db.category), "activities,6")
+for _, f in ipairs(frames) do local s = rawget(f, "_scripts"); if s and s.OnEvent then s.OnEvent(f, "PLAYER_ENTERING_WORLD", true, false) end end
+check("Login: Startseite:", db.view .. "," .. tostring(db.category), "categories,nil")

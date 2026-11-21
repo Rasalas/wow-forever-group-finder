@@ -352,6 +352,10 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4, arg5)
     if UpdateUI then UpdateUI() end
   elseif event == "PLAYER_ENTERING_WORLD" then
     state.here = HereDungeon()
+    if arg1 then -- Einloggen oder Charakterwechsel, nicht /reload: Fenster beginnt auf der Startseite
+      db.view, db.category = "categories", nil
+      if not IsInGroup() then db.page = 1 end
+    end
     C_Timer.After(10, Estimate.UpdateChannel) -- Chat-Kanäle sind direkt nach dem Laden noch nicht bereit
     History.Track()
     local inInstance, kind = IsInInstance()
