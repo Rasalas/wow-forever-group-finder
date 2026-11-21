@@ -209,3 +209,8 @@ fire("QUEST_LOG_UPDATE")
 E.Rebuild()
 _, qids = E.SearchActivities()
 check("14) Ohne Quests wieder nach Stufe:", table.concat(qids, ","), "859")
+
+print("== Testbefehl Kommentar")
+C_LFGList.GetActiveEntryInfo = function() return { comment = "|Ku3|k" } end
+SlashCmdList.AUTOGROUPFINDER("test comment")
+advance(3)

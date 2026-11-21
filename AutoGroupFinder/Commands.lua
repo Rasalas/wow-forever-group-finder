@@ -86,6 +86,27 @@ function ApiDump()
   Print("API-Daten gespeichert, jetzt /reload.")
 end
 
+-- /gf test comment: nimmt CreateListing einen Text vom Add-on an? Blizzards Feld „More details“ muss leer sein.
+-- Der eigene Kommentar kommt als geschützter Platzhalter zurück; leer heißt: nicht angekommen.
+function TestComment()
+  local _, ids = SearchActivities()
+  if #ids == 0 then Print(T.PICK_ACTIVITY) return end
+  local ok, err = api.list({
+    activityIDs = ids,
+    generalPlaystyle = (db.playstyle or 0) > 0 and db.playstyle or 2,
+    voiceMode = db.voice,
+    newPlayerFriendly = false,
+    comment = "Auto Group Finder test",
+  }, { tank = char.myRoles.TANK or false, healer = char.myRoles.HEALER or false, dps = char.myRoles.DAMAGER or false })
+  Print("CreateListing: " .. tostring(ok) .. (ok and "" or (" / " .. tostring(err))))
+  C_Timer.After(2, function()
+    local e = C_LFGList.GetActiveEntryInfo and C_LFGList.GetActiveEntryInfo()
+    local c = e and e.comment
+    local res = not e and "kein Eintrag" or not Readable(c) and "geheim" or (c == nil or c == "") and "LEER" or "GESETZT"
+    Print("Kommentar im Eintrag: " .. res)
+  end)
+end
+
 _G.SLASH_AUTOGROUPFINDER1 = SLASH
 _G.SLASH_AUTOGROUPFINDER2 = "/groupfinder"
 SlashCmdList.AUTOGROUPFINDER = function(msg)
@@ -111,6 +132,8 @@ function _G.AutoGroupFinder_Slash(msg, raw)
     RunTest(msg == "test search shots")
   elseif msg:match("^test invite") then
     InviteInfo.Demo(msg:match("^test invite%s+(%a+)"))
+  elseif msg == "test comment" then
+    TestComment()
   elseif msg == "test minimap" then
     TestMinimap()
   elseif msg == "test here" then
