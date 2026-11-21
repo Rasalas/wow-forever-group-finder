@@ -109,6 +109,7 @@ end
 function Estimate.Live()
   if not state.observeSince then return nil end
   local rem, open = Slots()
+  if rem.any then return nil end -- Schätzung kennt nur feste Rollen
   local supply, now = SupplyNow(), GetTime()
   local window = math.min(WINDOW, now - state.observeSince)
   local lo, mid, hi, role = 0, 0, 0, nil

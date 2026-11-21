@@ -89,10 +89,14 @@ function ActivityTree(catOverride)
   if cached and cached.version == state.treeVersion then return cached.tree end
   local tree = { cat = cat, loose = {}, groups = {}, all = {} }
   if not cat then return tree end
+  -- Kategorien mit nur einer Aktivität (Custom): die gilt immer, eine Liste braucht es nicht
+  local ci = L.GetLfgCategoryInfo and L.GetLfgCategoryInfo(cat)
+  tree.auto = type(ci) == "table" and ci.autoChooseActivity == true
   local lvl = UnitLevel("player")
   local function visible(e) return e.fits or db.allLevels or char.activities[e.id] end
   for _, id in ipairs(L.GetAvailableActivities(cat, 0) or {}) do
     local e = ActivityEntry(id, lvl)
+    if e then e.auto = tree.auto end
     if e and visible(e) then tree.loose[#tree.loose + 1] = e end
   end
   SortActivities(tree.loose)
@@ -140,6 +144,7 @@ end
 
 -- Beim ersten Kontakt mit einer Aktivität: angehakt, wenn sie zur Stufe passt.
 function IsPicked(e)
+  if e.auto then return true end
   local v = char.activities[e.id]
   if v == nil then return e.fits end
   return v

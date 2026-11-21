@@ -4,6 +4,7 @@ setfenv(1, ns.env) -- gemeinsamer, privater Namensraum aller Module (siehe Core.
 -- Warteschlange
 -------------------------------------------------------------------------
 function NeedText(rem)
+  if rem.any then return T.ANY_PLAYERS:format(rem.any) end
   local parts = {}
   for _, r in ipairs(ROLES) do
     if rem[r] > 0 then parts[#parts + 1] = (rem[r] > 1 and rem[r] .. "× " or "") .. ROLE_NAME[r] end

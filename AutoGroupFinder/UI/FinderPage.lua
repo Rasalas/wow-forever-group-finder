@@ -311,11 +311,44 @@ hereBar.text:SetJustifyH("LEFT")
 hereBar.text:SetWordWrap(false)
 hereBar:Hide()
 
+-- Leiste „Gruppe“ an derselben Stelle, außerhalb von Dungeons: Größe und ob die Rolle egal ist
+groupBar = CreateFrame("Frame", nil, actView)
+groupBar:SetPoint("TOPLEFT", actView, "TOPLEFT", 14, -46)
+groupBar:SetPoint("RIGHT", actView, "RIGHT", -12, 0)
+groupBar:SetHeight(28)
+groupBar.label = Label(groupBar, T.GROUP_LABEL, "GameFontNormal", "LEFT", groupBar, "LEFT", 8, 0)
+groupBar.size = Dropdown(groupBar, 110, function()
+    local setup, opts = GroupSetup(CurrentCategory()), {}
+    for _, n in ipairs(setup and setup.sizes or {}) do opts[#opts + 1] = { n, T.N_PLAYERS:format(n) } end
+    return opts
+  end, nil,
+  function() local setup = GroupSetup(CurrentCategory()) return setup and setup.size end,
+  function(v) SetGroupSetup(CurrentCategory(), "size", v) end,
+  "LEFT", groupBar.label, "RIGHT", 10, 0)
+groupBar.fixed = Label(groupBar, "", "GameFontHighlight", "LEFT", groupBar.label, "RIGHT", 10, 0)
+groupBar.any = CreateFrame("CheckButton", nil, groupBar, "UICheckButtonTemplate")
+groupBar.any:SetSize(26, 26)
+groupBar.any:SetPoint("RIGHT", groupBar, "RIGHT", 2, 0)
+groupBar.anyText = Label(groupBar, T.ANY_ROLE, "GameFontNormalSmall", "RIGHT", groupBar.any, "LEFT", -2, 0)
+groupBar.any:SetHitRectInsets(-groupBar.anyText:GetStringWidth() - 4, 0, 0, 0)
+groupBar.any:SetScript("OnClick", function(self)
+  SetGroupSetup(CurrentCategory(), "any", self:GetChecked() and true or false)
+end)
+groupBar:Hide()
+
 function UpdateHereBar()
   local here = db.hereSuggest and not state.queued and state.here
+  local setup = not here and GroupSetup(CurrentCategory())
   hereBar:SetShown(here and true or false)
   if here then hereBar.text:SetText((NearIcon and NearIcon(2) or "") .. " " .. T.HERE_BAR:format(here.name)) end
-  tree:SetTopInset(here and -78 or -48)
+  groupBar:SetShown(setup and true or false)
+  if setup then
+    groupBar.size:SetShown(setup.sizes ~= nil)
+    groupBar.fixed:SetShown(setup.sizes == nil)
+    groupBar.fixed:SetText(T.N_PLAYERS:format((Target())))
+    groupBar.any:SetChecked(setup.any)
+  end
+  tree:SetTopInset((here or setup) and -78 or -48)
 end
 treeRows = {}
 emptyText = tree:CreateFontString(nil, "OVERLAY", "GameFontDisable")
@@ -475,7 +508,7 @@ function UpdateTree()
     -- Zeile „alles“ nur, wenn es mehr als eine Gruppe gibt; sonst übernimmt das die Gruppe selbst.
     local multi = #t.groups > 1 or (#t.groups > 0 and #t.loose > 0)
     if multi then header(CategoryName(t.cat), t.all) end
-    for _, e in ipairs(t.loose) do item(e) end
+    if not t.auto then for _, e in ipairs(t.loose) do item(e) end end
     for _, g in ipairs(t.groups) do
       local collapsed = false
       if multi then
@@ -490,7 +523,7 @@ function UpdateTree()
   end
   for i = n + 1, #treeRows do treeRows[i]:Hide() end
   local nextUp = n == 0 and t.cat and NextActivity(t.cat)
-  emptyText:SetText(n == 0 and (nextUp and T.EMPTY_NEXT:format(nextUp.lo, nextUp.name) or T.EMPTY) or "")
+  emptyText:SetText(n == 0 and not t.auto and (nextUp and T.EMPTY_NEXT:format(nextUp.lo, nextUp.name) or T.EMPTY) or "")
   tree:SetContentHeight(n * ROW)
 end
 
@@ -627,10 +660,11 @@ if menuOk then
       lang:CreateRadio(LangName(loc), function(v) return db.preferLang == v end, SetLang, loc)
     end
     -- Aufteilung für die Größe der gewählten Aktivitäten; lange Listen scrollen
+    -- außerhalb von Dungeons regelt das die Leiste „Gruppe“
     local size = Target()
-    local need = db.need[size]
-    local comp = root:CreateButton(T.COMPOSITION:format(size))
-    for _, role in ipairs(ROLES) do
+    local need = not GroupSetup(CurrentCategory()) and db.need[size]
+    local comp = need and root:CreateButton(T.COMPOSITION:format(size))
+    for _, role in ipairs(need and ROLES or {}) do
       local r = comp:CreateButton(("%s: %d"):format(ROLE_PLURAL[role], need[role] or 0))
       for n = 0, size do
         r:CreateRadio(tostring(n), function(v) return need[role] == v end, function(v) need[role] = v Rebuild() end, n)

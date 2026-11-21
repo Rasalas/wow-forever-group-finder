@@ -3,8 +3,46 @@ setfenv(1, ns.env) -- gemeinsamer, privater Namensraum aller Module (siehe Core.
 
 -- Gruppe und offene Plätze
 -------------------------------------------------------------------------
+-- Außerhalb von Dungeons: Größe und Rollen je Kategorie (Quests & Zones, Battlegrounds, Custom).
+-- sizes = Auswahl; ohne sizes gibt die Aktivität die Größe vor.
+GROUP_SETUP = {
+  [116] = { size = 2, any = true, sizes = { 2, 3, 4, 5 } },
+  [118] = { any = true },
+  [120] = { size = 5, any = true, sizes = { 2, 3, 4, 5, 10, 20, 40 } },
+}
+function GroupSetup(cat)
+  local d = GROUP_SETUP[cat]
+  if not d then return nil end
+  local s = db.groupSetup[cat] or {}
+  local any = s.any
+  if any == nil then any = d.any end
+  return { size = s.size or d.size, any = any, sizes = d.sizes }
+end
+function SetGroupSetup(cat, key, value)
+  db.groupSetup[cat] = db.groupSetup[cat] or {}
+  db.groupSetup[cat][key] = value
+  Rebuild()
+end
+
+-- Tank und Heiler bei freier Größe: bis 5 je einer, darüber die Aufteilung der nächsten Größe anteilig
+local function NeedFor(n)
+  if n <= 5 then return { TANK = 1, HEALER = 1, DAMAGER = math.max(0, n - 2) } end
+  local bucket = SizeBucket(n)
+  local base, need = db.need[bucket] or DEFAULT_NEED[bucket], {}
+  need.TANK = math.max(1, math.floor((base.TANK or 0) * n / bucket + 0.5))
+  need.HEALER = math.max(1, math.floor((base.HEALER or 0) * n / bucket + 0.5))
+  need.DAMAGER = math.max(0, n - need.TANK - need.HEALER)
+  return need
+end
+
+-- size, need, cap; need.any = n heißt: n Spieler, Rolle egal
 function Target()
-  local _, _, maxPlayers = SearchActivities()
+  local cat, _, maxPlayers = SearchActivities()
+  local setup = GroupSetup(cat)
+  if setup then
+    local n = setup.size or math.max(maxPlayers or 0, 5)
+    return n, setup.any and { any = n } or NeedFor(n), n
+  end
   local size = SizeBucket(maxPlayers)
   return size, db.need[size] or DEFAULT_NEED[size], math.max(maxPlayers or 0, 5)
 end
@@ -50,6 +88,13 @@ function Slots()
   local _, need = Target()
   local f = Filled()
   local rem, open = {}, {}
+  if need.any then -- jede Rolle füllt denselben Rest
+    local left = need.any - f.TANK - f.HEALER - f.DAMAGER
+    rem.any = math.max(0, left)
+    open.any = math.max(0, left - PendingCount())
+    for _, r in ipairs(ROLES) do rem[r], open[r] = rem.any, open.any end
+    return rem, open
+  end
   for _, r in ipairs(ROLES) do
     rem[r] = math.max(0, (need[r] or 0) - f[r])
     open[r] = rem[r]
@@ -62,7 +107,10 @@ function Composition()
   local _, need = Target()
   local f = Filled()
   local comp = {}
-  for _, r in ipairs(ROLES) do comp[r] = { math.min(f[r], need[r] or 0), need[r] or 0 } end
+  for _, r in ipairs(ROLES) do
+    local n = need.any and f[r] or need[r] or 0
+    comp[r] = { math.min(f[r], n), n }
+  end
   return comp
 end
 
@@ -114,6 +162,7 @@ function HeldRoles()
   local held, waiting = {}, {}
   if not state.queued then return held, waiting end
   local rem, supply, now = Slots(), SupplyNow(), GetTime()
+  if rem.any then return held, waiting end
   -- Streng (Option): ohne Tank in der Gruppe wartet jede andere Rolle, ohne Zeitlimit
   if db.tankFirst and rem.TANK > 0 and Filled().TANK == 0 then
     for _, r in ipairs(ROLES) do if r ~= "TANK" and rem[r] > 0 then held[r] = true end end

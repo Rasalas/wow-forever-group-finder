@@ -123,6 +123,7 @@ DEFAULTS = {
   showDemand = true,     -- Balken: wie viele warten auf welche Aktivität
   popular = {},          -- activityID -> { Anführer -> time() zuletzt gesehen }
   blocked = {},          -- key -> true: nie wieder einladen
+  groupSetup = {},       -- Kategorie -> { size, any } außerhalb von Dungeons (GROUP_SETUP)
   preferLang = "none",   -- bevorzugte Spielsprache (WowLocale) oder "none"
   autoInvite = true,
   keySearch = true,      -- bei Mausklicks in die Spielwelt neu suchen
@@ -261,6 +262,7 @@ end
 
 -- Offene Plätze als Symbole: eines je Platz, bei vielen „Symbol ×N“
 function NeedIcons(rem)
+  if rem.any then return rem.any > 0 and T.ANY_PLAYERS:format(rem.any) or "" end
   local parts = {}
   for _, r in ipairs(ROLES) do
     local n = rem[r] or 0
