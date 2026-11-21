@@ -209,3 +209,14 @@ fire("QUEST_LOG_UPDATE")
 E.Rebuild()
 _, qids = E.SearchActivities()
 check("14) Ohne Quests wieder nach Stufe:", table.concat(qids, ","), "859")
+
+print("== Beschreibung aus Blizzards Feld")
+local eb = CreateFrame("EditBox")
+rawset(eb, "GetText", function() return "  Questing in STV\n" end)
+LFGListingComment = { EditBox = eb }
+db.category, db.view = 116, "activities"
+E.UpdateUI()
+check("15) Text angezeigt:", rawget(E.details.text, "_text"):gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", ""), "Beschreibung: Questing in STV")
+rawset(eb, "GetText", function() return "" end)
+E.UpdateUI()
+check("16) leer:", rawget(E.details.text, "_text"), "Beschreibung: –")
