@@ -44,7 +44,8 @@ scripts/commits.sh changelog $next | sed 's/^/  /'
 [[ -n $DRY ]] && { echo "(DRY: nichts geändert)"; exit 0 }
 
 scripts/test.sh >/dev/null || { echo "Tests schlagen fehl, abgebrochen"; scripts/test.sh | grep -v '^ok'; exit 1 }
-read -q "?Veröffentlichen (Commit, Tag v$next, Push)? [y/N] " || { echo; echo "Abgebrochen"; exit 1 }
+# YES=1 überspringt die Rückfrage (ohne Terminal, z. B. aus Skripten)
+[[ -n $YES ]] || read -q "?Veröffentlichen (Commit, Tag v$next, Push)? [y/N] " || { echo; echo "Abgebrochen"; exit 1 }
 echo
 
 sed -i '' "s/^## Version: .*/## Version: $next/" $toc

@@ -34,4 +34,4 @@ pdf:
 # Neue Version: .toc hochsetzen, testen, Tag pushen; GitHub Actions baut und lädt zu CurseForge hoch.
 # make release (Stufe aus Conventional Commits) · V=0.7.0 · BUMP=minor · DRY=1
 release:
-	@DRY=$(DRY) BUMP=$(BUMP) scripts/release.sh $(V)
+	@DRY=$(DRY) BUMP=$(BUMP) YES=$(YES) scripts/release.sh $(V)
