@@ -178,3 +178,10 @@ fire("PLAYER_ENTERING_WORLD")
 print("queued after entering instance:", AutoGroupFinderStartButton and rawget(AutoGroupFinderStartButton, "_text"))
 SlashCmdList.AUTOGROUPFINDER("whisper Hey {role}, komm mit nach {dungeon}!")
 print("whisper text:", db.whisperText)
+print("== geheime Chatmeldungen (in Instanzen)")
+local SECRET = setmetatable({}, { __index = function() error("geheimer Wert angefasst") end })
+issecretvalue = function(v) return v == SECRET end
+fire("CHAT_MSG_SYSTEM", SECRET)
+fire("CHAT_MSG_ADDON", "AutoGroupFinder", SECRET, "PARTY", SECRET)
+issecretvalue = nil
+print("secret chat ok")

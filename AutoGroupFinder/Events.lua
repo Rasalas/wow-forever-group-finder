@@ -428,7 +428,7 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4, arg5)
     InviteInfo.offered = offered
     InviteInfo.Show(arg1, 0, offered)
   elseif event == "CHAT_MSG_ADDON" then
-    OnAddonMessage(arg1, arg2, arg3, arg4)
+    if Readable(arg2) and Readable(arg4) then OnAddonMessage(arg1, arg2, arg3, arg4) end
   elseif event == "LFG_LIST_SEARCH_RESULT_UPDATED" then
     -- kommt oft in Schüben: einmal neu aufbauen statt bei jedem Eintrag
     if not state.rebuildQueued then
@@ -468,7 +468,7 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4, arg5)
     History.Track()
     OnRoster()
   elseif event == "CHAT_MSG_SYSTEM" then
-    OnSystem(arg1)
+    if Readable(arg1) then OnSystem(arg1) end -- in Instanzen und im Kampf oft geheim
   else
     Rebuild()
   end
