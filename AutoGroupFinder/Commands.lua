@@ -28,12 +28,54 @@ function Diag()
   end
 end
 
+-- /gf api: schreibt Kategorien, Aktivitäten und Schnittstellen in die SavedVariables (nach /reload lesbar)
+local function Flat(t)
+  local out = {}
+  if type(t) ~= "table" then return tostring(t) end
+  for k, v in pairs(t) do if type(v) ~= "table" and type(v) ~= "function" then out[tostring(k)] = Readable(v) and v or "?" end end
+  return out
+end
+function ApiDump()
+  local api, d = C_LFGList or {}, { client = tostring(select(4, GetBuildInfo())), level = UnitLevel("player"), lfg = {}, cats = {} }
+  for k in pairs(api) do d.lfg[#d.lfg + 1] = k end
+  table.sort(d.lfg)
+  for _, c in ipairs(api.GetAvailableCategories and api.GetAvailableCategories() or {}) do
+    local cat = { id = c, info = Flat(api.GetLfgCategoryInfo and api.GetLfgCategoryInfo(c)), groups = {}, acts = {} }
+    for _, gid in ipairs(api.GetAvailableActivityGroups and api.GetAvailableActivityGroups(c) or {}) do
+      cat.groups[#cat.groups + 1] = { id = gid, name = (api.GetActivityGroupInfo(gid)), acts = api.GetAvailableActivities(c, gid) }
+    end
+    for _, id in ipairs(api.GetAvailableActivities(c) or {}) do
+      local a = Flat(api.GetActivityInfoTable(id))
+      a.id = id
+      cat.acts[#cat.acts + 1] = a
+    end
+    d.cats[#d.cats + 1] = cat
+  end
+  if api.HasActiveEntryInfo and api.HasActiveEntryInfo() and api.GetActiveEntryInfo then d.entry = Flat(api.GetActiveEntryInfo()) end
+  d.quests = {}
+  if C_QuestLog and C_QuestLog.GetNumQuestLogEntries and C_QuestLog.GetInfo then
+    for i = 1, math.min(C_QuestLog.GetNumQuestLogEntries() or 0, 40) do d.quests[#d.quests + 1] = Flat(C_QuestLog.GetInfo(i)) end
+  elseif GetNumQuestLogEntries and GetQuestLogTitle then
+    for i = 1, math.min(GetNumQuestLogEntries() or 0, 40) do d.quests[#d.quests + 1] = { GetQuestLogTitle(i) } end
+  end
+  d.listingFrames = {}
+  for k, v in pairs(_G) do
+    if type(k) == "string" and k:match("^LFG") and type(v) == "table" and v.GetObjectType then
+      d.listingFrames[#d.listingFrames + 1] = k .. "=" .. tostring(v:GetObjectType())
+    end
+  end
+  table.sort(d.listingFrames)
+  db.apiDump = d
+  Print("API-Daten gespeichert, jetzt /reload.")
+end
+
 _G.SLASH_AUTOGROUPFINDER1 = SLASH
 _G.SLASH_AUTOGROUPFINDER2 = "/groupfinder"
 SlashCmdList.AUTOGROUPFINDER = function(msg)
   local raw = strtrim(msg or "")
   msg = strlower(raw)
   if msg == "diag" then Diag() return end
+  if msg == "api" then ApiDump() return end
   AutoGroupFinder_Slash(msg, raw)
 end
 

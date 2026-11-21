@@ -354,7 +354,7 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4, arg5)
     state.here = HereDungeon()
     if arg1 then -- Einloggen oder Charakterwechsel, nicht /reload: Fenster beginnt auf der Startseite
       db.view, db.category = "categories", nil
-      if not IsInGroup() then db.page = 1 end
+      db.page = IsInGroup() and 4 or 1
     end
     C_Timer.After(10, Estimate.UpdateChannel) -- Chat-Kanäle sind direkt nach dem Laden noch nicht bereit
     History.Track()
