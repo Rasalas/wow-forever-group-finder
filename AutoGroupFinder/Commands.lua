@@ -28,7 +28,7 @@ function Diag()
   end
 end
 
--- /gf api: schreibt Kategorien, Aktivitäten und Schnittstellen in die SavedVariables (nach /reload lesbar)
+-- /gf test api: schreibt Kategorien, Aktivitäten und Schnittstellen in die SavedVariables (nach /reload lesbar)
 local function Flat(t)
   local out = {}
   if type(t) ~= "table" then return tostring(t) end
@@ -75,7 +75,7 @@ SlashCmdList.AUTOGROUPFINDER = function(msg)
   local raw = strtrim(msg or "")
   msg = strlower(raw)
   if msg == "diag" then Diag() return end
-  if msg == "api" then ApiDump() return end
+  if msg == "test api" then ApiDump() return end
   AutoGroupFinder_Slash(msg, raw)
 end
 

@@ -257,5 +257,5 @@ check("Login: Startseite:", db.view .. "," .. tostring(db.category), "categories
 db.page = 2
 for _, f in ipairs(frames) do local s = rawget(f, "_scripts"); if s and s.OnEvent then s.OnEvent(f, "PLAYER_ENTERING_WORLD", true, false) end end
 check("Login: erster Reiter:", db.page, 1)
-SlashCmdList.AUTOGROUPFINDER("api")
+SlashCmdList.AUTOGROUPFINDER("test api")
 check("API-Daten gespeichert:", type(db.apiDump) == "table" and #db.apiDump.cats > 0, true)
