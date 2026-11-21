@@ -54,9 +54,26 @@ function ApiDump()
   if api.HasActiveEntryInfo and api.HasActiveEntryInfo() and api.GetActiveEntryInfo then d.entry = Flat(api.GetActiveEntryInfo()) end
   d.quests = {}
   if C_QuestLog and C_QuestLog.GetNumQuestLogEntries and C_QuestLog.GetInfo then
-    for i = 1, math.min(C_QuestLog.GetNumQuestLogEntries() or 0, 40) do d.quests[#d.quests + 1] = Flat(C_QuestLog.GetInfo(i)) end
+    for i = 1, math.min(C_QuestLog.GetNumQuestLogEntries() or 0, 40) do
+      local q = Flat(C_QuestLog.GetInfo(i))
+      if type(q) == "table" and (q.questID or 0) > 0 and api.GetActivityIDForQuestID then
+        local ok, act = pcall(api.GetActivityIDForQuestID, q.questID)
+        q.activityID = ok and act or "err"
+      end
+      d.quests[#d.quests + 1] = q
+    end
   elseif GetNumQuestLogEntries and GetQuestLogTitle then
     for i = 1, math.min(GetNumQuestLogEntries() or 0, 40) do d.quests[#d.quests + 1] = { GetQuestLogTitle(i) } end
+  end
+  -- Felder der letzten Suchergebnisse (z. B. ob Quest-Gruppen eine questID tragen)
+  d.results = {}
+  local okR, _, ids = pcall(function() return api.GetSearchResults() end)
+  for i, id in ipairs(okR and ids or {}) do
+    if i > 15 then break end
+    local info = api.GetSearchResultInfo(id)
+    local r = Flat(info)
+    if type(info) == "table" and info.activityIDs then r.acts = table.concat(info.activityIDs, ",") end
+    d.results[#d.results + 1] = r
   end
   d.listingFrames = {}
   for k, v in pairs(_G) do
