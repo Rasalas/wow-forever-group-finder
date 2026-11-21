@@ -13,6 +13,23 @@ function Diag()
   if IsInInstance() then
     local id, name = LastBossID()
     Print(("Last boss: %s (%s)"):format(tostring(name), tostring(id)))
+    -- Schritte einzeln, um zu sehen, wo das Journal nichts liefert
+    local iname, _, _, _, _, _, _, mapID = GetInstanceInfo()
+    local ej = C_EncounterJournal or {}
+    local okJ, jid = pcall(ej.GetInstanceForGameMap or error, mapID)
+    local uiMap = C_Map and C_Map.GetBestMapForUnit and C_Map.GetBestMapForUnit("player")
+    local okU, jidUi = pcall(EJ_GetInstanceForMap or error, uiMap)
+    Print(("Journal: %s map=%s ui=%s jid=%s/%s jidUi=%s select=%s"):format(tostring(iname), tostring(mapID),
+      tostring(uiMap), tostring(okJ), tostring(jid), tostring(okU and jidUi), tostring(EJ_SelectInstance ~= nil)))
+    local useJid = (okJ and jid) or (okU and jidUi)
+    if useJid then
+      if EJ_GetInstanceInfo then Print("  instance: " .. tostring((select(1, pcall(EJ_GetInstanceInfo, useJid))) and select(2, pcall(EJ_GetInstanceInfo, useJid)))) end
+      for i = 1, 8 do
+        local ok, n, _, eid, _, _, _, dID = pcall(EJ_GetEncounterInfoByIndex, i, useJid)
+        if not ok or not n then Print(("  #%d: %s"):format(i, ok and "nil" or tostring(n))) break end
+        Print(("  #%d: %s journal=%s dungeon=%s"):format(i, tostring(n), tostring(eid), tostring(dID)))
+      end
+    end
   end
   Print("Client: " .. tostring(select(4, GetBuildInfo())) .. " / " .. tostring((GetBuildInfo())))
   local api = C_LFGList
