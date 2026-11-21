@@ -135,7 +135,7 @@ check("Vor Gnomeregan erkannt:", E.state.here and E.state.here.name, "Gnomeregan
 check("Aktivitäten dazu:", E.state.here and table.concat(E.state.here.ids, ","), "11")
 db.view = "categories"; AutoGroupFinderFrame:Show(); E.UpdateUI()
 check("Karte sichtbar:", E.hereCard:IsShown(), true)
-db.activities[10], db.activities[12] = true, true
+AutoGroupFinderCharDB.activities[10], AutoGroupFinderCharDB.activities[12] = true, true
 db.playstyle = 0
 rawget(E.hereCard, "_scripts").OnClick(E.hereCard)
 check("Ohne Spielstil keine Suche:", E.state.queued, false)
@@ -171,3 +171,17 @@ COMBAT = true
 row.cand = { name = "Other", key = "Other" }
 E.ShowTargetButton(row)
 check("Im Kampf unverändert:", rawget(E.targetBtn, "_macro"), "/target Tanky-Realm")
+
+print("== Stufe 10: nichts passt")
+E.CloseWindow()
+local was = UnitLevel
+UnitLevel = function() return 10 end
+for k in pairs(AutoGroupFinderCharDB.activities) do AutoGroupFinderCharDB.activities[k] = nil end
+db.allLevels, db.view = false, "activities"
+E.state.treeVersion = (E.state.treeVersion or 0) + 1
+AutoGroupFinderFrame:Show(); E.UpdateUI()
+check("Leerzustand nennt den nächsten Dungeon:", rawget(E.emptyText, "_text"), E.T.EMPTY_NEXT:format(17, "Deadmines"))
+AutoGroupFinderCharDB.activities[10] = true
+E.state.treeVersion = E.state.treeVersion + 1; E.UpdateUI()
+check("Eigene Auswahl bleibt sichtbar:", rawget(E.emptyText, "_text"), "")
+UnitLevel = was

@@ -227,7 +227,7 @@ E.pending["Jaeger1"] = nil
 
 print("== Für welchen Dungeon passt wer?")
 for k in pairs(results) do results[k] = nil end
-db.activities[10], db.activities[11] = true, true
+AutoGroupFinderCharDB.activities[10], AutoGroupFinderCharDB.activities[11] = true, true
 res(21, "Bibli", { dps = true }, 1, { generalPlaystyle = 2, activityIDs = { 10 } })
 res(22, "Beide", { dps = true }, 2, { generalPlaystyle = 2, activityIDs = { 10, 11 } })
 fire("LFG_LIST_SEARCH_RESULTS_RECEIVED")

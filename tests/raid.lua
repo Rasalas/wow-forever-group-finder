@@ -116,7 +116,7 @@ local raid = false
 IsInRaid = function() return raid end
 C_PartyInfo.ConvertToRaid = function() raid = true; print("CONVERT") end
 GetNumGroupMembers = function() return #party > 0 and #party + 1 or 0 end
-AutoGroupFinderDB.activities = { [13] = false, [11] = false, [10] = true }
+AutoGroupFinderCharDB.activities = { [13] = false, [11] = false, [10] = true }
 AutoGroupFinderDB.playstyle = 2; AutoGroupFinderDB.view = "activities"; AutoGroupFinderDB.samePlaystyle = false
 AutoGroupFinder_Next()
 for i = 1, 25 do

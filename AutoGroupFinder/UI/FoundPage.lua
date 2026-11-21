@@ -35,7 +35,7 @@ if okAct and actDd and actDd.SetupMenu then
     local multi = #t.groups > 1 or (#t.groups > 0 and #t.loose > 0)
     local function add(e)
       root:CreateCheckbox(e.name, function() return IsPicked(e) end, function()
-        db.activities[e.id] = not IsPicked(e)
+        char.activities[e.id] = not IsPicked(e)
         Rebuild()
       end)
     end

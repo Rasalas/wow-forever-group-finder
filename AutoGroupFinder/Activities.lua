@@ -48,8 +48,8 @@ end
 function QuickStart(here)
   db.category, db.view = here.cat, "activities"
   -- false = abgewählt; nil hieße „gewählt, wenn die Stufe passt“
-  for _, id in ipairs(L.GetAvailableActivities(here.cat) or {}) do db.activities[id] = false end
-  for _, id in ipairs(here.ids) do db.activities[id] = true end
+  for _, id in ipairs(L.GetAvailableActivities(here.cat) or {}) do char.activities[id] = false end
+  for _, id in ipairs(here.ids) do char.activities[id] = true end
   Rebuild()
   StartQueue()
 end
@@ -90,7 +90,7 @@ function ActivityTree(catOverride)
   local tree = { cat = cat, loose = {}, groups = {}, all = {} }
   if not cat then return tree end
   local lvl = UnitLevel("player")
-  local function visible(e) return e.fits or db.allLevels or db.activities[e.id] end
+  local function visible(e) return e.fits or db.allLevels or char.activities[e.id] end
   for _, id in ipairs(L.GetAvailableActivities(cat, 0) or {}) do
     local e = ActivityEntry(id, lvl)
     if e and visible(e) then tree.loose[#tree.loose + 1] = e end
@@ -124,9 +124,23 @@ function ActivityTree(catOverride)
   return tree
 end
 
+-- Für den Leerzustand: die nächste Aktivität über der eigenen Stufe
+function NextActivity(cat)
+  local lvl, best = UnitLevel("player"), nil
+  local function scan(gid)
+    for _, id in ipairs(L.GetAvailableActivities(cat, gid) or {}) do
+      local e = ActivityEntry(id, lvl)
+      if e and e.lo > lvl and (not best or e.lo < best.lo) then best = e end
+    end
+  end
+  scan(0)
+  for _, gid in ipairs(L.GetAvailableActivityGroups and L.GetAvailableActivityGroups(cat) or {}) do scan(gid) end
+  return best
+end
+
 -- Beim ersten Kontakt mit einer Aktivität: angehakt, wenn sie zur Stufe passt.
 function IsPicked(e)
-  local v = db.activities[e.id]
+  local v = char.activities[e.id]
   if v == nil then return e.fits end
   return v
 end

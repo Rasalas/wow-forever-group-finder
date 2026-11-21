@@ -96,7 +96,6 @@ DEFAULT_NEED = {
 
 DEFAULTS = {
   category = nil,        -- nil = Dungeons
-  activities = {},       -- activityID -> true/false (nil = noch nie angefasst)
   collapsed = {},        -- activityGroupID -> true
   allLevels = false,
   view = "categories",   -- Startseite mit Kategorie-Karten oder Aktivitäten

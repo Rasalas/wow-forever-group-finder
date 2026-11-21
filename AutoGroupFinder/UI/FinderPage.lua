@@ -318,10 +318,13 @@ function UpdateHereBar()
   tree:SetTopInset(here and -78 or -48)
 end
 treeRows = {}
+emptyText = tree:CreateFontString(nil, "OVERLAY", "GameFontDisable")
+emptyText:SetPoint("TOP", tree, "TOP", 0, -40)
+emptyText:SetWidth(260)
 ROW = 22
 
 function SetPicked(entries, value)
-  for _, e in ipairs(entries) do db.activities[e.id] = value end
+  for _, e in ipairs(entries) do char.activities[e.id] = value end
   Rebuild()
 end
 
@@ -486,6 +489,8 @@ function UpdateTree()
     end
   end
   for i = n + 1, #treeRows do treeRows[i]:Hide() end
+  local nextUp = n == 0 and t.cat and NextActivity(t.cat)
+  emptyText:SetText(n == 0 and (nextUp and T.EMPTY_NEXT:format(nextUp.lo, nextUp.name) or T.EMPTY) or "")
   tree:SetContentHeight(n * ROW)
 end
 

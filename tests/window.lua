@@ -212,6 +212,16 @@ check("Zauberbuch links: unseres rückt mit Abstand daneben:", point, "TOPLEFT,4
 panels.left = nil
 _G.HideUIPanel(spell)
 check("Zauberbuch zu: zurück an den Standardplatz:", point, "TOPLEFT,16,-116")
+local lfg, tabs = CreateFrame("Frame"), CreateFrame("Frame")
+rawset(lfg, "GetRight", function() return 355 end)
+rawset(tabs, "GetRight", function() return 390 end)
+rawset(tabs, "_shown", true)
+rawset(lfg, "GetChildren", function() return tabs end)
+panels.left = lfg
+_G.ShowUIPanel(lfg)
+check("Seitliche Reiter zählen mit:", point, "TOPLEFT,406,-116")
+panels.left = nil
+_G.HideUIPanel(lfg)
 WorldMapFrame = CreateFrame("Frame")
 E.StartMoveWindow(); L, Tp = 500, 300; E.StopMoveWindow()
 _G.ShowUIPanel(WorldMapFrame)

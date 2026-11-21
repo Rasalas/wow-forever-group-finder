@@ -283,6 +283,9 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4, arg5)
       db.history = nil -- gehört ab jetzt dem Charakter, der zuerst eingeloggt hat
     end
     db.myRoles, db.myRole = nil, nil
+    -- Auswahl pro Charakter (activityID -> true/false, nil = nach Stufe); die alte Account-Auswahl passte nicht zu jedem
+    char.activities = char.activities or {}
+    db.activities = nil
     local nowEpoch = time()
     for k, t in pairs(db.skipUntil) do if t <= nowEpoch then db.skipUntil[k] = nil end end
     for a, seenBy in pairs(db.popular) do

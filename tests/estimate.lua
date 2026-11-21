@@ -133,9 +133,9 @@ local function setResults(list)
   fire("LFG_LIST_SEARCH_RESULTS_RECEIVED")
 end
 db.playstyle, db.view, db.autoInvite, db.shareStats = 2, "activities", false, false
-for k in pairs(db.activities) do db.activities[k] = nil end
-db.activities[11] = true
-db.activities[10], db.activities[12], db.activities[13] = false, false, false
+for k in pairs(AutoGroupFinderCharDB.activities) do AutoGroupFinderCharDB.activities[k] = nil end
+AutoGroupFinderCharDB.activities[11] = true
+AutoGroupFinderCharDB.activities[10], AutoGroupFinderCharDB.activities[12], AutoGroupFinderCharDB.activities[13] = false, false, false
 local dds = {}
 for i = 1, 5 do dds[i] = { "Dd" .. i, { dps = true } } end
 

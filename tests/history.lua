@@ -119,7 +119,7 @@ db.playstyle, db.view = 2, "activities"
 res(1, "T1", { tank = true }, 5); res(2, "H1", { healer = true }, 5); res(3, "D1", { dps = true }, 5)
 res(4, "D2", { dps = true }, 5, { activityIDs = { 11 } })
 res(5, "Grp", { tank = true }, 5, { numMembers = 3 })
-db.activities[10] = false -- Library nicht angehakt: trotzdem gezählt, aber niemand eingeladen
+AutoGroupFinderCharDB.activities[10] = false -- Library nicht angehakt: trotzdem gezählt, aber niemand eingeladen
 local f = AutoGroupFinderFrame
 f:Show()
 AutoGroupFinder_Refresh()
@@ -135,7 +135,7 @@ for _, fr in ipairs(frames) do
   end
 end
 print("rows with demand:", table.concat(bars, " "))
-print("candidates only from picked:", AutoGroupFinderDB.activities[10] == false)
+print("candidates only from picked:", AutoGroupFinderCharDB.activities[10] == false)
 print("== popularity: invited players still count")
 results[1] = nil; results[2] = nil   -- T1/H1 sofort weg (eingeladen)
 now = now + 60; fire("LFG_LIST_SEARCH_RESULTS_RECEIVED")

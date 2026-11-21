@@ -27,13 +27,27 @@ function ApplyWindowMode()
 end
 ApplyWindowMode()
 
+-- Rechte Kante samt seitlich herausragender Reiter (z. B. die Tabs der Gruppensuche)
+local function RightEdge(f)
+  local right = f:GetRight()
+  local function scan(frame, depth)
+    for _, c in ipairs({ frame:GetChildren() }) do
+      local r = c:IsShown() and c:GetRight()
+      if r and r > right and r < f:GetRight() + 80 then right = r end
+      if depth < 2 then scan(c, depth + 1) end
+    end
+  end
+  scan(f, 1)
+  return right
+end
+
 -- Wie ein Blizzard-Fenster neben den anderen: offene linke/mittlere Fenster schieben unseres nach rechts
 function FitBesideBlizzard()
   if state.winPos or not GetUIPanel then return end
   local x = HOME_X
   for _, area in ipairs({ "left", "center" }) do
     local f = GetUIPanel(area)
-    if f and f ~= win and f:IsShown() and f:GetRight() then x = math.max(x, f:GetRight() - (UIParent:GetLeft() or 0) + PANEL_GAP) end
+    if f and f ~= win and f:IsShown() and f:GetRight() then x = math.max(x, RightEdge(f) - (UIParent:GetLeft() or 0) + PANEL_GAP) end
   end
   win:ClearAllPoints()
   win:SetPoint("TOPLEFT", UIParent, "TOPLEFT", x, HOME_Y)
