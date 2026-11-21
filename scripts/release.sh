@@ -52,4 +52,7 @@ sed -i '' "s/^## Version: .*/## Version: $next/" $toc
 git commit -q -m "Version $next" -- $toc
 git tag -a "v$next" -m "Auto Group Finder $next"
 git push -q origin main "v$next"
-echo "v$next gepusht. Ablauf: $(gh run list --limit 1 --json url -q '.[0].url' 2>/dev/null || echo 'GitHub > Actions')"
+# der Lauf zum Tag startet erst nach ein paar Sekunden; ohne Treffer bleibt der Hinweis auf Actions
+sleep 5
+run=$(gh run list --branch v$next --limit 1 --json url -q ".[0].url" 2>/dev/null)
+echo "v$next gepusht. Ablauf: ${run:-GitHub > Actions}"
