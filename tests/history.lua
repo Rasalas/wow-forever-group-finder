@@ -270,4 +270,20 @@ for _, fr in ipairs(frames) do
   if k and t and rawget(fr, "_shown") and rawget(t, "_shown") ~= false then kinds[#kinds + 1] = tostring(rawget(k, "_shown")) end
 end
 check("20) Dungeon-Einträge mit Symbol:", kinds[1], "true")
+print("== Suche im Verlauf")
+LOCALIZED_CLASS_NAMES_MALE = { SHAMAN = "Schamane", PRIEST = "Priester" }
+local ent = { name = "City of Dalaran", members = { { name = "Rasa Las-Realm", class = "SHAMAN", role = "HEALER" }, { name = "Bob", class = "PRIEST" } } }
+check("21) dala:", E.History.Matches(ent, "dala"), true)
+check("22) sham (Klasse):", E.History.Matches(ent, "sham"), true)
+check("23) pries:", E.History.Matches(ent, "pries"), true)
+check("24) schama (übersetzt):", E.History.Matches(ent, "schama"), true)
+check("25) zwei Wörter:", E.History.Matches(ent, "dala BOB"), true)
+check("26) passt nicht:", E.History.Matches(ent, "dala warrior"), false)
+check("27) Heiler als Rolle:", E.History.Matches(ent, "heil"), true)
+time = os.time
+local nowReal = os.time()
+check("28) heute:", E.History.When(nowReal):match("^Heute %d%d:%d%d$") ~= nil, true)
+check("29) gestern:", E.History.When(nowReal - 86400):match("^Gestern") ~= nil, true)
+check("30) älter: Tag zuerst:", E.History.When(nowReal - 5 * 86400):match("^%d%d%.%d%d%. ") ~= nil, true)
+E.History.search:SetText("zzz")
 time = os.time

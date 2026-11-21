@@ -7,6 +7,16 @@ do
   local page = pages[3]
   Inset(page, -60)
   local list = Scroller(page, win, 12, -68, -12, 62)
+
+  -- Suche: jedes Wort muss irgendwo vorkommen (Ort, Name, Klasse, Rolle), Groß/klein egal
+  local okS, search = pcall(CreateFrame, "EditBox", nil, page, "SearchBoxTemplate")
+  if not okS then search = CreateFrame("EditBox", nil, page, "InputBoxTemplate") end
+  search:SetSize(200, 20)
+  search:SetPoint("TOPLEFT", win, "TOPLEFT", 70, -38)
+  search:SetAutoFocus(false)
+  search:HookScript("OnTextChanged", function() if History.Update then History.Update() end end)
+  search:SetScript("OnEscapePressed", function(self) self:SetText("") self:ClearFocus() end)
+  History.search = search
   local empty = Label(page, T.HISTORY_EMPTY, "GameFontDisable", "TOP", win, "TOP", 0, -120)
   empty:SetWidth(WIN_W - 60)
   local rows = {}
@@ -37,6 +47,37 @@ do
         Rebuild()
       end)
     end)
+  end
+
+  local function Haystack(e)
+    local words = { e.name or "" }
+    for _, m in ipairs(e.members or {}) do
+      words[#words + 1] = Short(m.name)
+      if m.class then
+        words[#words + 1] = m.class
+        local names = LOCALIZED_CLASS_NAMES_MALE or {}
+        words[#words + 1] = names[m.class] or ""
+        words[#words + 1] = (LOCALIZED_CLASS_NAMES_FEMALE or {})[m.class] or ""
+      end
+      if m.role then words[#words + 1] = ROLE_NAME[m.role] or m.role end
+    end
+    return table.concat(words, " "):lower()
+  end
+  function History.Matches(e, query)
+    if not query or query == "" then return true end
+    local hay = Haystack(e)
+    for word in query:lower():gmatch("%S+") do
+      if not hay:find(word, 1, true) then return false end
+    end
+    return true
+  end
+  -- Heute/gestern statt Datum, sonst Tag zuerst (11/21 verwirrt)
+  function History.When(t)
+    local today = date("*t")
+    local midnight = time({ year = today.year, month = today.month, day = today.day, hour = 0 })
+    if t >= midnight then return T.H_TODAY .. " " .. date("%H:%M", t) end
+    if t >= midnight - 86400 then return T.H_YESTERDAY .. " " .. date("%H:%M", t) end
+    return date(T.DATE_FMT, t)
   end
 
   local function Mins(s) return math.max(1, math.floor(s / 60 + 0.5)) end
@@ -120,7 +161,11 @@ do
 
   History.Update = function()
     local n, y = 0, 0
+    local query = strtrim(search:GetText() or "")
+    local shown = 0
     for index, e in ipairs(char.history) do
+      if History.Matches(e, query) then
+      shown = shown + 1
       n = n + 1
       local row = Row(n)
       row:SetHeight(HEAD)
@@ -134,7 +179,7 @@ do
       if icon and not Atlas(row.kind, icon) then row.kind:SetTexture("Interface\\Minimap\\Dungeon") end
       row.kind:SetShown(icon and true or false)
       row.title:SetFontObject(e.instance and "GameFontNormal" or "GameFontHighlight")
-      row.date:SetText(Duration(e) .. date(T.DATE_FMT, e.t))
+      row.date:SetText(Duration(e) .. History.When(e.t))
       row.date:Show()
       row.icon:Hide() row.name:Hide() row.level:Hide()
       row:Show()
@@ -160,10 +205,12 @@ do
         r:Show()
       end
       y = y + 6
+      end
     end
     for i = n + 1, #rows do rows[i]:Hide() end
     list:SetContentHeight(y)
-    empty:SetShown(#char.history == 0)
+    empty:SetText(#char.history == 0 and T.HISTORY_EMPTY or T.H_NO_MATCH)
+    empty:SetShown(shown == 0)
   end
 end
 

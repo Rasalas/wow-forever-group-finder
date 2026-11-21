@@ -12,7 +12,7 @@ local function sig(s)
   local t = {}
   for spec in s:gsub("%%%%", ""):gmatch("%%[%-%d%.]*[%a]") do t[#t + 1] = spec end
   for tok in s:gmatch("{%a+}") do t[#t + 1] = tok end
-  if s:match("%%H") then table.sort(t) end -- date formats may reorder day/month
+  if s:match("%%H") then return "date" end -- Datumsformate dürfen Reihenfolge und Monatsnamen (%b) frei wählen
   return table.concat(t, ",")
 end
 
