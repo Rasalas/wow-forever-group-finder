@@ -81,18 +81,41 @@ function History.Snapshot()
   return list
 end
 
+-- joined/left je Mitglied: wer früh geht, steht später leise im Verlauf
 function History.Merge(entry)
-  local have = {}
+  local have, now, here = {}, time(), {}
   for _, m in ipairs(entry.members) do have[Key(m.name)] = m end
   for _, m in ipairs(History.Snapshot()) do
-    local old = have[Key(m.name)]
+    local k = Key(m.name)
+    here[k] = true
+    local old = have[k]
     if old then
       old.role = old.role or m.role
       old.level = m.level or old.level
+      old.left = nil -- wieder da
     else
+      m.joined = now
       entry.members[#entry.members + 1] = m
     end
   end
+  for k, m in pairs(have) do if not here[k] then m.left = m.left or now end end
+end
+
+-- Ein Abschnitt je Dungeon-Besuch: Betreten, erster und letzter Kampf, Bosse
+function History.Run(e)
+  local r = e and e.runs and e.runs[#e.runs]
+  return r and not r.exit and r or nil
+end
+function History.Boss(name, ok)
+  local r = History.Run(state.historyEntry)
+  if not r then return end
+  if ok then r.kills = r.kills + 1 else r.wipes = r.wipes + 1 end
+  r.bosses[#r.bosses + 1] = { n = Readable(name) and name or "?", t = time(), ok = ok or nil }
+end
+function History.Fight(start)
+  local r = History.Run(state.historyEntry)
+  if not r then return end
+  if start then r.first = r.first or time() else r.last = time() end
 end
 
 -- Nach /reload: den letzten Eintrag fortsetzen, wenn er frisch ist und jemand von damals dabei ist
@@ -107,6 +130,12 @@ end
 
 function History.Track()
   if not IsInGroup() then
+    local e = state.historyEntry
+    if e then
+      e.ended = time()
+      local r = History.Run(e)
+      if r then r.exit = time() end
+    end
     state.historyEntry = nil
     return
   end
@@ -125,6 +154,16 @@ function History.Track()
     elseif name and not e.name:find(name, 1, true) then
       e.name = e.name .. ", " .. name
     end
+    e.runs = e.runs or {}
+    local r = History.Run(e)
+    if r and r.name ~= name then r.exit = time() r = nil end
+    if not r then
+      -- nach /reload drinnen ist das Betreten unbekannt (instanceSince fehlt dann)
+      e.runs[#e.runs + 1] = { name = name, enter = char.instanceSince, kills = 0, wipes = 0, bosses = {} }
+    end
+  else
+    local r = History.Run(e)
+    if r then r.exit = time() end
   end
   e.last = time()
   History.Merge(e)
@@ -248,7 +287,7 @@ function Tick()
 end
 
 ev = CreateFrame("Frame")
-for _, e in ipairs({ "ADDON_LOADED", "PLAYER_LOGIN", "PLAYER_LEVEL_UP", "PLAYER_REGEN_ENABLED", "CHAT_MSG_ADDON",
+for _, e in ipairs({ "ADDON_LOADED", "PLAYER_LOGIN", "PLAYER_LEVEL_UP", "PLAYER_REGEN_ENABLED", "PLAYER_REGEN_DISABLED", "CHAT_MSG_ADDON",
     "PARTY_INVITE_REQUEST", "QUEST_LOG_UPDATE",
     "PLAYER_ENTERING_WORLD", "ZONE_CHANGED", "ZONE_CHANGED_INDOORS", "ZONE_CHANGED_NEW_AREA", "ENCOUNTER_END",
     "LFG_LIST_SEARCH_RESULTS_RECEIVED", "LFG_LIST_SEARCH_RESULT_UPDATED", "LFG_LIST_SEARCH_FAILED",
@@ -323,6 +362,7 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4, arg5)
     if Readable(arg1) and Readable(arg5) and (arg5 == 1 or arg5 == true) and arg1 == LastBossID() then
       state.runDone = true
     end
+    if Readable(arg5) then History.Boss(arg2, arg5 == 1 or arg5 == true) end
   elseif event == "LFG_LIST_AVAILABILITY_UPDATE" then
     InvalidateHere()
     state.here = HereDungeon() -- Dungeon-Liste ist da, Standort neu prüfen
@@ -346,7 +386,10 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4, arg5)
       C_Timer.After(0.2, function() state.rebuildQueued = false Rebuild() end)
     end
   elseif event == "PLAYER_REGEN_ENABLED" then
+    History.Fight(false)
     AutoInvite() -- im Kampf liegengebliebene Einladungen nachholen
+  elseif event == "PLAYER_REGEN_DISABLED" then
+    History.Fight(true)
   elseif event:match("^ZONE_CHANGED") then
     state.here = HereDungeon()
     if UpdateUI then UpdateUI() end
@@ -361,11 +404,11 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4, arg5)
       db.page = IsInGroup() and 4 or 1
     end
     C_Timer.After(10, Estimate.UpdateChannel) -- Chat-Kanäle sind direkt nach dem Laden noch nicht bereit
-    History.Track()
     local inInstance, kind = IsInInstance()
     -- Nur beim echten Betreten starten; nach /reload oder Login drinnen ist der Beginn unbekannt
     if not inInstance then char.instanceSince = nil
     elseif not char.instanceSince and not (arg1 or arg2) then char.instanceSince = time() end
+    History.Track()
     if state.queued and inInstance and (kind == "party" or kind == "raid") then
       StopQueue(T.CHAT_IN_INSTANCE)
     end

@@ -169,3 +169,46 @@ print("entries:", #AutoGroupFinderCharDB.history, "newest:", AutoGroupFinderChar
 db.page = 3; f:Show(); ticker()
 print("== pro Charakter")
 print("history in CharDB:", AutoGroupFinderCharDB.history ~= nil, "nicht mehr im Account:", AutoGroupFinderDB.history == nil, "roles:", AutoGroupFinderCharDB.myRoles.DAMAGER)
+
+print("== Ablauf: Dauer, Abgang, Dungeon")
+local function check(label, got, want)
+  print(label, got, got == want and "ok" or ("FEHLER, erwartet " .. tostring(want)))
+  if got ~= want then error(label .. ": " .. tostring(got) .. " statt " .. tostring(want)) end
+end
+local clock = 1000000
+time = function() return clock end
+local E = ns.env
+party = {}; fire("GROUP_ROSTER_UPDATE")
+INSTANCE = nil; fire("PLAYER_ENTERING_WORLD", false, false)
+party = { "Tank", "Heal", "Dd" }; fire("GROUP_ROSTER_UPDATE")
+local h = AutoGroupFinderCharDB.history[1]
+clock = clock + 120; INSTANCE = "Gnomeregan"; fire("PLAYER_ENTERING_WORLD", false, false)
+check("1) Abschnitt angelegt:", h.runs and h.runs[1].name, "Gnomeregan")
+check("2) Betreten bekannt:", h.runs[1].enter, clock)
+clock = clock + 60; fire("PLAYER_REGEN_DISABLED")
+clock = clock + 30; fire("PLAYER_REGEN_ENABLED")
+check("3) erster Kampf:", h.runs[1].first, 1000000 + 180)
+clock = clock + 300; party = { "Tank", "Heal" }; fire("GROUP_ROSTER_UPDATE")
+check("4) Dd gegangen:", h.members[3].left, clock)
+clock = clock + 600; fire("ENCOUNTER_END", 2898, "Grubbis", 1, 5, 0)
+clock = clock + 60; fire("ENCOUNTER_END", 2898, "Grubbis", 1, 5, 1)
+check("5) Boss und Wipe:", h.runs[1].kills .. "/" .. h.runs[1].wipes, "1/1")
+clock = clock + 900; fire("PLAYER_REGEN_DISABLED"); fire("PLAYER_REGEN_ENABLED")
+check("6) letzter Kampf:", h.runs[1].last, clock)
+clock = clock + 120; INSTANCE = nil; fire("PLAYER_ENTERING_WORLD", false, false)
+check("7) verlassen:", h.runs[1].exit, clock)
+clock = clock + 60; party = {}; fire("GROUP_ROSTER_UPDATE")
+check("8) Gruppe zu Ende:", h.ended, clock)
+db.page = 3; f:Show(); E.History.Update()
+local head, dd, dateText
+for _, fr in ipairs(frames) do
+  local title, lvl, dt = rawget(fr, "title"), rawget(fr, "level"), rawget(fr, "date")
+  local t = title and rawget(title, "_text")
+  if type(t) == "string" and t:find("^Gnomeregan  ") then head, dateText = t, dt and rawget(dt, "_text") end
+  local l = lvl and rawget(lvl, "_text")
+  if type(l) == "string" and l:find("ging nach") then dd = l end
+end
+check("9) Kopf mit Bossen und Wipe:", head and head:gsub("|T.-|t", "S"):gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", ""), "Gnomeregan  S1  1× Wipe")
+check("10) Abgang nach 8,5 Min:", dd and dd:match("ging nach %d+ Min"), "ging nach 9 Min")
+check("11) Dauer vor dem Datum:", dateText and dateText:match("^%d+ Min"), "38 Min")
+time = os.time

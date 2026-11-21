@@ -58,6 +58,7 @@ end
 function FinishQueue()
   Estimate.RecordFill(GetTime() - state.queuedAt, state.lastJoinRole)
   char.lastFill = { s = GetTime() - state.queuedAt, t = time() }
+  if state.historyEntry then state.historyEntry.wait = math.floor(char.lastFill.s) end
   db.page = 4 -- beim nächsten Öffnen die Gruppenübersicht
   state.completed, state.backfillNoted = true, false
   StopQueue(T.CHAT_COMPLETE)
