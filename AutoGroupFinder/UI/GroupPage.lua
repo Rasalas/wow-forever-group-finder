@@ -43,7 +43,9 @@ end
 function GroupFit()
   local counts, known = {}, 0
   for k in pairs(MemberKeys()) do
+    -- gemerkt beim Einladen, sonst der Eintrag aus den Suchen der letzten 30 Minuten
     local ids = char.memberFor and char.memberFor[k]
+    if not ids and state.listings[k] and (state.listings[k].numMembers or 1) == 1 then ids = state.listings[k].activityIDs end
     if ids then
       known = known + 1
       for _, id in ipairs(ids) do counts[id] = (counts[id] or 0) + 1 end

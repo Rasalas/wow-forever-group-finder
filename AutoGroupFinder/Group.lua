@@ -292,7 +292,7 @@ function Rebuild()
         comp.EMPTY = math.max(0, max - used)
         state.listings[Key(info.leaderName)] = { activity = ActivityName(info, true), activityID = first,
           comp = comp, playstyle = info.generalPlaystyle, listing = true, seenAt = now,
-          resultID = id, numMembers = info.numMembers }
+          resultID = id, numMembers = info.numMembers, activityIDs = info.activityIDs }
         local lk = Key(info.leaderName)
         local role
         for _, r in ipairs({ "TANK", "HEALER" }) do

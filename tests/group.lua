@@ -241,3 +241,9 @@ check("Bibliothek passt für alle:", fit[1].name .. " " .. fit[1].n .. "/" .. kn
 check("Wegpunkt-Dungeon ist der häufigste:", E.GroupActivity(), 10)
 party = {}; fire("GROUP_ROSTER_UPDATE")
 check("Ohne Gruppe vergessen:", AutoGroupFinderCharDB.memberFor, nil)
+print("== Rückfall: Eintrag aus der Suche")
+E.state.listings.Fremd = { numMembers = 1, activityIDs = { 11 }, seenAt = 0 }
+party = { "Fremd" }; fire("GROUP_ROSTER_UPDATE")
+local fit2 = E.GroupFit()
+check("Ohne Einladung durchs Add-on: aus dem Eintrag:", fit2[1] and fit2[1].name, "Gnomeregan")
+party = {}; fire("GROUP_ROSTER_UPDATE")
