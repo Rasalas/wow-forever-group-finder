@@ -38,7 +38,28 @@ function SetEntranceWaypoint(activityID)
 end
 
 -- Welcher Dungeon gehört zur Gruppe? Der zuletzt gesuchte, sonst die gewählte Aktivität
+-- Für welche der gewählten Dungeons passen die Mitglieder (laut Eintrag beim Einladen)?
+-- Liefert { {id, name, n}, ... } absteigend und die Zahl der Mitglieder mit bekanntem Eintrag.
+function GroupFit()
+  local counts, known = {}, 0
+  for k in pairs(MemberKeys()) do
+    local ids = char.memberFor and char.memberFor[k]
+    if ids then
+      known = known + 1
+      for _, id in ipairs(ids) do counts[id] = (counts[id] or 0) + 1 end
+    end
+  end
+  local list = {}
+  for _, e in ipairs(ActivityTree().all) do
+    if counts[e.id] then list[#list + 1] = { id = e.id, name = e.name, n = counts[e.id] } end
+  end
+  table.sort(list, function(a, b) return a.n > b.n end)
+  return list, known
+end
+
 function GroupActivity()
+  local fit = GroupFit()
+  if fit[1] then return fit[1].id end
   if char.groupActivityID then return char.groupActivityID end
   local _, ids = SearchActivities()
   return ids[1]
@@ -114,6 +135,12 @@ do
     if fill and time() - fill.t < 4 * 3600 then parts[#parts + 1] = T.GROUP_FILLED:format(math.max(1, math.floor(fill.s / 60 + 0.5))) end
     local run = inside and char.instanceSince and math.floor((time() - char.instanceSince) / 60)
     if run and run >= 1 then parts[#parts + 1] = T.GROUP_RUN:format(run) end
+    local fit, known = GroupFit()
+    if #fit > 1 or (fit[1] and fit[1].n < known) then
+      local f = {}
+      for _, e in ipairs(fit) do f[#f + 1] = T.GROUP_FIT:format(e.name, e.n, known) end
+      parts[#parts + 1] = table.concat(f, " · ")
+    end
     sub:SetText(table.concat(parts, " · "))
 
     local units = { "player" }

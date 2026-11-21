@@ -154,7 +154,7 @@ function RunDone()
 end
 
 function OnRoster()
-  if not IsInGroup() then state.selfRole, state.runDone = nil, nil else state.inGroupAt = GetTime() end
+  if not IsInGroup() then state.selfRole, state.runDone, char.memberFor = nil, nil, nil else state.inGroupAt = GetTime() end
   if state.resume and IsInGroup() and not CanInvite() then state.resume = nil end
   local members = MemberKeys()
   for name in pairs(members) do

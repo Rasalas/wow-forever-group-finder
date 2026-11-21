@@ -356,12 +356,16 @@ function Rebuild()
             class = p.classFilename, level = p.level, activity = ActivityName(info),
             activityText = ActivityName(info, true), comment = info.comment,
             matchedActivity = matches[1] and matches[1].id,
+            forIds = {}, forNames = nil,
             playstyle = info.generalPlaystyle,
             friend = (info.numCharFriends or 0) + (info.numBNetFriends or 0) > 0,
             guild = (info.numGuildMates or 0) > 0,
             area = p.areaName ~= "" and p.areaName or nil,
           }
           if state.lastSearchLang then state.langOf[k] = state.lastSearchLang end
+          local names = {}
+          for _, e in ipairs(matches) do c.forIds[#c.forIds + 1] = e.id names[#names + 1] = e.name end
+          c.forNames = table.concat(names, ", ")
           c.liked = (db.ratings[k] or {}).v == 1
           c.lang = state.langOf[k]
           for _, e in ipairs(matches) do

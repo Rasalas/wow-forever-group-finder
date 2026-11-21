@@ -68,7 +68,8 @@ function Invite(c, role, byClick)
   Estimate.Invited(role)
   expired[c.key] = nil
   api.invite(c.name)
-  Print(T.CHAT_INVITING:format(Short(c.name), ROLE_NAME[role]))
+  Print(T.CHAT_INVITING:format(Short(c.name), ROLE_NAME[role], c.forNames or c.activity or "?"))
+  if c.forIds then char.memberFor = char.memberFor or {} char.memberFor[c.key] = c.forIds end
   local comp = Composition()
   local enc = {}
   for _, r in ipairs(ROLES) do enc[#enc + 1] = comp[r][1] .. "," .. comp[r][2] end
@@ -112,6 +113,7 @@ function ManualInvite(name)
   local _, open = Slots()
   local role = c and RoleFor(c, open)
   pending[key] = { role = role, t = GetTime(), confirmed = true, c = c, manual = true }
+  if c and c.forIds then char.memberFor = char.memberFor or {} char.memberFor[key] = c.forIds end
   Print(role and T.CHAT_MANUAL_ROLE:format(Short(key), ROLE_NAME[role]) or T.CHAT_MANUAL:format(Short(key)))
   Rebuild()
 end

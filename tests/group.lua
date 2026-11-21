@@ -224,3 +224,20 @@ check("An: fremde Klasse und Rüstung vor Stoff:", order(), "Jaeger1,Druide1,Hex
 E.pending["Jaeger1"] = { role = "DAMAGER", t = 0, confirmed = true, c = { class = "HUNTER" } }
 check("Jäger eingeladen: Druide vor Stoffträgern:", order(), "Druide1,Hexer1,Magier1")
 E.pending["Jaeger1"] = nil
+
+print("== Für welchen Dungeon passt wer?")
+for k in pairs(results) do results[k] = nil end
+db.activities[10], db.activities[11] = true, true
+res(21, "Bibli", { dps = true }, 1, { generalPlaystyle = 2, activityIDs = { 10 } })
+res(22, "Beide", { dps = true }, 2, { generalPlaystyle = 2, activityIDs = { 10, 11 } })
+fire("LFG_LIST_SEARCH_RESULTS_RECEIVED")
+local byName = {}
+for _, c in ipairs(E.candidates) do byName[c.name] = c end
+check("Liste zeigt nur eigene passende Dungeons:", byName.Beide and byName.Beide.forNames, "Scarlet Library, Gnomeregan")
+AutoGroupFinderCharDB.memberFor = { Bibli = { 10 }, Beide = { 10, 11 } }
+party = { "Bibli", "Beide" }; fire("GROUP_ROSTER_UPDATE")
+local fit, known = E.GroupFit()
+check("Bibliothek passt für alle:", fit[1].name .. " " .. fit[1].n .. "/" .. known, "Scarlet Library 2/2")
+check("Wegpunkt-Dungeon ist der häufigste:", E.GroupActivity(), 10)
+party = {}; fire("GROUP_ROSTER_UPDATE")
+check("Ohne Gruppe vergessen:", AutoGroupFinderCharDB.memberFor, nil)

@@ -363,7 +363,7 @@ local function PlayerRow(n, y, c, role, invitedAt)
   row.name:Show()
   row.level:SetText((c.level and c.level > 0) and c.level or "")
   row.level:Show()
-  row.sub:SetText(c.activity)
+  row.sub:SetText(c.forNames or c.activity) -- passende Dungeons aus deiner Auswahl
   row.sub:Show()
   row.age:SetText(Age(c))
   row.age:Show()
