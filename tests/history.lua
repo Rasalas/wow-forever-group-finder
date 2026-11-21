@@ -286,4 +286,17 @@ check("28) heute:", E.History.When(nowReal):match("^Heute %d%d:%d%d$") ~= nil, t
 check("29) gestern:", E.History.When(nowReal - 86400):match("^Gestern") ~= nil, true)
 check("30) älter: Tag zuerst:", E.History.When(nowReal - 5 * 86400):match("^%d%d%.%d%d%. ") ~= nil, true)
 E.History.search:SetText("zzz")
+print("== Kurze Gruppe (Layer-Wechsel) fällt weg")
+time = function() return clock end
+INSTANCE = nil; fire("PLAYER_ENTERING_WORLD", false, false)
+party = {}; fire("GROUP_ROSTER_UPDATE")
+local n0 = #AutoGroupFinderCharDB.history
+party = { "Layerbot" }; fire("GROUP_ROSTER_UPDATE")
+check("31) erst angelegt:", #AutoGroupFinderCharDB.history, n0 + 1)
+clock = clock + 60; party = {}; fire("GROUP_ROSTER_UPDATE")
+check("32) nach 1 Min wieder weg:", #AutoGroupFinderCharDB.history, n0)
+party = { "Quester" }; fire("GROUP_ROSTER_UPDATE")
+clock = clock + 900; party = {}; fire("GROUP_ROSTER_UPDATE")
+check("33) längere Gruppe bleibt:", #AutoGroupFinderCharDB.history, n0 + 1)
+time = os.time
 time = os.time

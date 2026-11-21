@@ -170,6 +170,11 @@ function History.Track()
     if e then
       e.ended = time()
       History.Exit(History.Run(e))
+      -- Kurze Gruppen ohne Dungeon (z. B. Layer-Wechsel per Einladung) nicht aufheben,
+      -- außer das Add-on hat sie selbst gefüllt
+      if e.ended - e.t < SHORT_GROUP and not e.instance and not e.wait then
+        for i, x in ipairs(char.history) do if x == e then table.remove(char.history, i) break end end
+      end
     end
     state.historyEntry = nil
     return
@@ -206,6 +211,7 @@ function History.Track()
   History.Merge(e)
 end
 
+SHORT_GROUP = 180 -- Sekunden; kürzere Gruppen ohne Dungeon kommen nicht in den Verlauf
 RESUME_AUTO_WINDOW = 180 -- Sekunden nach dem Vollwerden, in denen ein Abgang automatisch weitersuchen lässt
 
 -- Lauf vorbei? Letzter Boss laut Dungeon-Journal besiegt, sonst nach langer Zeit im Dungeon.
