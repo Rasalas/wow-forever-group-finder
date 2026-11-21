@@ -167,12 +167,32 @@ end
 offerOf = {} -- Zeile -> Gruppe, um die gebeten werden kann
 
 -- Um Aufnahme bitten: nur vorausgefülltes Flüstern, abgeschickt wird mit Enter vom Spieler selbst
+-- Erst über die Gruppensuche bewerben (der Anführer sieht es bei Blizzard, auch ohne Add-on);
+-- nimmt der Client das nicht an, wie bisher ein vorbereitetes Flüstern.
+applied = {} -- searchResultID -> Angebot, für die Antwort (LFG_LIST_APPLICATION_STATUS_UPDATED)
 function AskGroup(o)
   if (db.asked[o.key] or 0) + ASK_COOLDOWN > time() then return end
   db.asked[o.key] = time()
-  Whisper(o.name)
-  InsertChat(T.ASK_WHISPER:format(ROLE_NAME[o.role], UnitLevel("player"), o.activityText or o.activity or ""))
+  local ok, res = false, nil
+  if L.ApplyToGroup then
+    ok, res = pcall(L.ApplyToGroup, o.id, o.role == "TANK", o.role == "HEALER", o.role == "DAMAGER")
+  end
+  if ok and res ~= false then
+    applied[o.id] = o
+    Print(T.CHAT_APPLIED:format(Short(o.name)))
+  else
+    Whisper(o.name)
+    InsertChat(T.ASK_WHISPER:format(ROLE_NAME[o.role], UnitLevel("player"), o.activityText or o.activity or ""))
+  end
   if UpdateUI then UpdateUI() end
+end
+function OnApplication(id, status)
+  local o = applied[id]
+  if not o then return end
+  local msg = (status == "declined" or status == "declined_full" or status == "declined_delisted") and T.CHAT_APPLY_DECLINED
+    or (status == "timedout" or status == "failed") and T.CHAT_APPLY_TIMEOUT
+  if msg then Print(msg:format(Short(o.name))) end
+  if status ~= "applied" and status ~= "invited" then applied[id] = nil end
 end
 
 -- Ist gerade ein anderer Spieler in diese Zeile gerutscht? Dann kurz keine Klicks annehmen.

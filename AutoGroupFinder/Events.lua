@@ -327,7 +327,7 @@ end
 
 ev = CreateFrame("Frame")
 for _, e in ipairs({ "ADDON_LOADED", "PLAYER_LOGIN", "PLAYER_LEVEL_UP", "PLAYER_REGEN_ENABLED", "PLAYER_REGEN_DISABLED", "CHAT_MSG_ADDON",
-    "PARTY_INVITE_REQUEST", "QUEST_LOG_UPDATE",
+    "PARTY_INVITE_REQUEST", "QUEST_LOG_UPDATE", "LFG_LIST_APPLICATION_STATUS_UPDATED",
     "PLAYER_ENTERING_WORLD", "ZONE_CHANGED", "ZONE_CHANGED_INDOORS", "ZONE_CHANGED_NEW_AREA", "ENCOUNTER_END",
     "LFG_LIST_SEARCH_RESULTS_RECEIVED", "LFG_LIST_SEARCH_RESULT_UPDATED", "LFG_LIST_SEARCH_FAILED",
     "LFG_LIST_AVAILABILITY_UPDATE", "LFG_LIST_ACTIVE_ENTRY_UPDATE", "GROUP_ROSTER_UPDATE", "CHAT_MSG_SYSTEM" }) do
@@ -439,6 +439,8 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4, arg5)
   elseif event:match("^ZONE_CHANGED") then
     state.here = HereDungeon()
     if UpdateUI then UpdateUI() end
+  elseif event == "LFG_LIST_APPLICATION_STATUS_UPDATED" then
+    if OnApplication then OnApplication(arg1, arg2) end
   elseif event == "QUEST_LOG_UPDATE" then
     InvalidateQuests()
     state.treeVersion = state.treeVersion + 1

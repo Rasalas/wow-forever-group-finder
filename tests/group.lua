@@ -191,6 +191,21 @@ check("Flüstern an den Anführer geöffnet:", told[1], "Anfuehrer")
 check("Text vorausgefüllt, nicht gesendet:", typed[1] ~= nil and typed[1]:find("Scarlet Library", 1, true) ~= nil, true)
 E.AskGroup(E.groupOffers[1])
 check("Zweite Anfrage gesperrt:", #told, 1)
+print("== Bewerben über die Gruppensuche")
+local appliedTo
+C_LFGList.ApplyToGroup = function(id, t, h, d) appliedTo = id .. ":" .. tostring(t) .. tostring(h) .. tostring(d) return true end
+AutoGroupFinderDB.asked = {}
+fire("LFG_LIST_SEARCH_RESULTS_RECEIVED")
+E.AskGroup(E.groupOffers[1])
+check("Beworben als Heiler:", appliedTo, "5:falsetruefalse")
+check("Kein Flüstern:", #told, 1)
+fire("LFG_LIST_APPLICATION_STATUS_UPDATED", 5, "declined", "applied")
+check("Antwort verarbeitet:", E.applied[5], nil)
+C_LFGList.ApplyToGroup = function() error("bad argument") end
+AutoGroupFinderDB.asked = {}
+E.AskGroup(E.groupOffers[1])
+check("Geht nicht: Flüstern wie bisher:", #told, 2)
+C_LFGList.ApplyToGroup = nil
 party = { "Jemand" }; fire("GROUP_ROSTER_UPDATE"); fire("LFG_LIST_SEARCH_RESULTS_RECEIVED")
 check("In einer Gruppe keine Vorschläge:", #E.groupOffers, 0)
 party = {}; fire("GROUP_ROSTER_UPDATE")
