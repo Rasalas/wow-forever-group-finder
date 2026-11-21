@@ -11,20 +11,28 @@ function Diag()
   Print(("areaName: %d/%d %s"):format(state.areaSeen or 0, state.areaTotal or 0, table.concat(db and db.areaSample or {}, ", ")))
   for _, e in ipairs(errors) do print("  " .. e) end
   if IsInInstance() then
-    local id, name = LastBossID()
-    Print(("Last boss: %s (%s)"):format(tostring(name), tostring(id)))
-    -- Schritte einzeln, um zu sehen, wo das Journal nichts liefert
-    local iname, _, _, _, _, _, _, mapID = GetInstanceInfo()
-    local useJid = JournalInstance(mapID, iname)
-    Print(("Journal: %s map=%s jid=%s tiers=%s"):format(tostring(iname), tostring(mapID), tostring(useJid),
-      tostring(EJ_GetNumTiers and select(2, pcall(EJ_GetNumTiers)))))
-    if useJid then
-      if EJ_GetInstanceInfo then Print("  instance: " .. tostring((select(1, pcall(EJ_GetInstanceInfo, useJid))) and select(2, pcall(EJ_GetInstanceInfo, useJid)))) end
-      for i = 1, 8 do
-        local ok, n, _, eid, _, _, _, dID = pcall(EJ_GetEncounterInfoByIndex, i, useJid)
-        if not ok or not n then Print(("  #%d: %s"):format(i, ok and "nil" or tostring(n))) break end
-        Print(("  #%d: %s journal=%s dungeon=%s"):format(i, tostring(n), tostring(eid), tostring(dID)))
+    local _, name = LastBossID()
+    Print("Last boss: " .. tostring(name or FinalBossName(select(8, GetInstanceInfo())) or "?"))
+    -- Wo kennt der Client die Bosse? GetInstanceInfo #10 = LFG-Dungeon, dazu die Dungeonbrowser-Funktionen
+    local info = { pcall(GetInstanceInfo) }
+    local parts = {}
+    for i = 2, #info do parts[#parts + 1] = tostring(info[i]) end
+    Print("Instance: " .. table.concat(parts, " | "))
+    local lfgID = info[11]
+    Print(("LFG funcs: num=%s info=%s"):format(tostring(GetLFGDungeonNumEncounters ~= nil), tostring(GetLFGDungeonEncounterInfo ~= nil)))
+    if lfgID and GetLFGDungeonNumEncounters then
+      local ok, total, done = pcall(GetLFGDungeonNumEncounters, lfgID)
+      Print(("  lfg %s: %s total=%s done=%s"):format(tostring(lfgID), tostring(ok), tostring(total), tostring(done)))
+      for i = 1, (ok and tonumber(total) or 0) do
+        local okE, boss, _, killed = pcall(GetLFGDungeonEncounterInfo, lfgID, i)
+        Print(("  #%d %s killed=%s"):format(i, tostring(okE and boss), tostring(killed)))
       end
+    end
+    local uiMap = C_Map and C_Map.GetBestMapForUnit and C_Map.GetBestMapForUnit("player")
+    local ej = C_EncounterJournal or {}
+    if ej.GetEncountersOnMap then
+      local ok, list = pcall(ej.GetEncountersOnMap, uiMap)
+      Print(("OnMap %s: %s n=%s"):format(tostring(uiMap), tostring(ok), tostring(ok and type(list) == "table" and #list)))
     end
   end
   Print("Client: " .. tostring(select(4, GetBuildInfo())) .. " / " .. tostring((GetBuildInfo())))

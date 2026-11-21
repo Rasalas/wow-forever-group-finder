@@ -123,6 +123,7 @@ DEFAULTS = {
   showDemand = true,     -- Balken: wie viele warten auf welche Aktivität
   popular = {},          -- activityID -> { Anführer -> time() zuletzt gesehen }
   blocked = {},          -- key -> true: nie wieder einladen
+  finalBoss = {},         -- Dungeon (Karte) -> { Bossname -> wie oft zuletzt besiegt } (Events.lua)
   groupSetup = {},       -- Kategorie -> { size, any } außerhalb von Dungeons (GROUP_SETUP)
   preferLang = "none",   -- bevorzugte Spielsprache (WowLocale) oder "none"
   autoInvite = true,

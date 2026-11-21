@@ -102,6 +102,33 @@ function History.Merge(entry)
 end
 
 -- Ein Abschnitt je Dungeon-Besuch: Betreten, erster und letzter Kampf, Bosse
+-- Endboss lernen (Forevers Journal ist leer): der letzte besiegte Boss, wenn danach kein Wipe kam
+-- und man den Dungeon innerhalb von 15 Minuten verlässt. Gezählt je Dungeon, die Mehrheit gilt.
+function LearnFinal(r)
+  local last
+  for i = #r.bosses, 1, -1 do
+    local b = r.bosses[i]
+    if not b.ok then return end -- danach noch gewipt: abgebrochen, nicht fertig
+    last = b break
+  end
+  if not (last and r.map and r.exit and r.exit - last.t <= 900) then return end
+  local c = db.finalBoss[r.map] or {}
+  db.finalBoss[r.map] = c
+  c[last.n] = (c[last.n] or 0) + 1
+end
+function FinalBossName(mapID)
+  local best, n = nil, 0
+  for name, count in pairs(db.finalBoss[mapID] or {}) do
+    if count > n then best, n = name, count end
+  end
+  return best
+end
+function History.Exit(r)
+  if not r or r.exit then return end
+  r.exit = time()
+  LearnFinal(r)
+end
+
 function History.Run(e)
   local r = e and e.runs and e.runs[#e.runs]
   return r and not r.exit and r or nil
@@ -133,8 +160,7 @@ function History.Track()
     local e = state.historyEntry
     if e then
       e.ended = time()
-      local r = History.Run(e)
-      if r then r.exit = time() end
+      History.Exit(History.Run(e))
     end
     state.historyEntry = nil
     return
@@ -156,14 +182,14 @@ function History.Track()
     end
     e.runs = e.runs or {}
     local r = History.Run(e)
-    if r and r.name ~= name then r.exit = time() r = nil end
+    if r and r.name ~= name then History.Exit(r) r = nil end
     if not r then
       -- nach /reload drinnen ist das Betreten unbekannt (instanceSince fehlt dann)
-      e.runs[#e.runs + 1] = { name = name, enter = char.instanceSince, kills = 0, wipes = 0, bosses = {} }
+      e.runs[#e.runs + 1] = { name = name, map = select(8, GetInstanceInfo()), enter = char.instanceSince,
+        kills = 0, wipes = 0, bosses = {} }
     end
   else
-    local r = History.Run(e)
-    if r then r.exit = time() end
+    History.Exit(History.Run(e))
   end
   e.last = time()
   History.Merge(e)
@@ -367,7 +393,10 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4, arg5)
     end
   elseif event == "ENCOUNTER_END" then
     -- encounterID, name, difficulty, size, success; in Instanzen evtl. geheim
-    if Readable(arg1) and Readable(arg5) and (arg5 == 1 or arg5 == true) and arg1 == LastBossID() then
+    local won = Readable(arg5) and (arg5 == 1 or arg5 == true)
+    local final = (Readable(arg1) and arg1 == LastBossID())
+      or (Readable(arg2) and arg2 == FinalBossName(select(8, GetInstanceInfo())))
+    if won and final then
       state.runDone = true
       if state.historyEntry then state.historyEntry.done = time() end -- wer danach geht, ging nicht früh
     end
