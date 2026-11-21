@@ -44,6 +44,7 @@ ns.L.esES = {
   OPT_NOTIFY = "Avisar en pantalla y hacer parpadear la barra de tareas",
   OPT_NOTIFY_TIP = "Mensaje en el centro de la pantalla cuando alguien se une o el grupo está completo.",
   WHISPER_DEFAULT = "¡Hola! Te invito a {dungeon} como {role}.",
+  TAG_LEAVER = "Leaver",
   TAG_FRIEND = "Amigo",
   TAG_GUILD = "Hermandad",
   TAG_NEAR = "En la mazmorra",

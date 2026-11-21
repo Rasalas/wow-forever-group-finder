@@ -43,6 +43,7 @@ ns.L.deDE = {
   OPT_NOTIFY = "Auf dem Bildschirm melden und in der Taskleiste blinken",
   OPT_NOTIFY_TIP = "Meldung in der Bildmitte, wenn jemand beitritt oder die Gruppe voll ist.",
   WHISPER_DEFAULT = "Hi! Ich lade dich für {dungeon} als {role} ein.",
+  TAG_LEAVER = "Leaver",
   TAG_FRIEND = "Freund",
   TAG_GUILD = "Gilde",
   TAG_NEAR = "Am Dungeon",

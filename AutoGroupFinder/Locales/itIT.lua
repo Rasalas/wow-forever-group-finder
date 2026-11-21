@@ -43,6 +43,7 @@ ns.L.itIT = {
   OPT_NOTIFY = "Avvisa sullo schermo e fai lampeggiare la barra delle applicazioni",
   OPT_NOTIFY_TIP = "Messaggio al centro dello schermo quando qualcuno entra o il gruppo è completo.",
   WHISPER_DEFAULT = "Ciao! Ti invito per {dungeon} come {role}.",
+  TAG_LEAVER = "Leaver",
   TAG_FRIEND = "Amico",
   TAG_GUILD = "Gilda",
   TAG_NEAR = "Alla spedizione",

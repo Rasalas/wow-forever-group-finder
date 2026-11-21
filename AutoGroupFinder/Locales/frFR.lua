@@ -43,6 +43,7 @@ ns.L.frFR = {
   OPT_NOTIFY = "Annoncer à l'écran et faire clignoter la barre des tâches",
   OPT_NOTIFY_TIP = "Message au centre de l'écran quand quelqu'un rejoint ou que le groupe est complet.",
   WHISPER_DEFAULT = "Salut ! Je t'invite pour {dungeon} en tant que {role}.",
+  TAG_LEAVER = "Leaver",
   TAG_FRIEND = "Ami",
   TAG_GUILD = "Guilde",
   TAG_NEAR = "Au donjon",

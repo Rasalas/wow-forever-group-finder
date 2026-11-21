@@ -419,6 +419,7 @@ function Rebuild()
             friend = (info.numCharFriends or 0) + (info.numBNetFriends or 0) > 0,
             guild = (info.numGuildMates or 0) > 0,
             area = p.areaName ~= "" and p.areaName or nil,
+            leaver = Readable(p.isLeaver) and p.isLeaver == true or nil, -- Blizzards Markierung: verlässt oft früh
           }
           if state.lastSearchLang then state.langOf[k] = state.lastSearchLang end
           local names = {}
@@ -450,6 +451,7 @@ function Rebuild()
       if af ~= bf then return af end
     end
     if a.liked ~= b.liked then return a.liked end
+    if (a.leaver or false) ~= (b.leaver or false) then return not a.leaver end
     local pref = db.preferLang ~= "none" and db.preferLang
     if pref and (a.lang == pref) ~= (b.lang == pref) then return a.lang == pref end
     if db.preferNear and (a.near or 0) ~= (b.near or 0) then return (a.near or 0) > (b.near or 0) end
@@ -470,6 +472,15 @@ function Rebuild()
 end
 
 -- Mitglieder einer eingetragenen Gruppe, solange Blizzard den Eintrag noch kennt
+-- Klassensymbol als Text, z. B. für die Mitglieder einer Gruppe in einer Zeile
+function ClassIconText(class, size)
+  local c = class and CLASS_ICON_TCOORDS and CLASS_ICON_TCOORDS[class]
+  if not c then return "" end
+  size = size or 14
+  return ("|TInterface\\WorldStateFrame\\Icons-Classes:%d:%d:0:0:256:256:%d:%d:%d:%d|t"):format(
+    size, size, c[1] * 256, c[2] * 256, c[3] * 256, c[4] * 256)
+end
+
 function ListingMembers(l)
   if not (l and l.resultID and L.GetSearchResultPlayerInfo) then return nil end
   local list = {}
@@ -478,7 +489,8 @@ function ListingMembers(l)
     if ok and AllReadable(p, "name", "classFilename", "level", "assignedRole") and p.name then
       local role = p.assignedRole
       if role ~= "TANK" and role ~= "HEALER" and role ~= "DAMAGER" then role = nil end
-      list[#list + 1] = { name = p.name, class = p.classFilename, level = p.level, role = role }
+      list[#list + 1] = { name = p.name, class = p.classFilename, level = p.level, role = role,
+        leaver = Readable(p.isLeaver) and p.isLeaver == true or nil }
     end
   end
   return #list > 0 and list or nil

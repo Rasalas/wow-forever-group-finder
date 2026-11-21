@@ -247,3 +247,13 @@ party = { "Fremd" }; fire("GROUP_ROSTER_UPDATE")
 local fit2 = E.GroupFit()
 check("Ohne Einladung durchs Add-on: aus dem Eintrag:", fit2[1] and fit2[1].name, "Gnomeregan")
 party = {}; fire("GROUP_ROSTER_UPDATE")
+
+print("== Leaver nach hinten")
+for k in pairs(results) do results[k] = nil end
+res(1, "Flink", { dps = true }, 1, { generalPlaystyle = 2, p = { lfgRoles = { dps = true }, level = 34, classFilename = "MAGE", isLeaver = true } })
+res(2, "Treu", { dps = true }, 60, { generalPlaystyle = 2 })
+fire("LFG_LIST_SEARCH_RESULTS_RECEIVED")
+local lo = {}
+for _, c in ipairs(E.candidates) do lo[#lo + 1] = c.name .. (c.leaver and "!" or "") end
+check("Leaver trotz neuerem Eintrag hinten:", table.concat(lo, ","), "Treu,Flink!")
+check("Klassensymbol:", E.ClassIconText("MAGE") ~= "" or CLASS_ICON_TCOORDS == nil, true)

@@ -43,6 +43,7 @@ ns.L.ptBR = {
   OPT_NOTIFY = "Avisar na tela e piscar a barra de tarefas",
   OPT_NOTIFY_TIP = "Mensagem no centro da tela quando alguém entra ou o grupo está completo.",
   WHISPER_DEFAULT = "Oi! Estou te convidando para {dungeon} como {role}.",
+  TAG_LEAVER = "Leaver",
   TAG_FRIEND = "Amigo",
   TAG_GUILD = "Guilda",
   TAG_NEAR = "Na masmorra",

@@ -45,6 +45,7 @@ ns.L.enUS = {
   OPT_NOTIFY = "Announce on screen and flash the taskbar",
   OPT_NOTIFY_TIP = "Message in the middle of the screen when someone joins or the group is full.",
   WHISPER_DEFAULT = "Hi! Inviting you for {dungeon} as {role}.",
+  TAG_LEAVER = "Leaver",
   TAG_FRIEND = "Friend",
   TAG_GUILD = "Guild",
   TAG_NEAR = "At the dungeon",

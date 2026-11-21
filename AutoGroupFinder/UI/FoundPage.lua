@@ -355,6 +355,7 @@ local function PlayerRow(n, y, c, role, invitedAt)
   local tags = {}
   if c.liked then tags[#tags + 1] = RateTag(1) end
   if c.friend then tags[#tags + 1] = "|cff82c5ff" .. T.TAG_FRIEND .. "|r" end
+  if c.leaver then tags[#tags + 1] = "|cffff7f3f" .. T.TAG_LEAVER .. "|r" end
   if c.guild then tags[#tags + 1] = "|cff40ff40" .. T.TAG_GUILD .. "|r" end
   if c.near then tags[#tags + 1] = NearIcon(c.near) end
   if c.lang and c.lang == db.preferLang then tags[#tags + 1] = "|cffc0c0c0" .. c.lang:sub(3, 4) .. "|r" end
@@ -404,7 +405,8 @@ function ShowOfferTooltip(owner, o)
   GameTooltip:AddLine(T.ASK_LEADER:format(Short(o.name)), color and color.r or 1, color and color.g or 1, color and color.b or 1)
   for _, m in ipairs(ListingMembers({ resultID = o.id, numMembers = o.numMembers }) or {}) do
     local mc = m.class and RAID_CLASS_COLORS[m.class]
-    GameTooltip:AddLine((m.role and RoleIconText(m.role, 14) .. " " or "") .. Short(m.name) .. (m.level and m.level > 0 and ("  " .. m.level) or ""),
+    GameTooltip:AddLine((m.role and RoleIconText(m.role, 14) .. " " or "") .. Short(m.name) .. (m.level and m.level > 0 and ("  " .. m.level) or "")
+      .. (m.leaver and ("  |cffff7f3f" .. T.TAG_LEAVER .. "|r") or ""),
       mc and mc.r or 1, mc and mc.g or 1, mc and mc.b or 1)
   end
   if o.near then GameTooltip:AddLine(NearIcon(o.near) .. " " .. (o.near == 2 and T.TAG_NEAR_TIP or T.TAG_NEAR_ZONE_TIP):format(o.area), 1, 0.82, 0, true) end
@@ -436,7 +438,10 @@ local function GroupRow(n, y, o)
   row.name:SetText(title)
   row.name:Show()
   row.level:SetText("")
-  row.sub:SetText(o.activity)
+  -- wer schon drin ist: Klassensymbole hinter dem Dungeon
+  local icons = {}
+  for _, m in ipairs(ListingMembers({ resultID = o.id, numMembers = o.numMembers }) or {}) do icons[#icons + 1] = ClassIconText(m.class, 13) end
+  row.sub:SetText(o.activity .. (#icons > 0 and ("  " .. table.concat(icons, "")) or ""))
   row.sub:Show()
   row.age:SetText(Age(o))
   row.age:Show()
