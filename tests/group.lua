@@ -272,3 +272,26 @@ local lo = {}
 for _, c in ipairs(E.candidates) do lo[#lo + 1] = c.name .. (c.leaver and "!" or "") end
 check("Leaver trotz neuerem Eintrag hinten:", table.concat(lo, ","), "Treu,Flink!")
 check("Klassensymbol:", E.ClassIconText("MAGE") ~= "" or CLASS_ICON_TCOORDS == nil, true)
+
+print("== Bewertung als Notiz in Recent Allies")
+local notes = { ["G-1"] = "", ["G-2"] = "mein Kumpel" }
+local byName = { Nett = "G-1", Kumpel = "G-2" }
+C_RecentAllies = {
+  IsSystemEnabled = function() return true end,
+  GetRecentAllyByFullName = function(n) local g = byName[n] if g then return { characterData = { guid = g }, interactionData = { note = notes[g] } } end end,
+  SetRecentAllyNote = function(g, t) notes[g] = t end,
+}
+E.Rate("Nett", 1)
+check("Option aus: nichts geschrieben:", notes["G-1"], "")
+db.ratings.Nett = nil
+db.allyNotes = true
+E.Rate("Nett", 1)
+check("Leere Notiz bekommt die Bewertung:", notes["G-1"], E.T.RATE_GOOD)
+E.Rate("Nett", -1)
+check("Eigene alte Notiz wird ersetzt:", notes["G-1"], E.T.RATE_BAD)
+E.Rate("Nett", -1)
+check("Bewertung weg: Notiz weg:", notes["G-1"], "")
+E.Rate("Kumpel", 1)
+check("Notiz des Spielers bleibt:", notes["G-2"], "mein Kumpel")
+db.allyNotes = false
+C_RecentAllies = nil

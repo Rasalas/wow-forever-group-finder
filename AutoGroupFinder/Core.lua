@@ -124,6 +124,8 @@ DEFAULTS = {
   popular = {},          -- activityID -> { Anführer -> time() zuletzt gesehen }
   blocked = {},          -- key -> true: nie wieder einladen
   finalBoss = {},         -- Dungeon (Karte) -> { Bossname -> wie oft zuletzt besiegt } (Events.lua)
+  allyNotes = false,      -- Bewertungen als Notiz in Recent Allies (AllyNote)
+  allyNoteText = {},      -- GUID -> von uns geschriebene Notiz
   groupSetup = {},       -- Kategorie -> { size, any } außerhalb von Dungeons (GROUP_SETUP)
   preferLang = "none",   -- bevorzugte Spielsprache (WowLocale) oder "none"
   autoInvite = true,
@@ -251,7 +253,29 @@ function Rate(name, v)
   local k = Key(name)
   local cur = db.ratings[k]
   db.ratings[k] = (not cur or cur.v ~= v) and { v = v, t = time() } or nil
+  AllyNote(name, db.ratings[k] and db.ratings[k].v)
   Rebuild()
+end
+
+-- Bewertung auch als Notiz in Blizzards „Recent Allies“ (Option, aus). Nur leere oder von uns
+-- geschriebene Notizen werden ersetzt, eigene Notizen des Spielers bleiben.
+function AllyNote(name, v)
+  local RA = _G.C_RecentAllies
+  if not (db.allyNotes and RA and RA.SetRecentAllyNote and RA.GetRecentAllyByFullName) then return end
+  local okE, on = pcall(RA.IsSystemEnabled)
+  if not (okE and on) then return end
+  local realm = GetNormalizedRealmName and GetNormalizedRealmName()
+  local ally
+  for _, full in ipairs({ name, realm and (name .. "-" .. realm) }) do
+    local ok, a = pcall(RA.GetRecentAllyByFullName, full)
+    if ok and a then ally = a break end
+  end
+  local guid = ally and ally.characterData and ally.characterData.guid
+  if not (guid and Readable(guid)) then return end
+  local note = ally.interactionData and ally.interactionData.note or ""
+  if note ~= "" and note ~= db.allyNoteText[guid] then return end
+  local text = v == 1 and T.RATE_GOOD or v == -1 and T.RATE_BAD or ""
+  if pcall(RA.SetRecentAllyNote, guid, text) then db.allyNoteText[guid] = text ~= "" and text or nil end
 end
 function Rating(name) local r = db.ratings[Key(name)] return r and r.v end
 
