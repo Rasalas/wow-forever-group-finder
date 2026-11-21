@@ -215,10 +215,8 @@ print("== Nach dem letzten Boss geht niemand früh")
 party = { "A", "B" }; fire("GROUP_ROSTER_UPDATE")
 local h2 = AutoGroupFinderCharDB.history[1]
 INSTANCE = "Gnomeregan"; fire("PLAYER_ENTERING_WORLD", false, false)
-C_EncounterJournal = { GetInstanceForGameMap = function() return 231 end }
-EJ_GetEncounterInfoByIndex = function(i) if i == 1 then return "Thermaplugg", "", 0, 0, "", 231, 2902, 90 end end
 GetInstanceInfo = function() return INSTANCE or "Scarlet Library", "party", 1, "", 5, 0, false, 90 end
-clock = clock + 1200; fire("ENCOUNTER_END", 2902, "Thermaplugg", 1, 5, 1)
+clock = clock + 1200; fire("ENCOUNTER_END", 2940, "Thermaplugg", 1, 5, 1)
 check("12) Lauf geschafft:", h2.done, clock)
 clock = clock + 60; party = { "A" }; fire("GROUP_ROSTER_UPDATE")
 clock = clock + 1200; party = {}; fire("GROUP_ROSTER_UPDATE")
@@ -231,7 +229,6 @@ for _, fr in ipairs(frames) do
 end
 check("13) B ging nach dem Boss: kein Vermerk:", early2, false)
 print("== Endboss lernen ohne Journal")
-EJ_GetEncounterInfoByIndex = nil
 db.finalBoss = {}
 party = { "A", "B" }; fire("GROUP_ROSTER_UPDATE")
 INSTANCE = "Dalaran"; fire("PLAYER_ENTERING_WORLD", false, false)

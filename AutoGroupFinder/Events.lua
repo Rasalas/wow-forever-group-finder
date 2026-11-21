@@ -200,25 +200,10 @@ RESUME_AUTO_WINDOW = 180 -- Sekunden nach dem Vollwerden, in denen ein Abgang au
 -- Lauf vorbei? Letzter Boss laut Dungeon-Journal besiegt, sonst nach langer Zeit im Dungeon.
 -- Dann gehen Leute absichtlich; Nachbesetzen nur noch leise anbieten.
 RUN_DONE_AFTER = 1500
--- Dungeon-Journal des Clients (kein Add-on nötig). Ohne vorher gewählte Instanz liefert
--- EJ_GetEncounterInfoByIndex oft nichts; nicht umschalten, während Blizzards Journal offen ist.
-local lastBoss = {}
+-- Endboss aus den Spieldaten (Encounters.lua, DungeonEncounter); Forevers Journal ist abgeschaltet
 function LastBossID()
-  if not (GetInstanceInfo and C_EncounterJournal and C_EncounterJournal.GetInstanceForGameMap and EJ_GetEncounterInfoByIndex) then return end
-  local iname, _, _, _, _, _, _, mapID = GetInstanceInfo()
-  if lastBoss[mapID] then return lastBoss[mapID].id, lastBoss[mapID].name end
-  local jid = JournalInstance(mapID, iname)
-  if not jid then return end
-  local journal = _G.EncounterJournal
-  if EJ_SelectInstance and not (journal and journal:IsShown()) then pcall(EJ_SelectInstance, jid) end
-  local id, bossName
-  for i = 1, 40 do
-    local ok2, name, _, _, _, _, _, encounterID = pcall(EJ_GetEncounterInfoByIndex, i, jid)
-    if not (ok2 and name) then break end
-    if encounterID then id, bossName = encounterID, name end
-  end
-  if id then lastBoss[mapID] = { id = id, name = bossName } end
-  return id, bossName
+  local list = GetInstanceInfo and ENCOUNTERS[select(8, GetInstanceInfo())]
+  return list and list[#list]
 end
 function RunDone()
   if state.runDone then return true end

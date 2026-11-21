@@ -230,12 +230,10 @@ print("== Nach dem Lauf: jemand geht")
 reset()
 E.state.resume, E.state.backfillNoted = nil, false
 GetInstanceInfo = function() return "Gnomeregan", "party", 1, "", 5, 0, false, 90 end
-C_EncounterJournal = { GetInstanceForGameMap = function(m) return m == 90 and 231 or nil end }
-local bosses = { { "Grubbis", 2898 }, { "Mekgineer Thermaplugg", 2902 } }
-EJ_GetEncounterInfoByIndex = function(i) local b = bosses[i] if b then return b[1], "", 0, 0, "", 231, b[2], 90 end end
+-- Endboss von Gnomeregan (90) laut Spieldaten: Mekgineer Thermaplugg, 2940
 fire("ENCOUNTER_END", 2898, "Grubbis", 1, 5, 1)
 check("20) erster Boss: Lauf läuft noch:", E.state.runDone, nil)
-fire("ENCOUNTER_END", 2902, "Mekgineer Thermaplugg", 1, 5, 1)
+fire("ENCOUNTER_END", 2940, "Mekgineer Thermaplugg", 1, 5, 1)
 check("21) letzter Boss: Lauf vorbei:", E.state.runDone, true)
 E.state.completed = true
 AutoGroupFinderCharDB.lastFill = { s = 60, t = os.time() } -- auch kurz nach dem Vollwerden nichts automatisch

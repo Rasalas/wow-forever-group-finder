@@ -4,7 +4,7 @@
 ADDON   := AutoGroupFinder
 VERSION := $(shell sed -n 's/^\#\# Version: *//p' $(ADDON)/$(ADDON).toc)
 
-.PHONY: test deploy install zip pdf release
+.PHONY: test deploy install zip pdf release encounters
 
 test:
 	@scripts/test.sh
@@ -33,5 +33,8 @@ pdf:
 
 # Neue Version: .toc hochsetzen, testen, Tag pushen; GitHub Actions baut und lädt zu CurseForge hoch.
 # make release (Stufe aus Conventional Commits) · V=0.7.0 · BUMP=minor · DRY=1
+encounters: ## Bosse je Dungeon aus den Spieldaten (wago.tools) neu erzeugen
+	@scripts/encounters.py $(BUILD)
+
 release:
 	@DRY=$(DRY) BUMP=$(BUMP) YES=$(YES) scripts/release.sh $(V)

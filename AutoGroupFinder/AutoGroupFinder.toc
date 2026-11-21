@@ -23,6 +23,7 @@ Locales\ptBR.lua
 Locales\ruRU.lua
 Locales\Locales.lua
 Core.lua
+Encounters.lua
 Activities.lua
 Art.lua
 Group.lua

@@ -226,3 +226,8 @@ check("17) bekannte Karte direkt:", E.JournalInstance(90, "Gnomeregan"), 231)
 check("18) Forever per Name:", E.JournalInstance(2959, "City of Dalaran"), 1301)
 check("19) Stufe zurückgestellt:", tier, 1)
 check("20) unbekannt bleibt nil:", E.JournalInstance(9999, "Nirgendwo"), nil)
+
+print("== Endboss aus den Spieldaten")
+check("21) City of Dalaran:", E.ENCOUNTERS[2959][#E.ENCOUNTERS[2959]], 3303)
+GetInstanceInfo = function() return "City of Dalaran", "party", 1, "Normal", 5, 0, false, 2959 end
+check("22) LastBossID im Dungeon:", E.LastBossID(), 3303)
