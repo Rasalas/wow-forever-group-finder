@@ -62,13 +62,16 @@ function WhisperText(c, role)
   return (text:gsub("{role}", ROLE_NAME[role]))
 end
 
+-- Dungeons im Chat golden hervorheben, damit man später nachlesen kann, wer wofür kam
+local function Dungeons(c) return "|cffffd100" .. (c.forNames or c.activity or "?") .. "|r" end
+
 function Invite(c, role, byClick)
   -- Ohne Bestätigungstext im Client lässt sich ein fehlgeschlagener Invite nicht erkennen.
   pending[c.key] = { role = role, t = GetTime(), confirmed = PAT.invited == nil, c = c }
   Estimate.Invited(role)
   expired[c.key] = nil
   api.invite(c.name)
-  Print(T.CHAT_INVITING:format(Short(c.name), ROLE_NAME[role], c.forNames or c.activity or "?"))
+  Print(T.CHAT_INVITING:format(Short(c.name), ROLE_NAME[role], Dungeons(c)))
   if c.forIds then char.memberFor = char.memberFor or {} char.memberFor[c.key] = c.forIds end
   local comp = Composition()
   local enc = {}
@@ -114,7 +117,9 @@ function ManualInvite(name)
   local role = c and RoleFor(c, open)
   pending[key] = { role = role, t = GetTime(), confirmed = true, c = c, manual = true }
   if c and c.forIds then char.memberFor = char.memberFor or {} char.memberFor[key] = c.forIds end
-  Print(role and T.CHAT_MANUAL_ROLE:format(Short(key), ROLE_NAME[role]) or T.CHAT_MANUAL:format(Short(key)))
+  local msg = role and T.CHAT_MANUAL_ROLE:format(Short(key), ROLE_NAME[role]) or T.CHAT_MANUAL:format(Short(key))
+  if c and (c.forNames or c.activity) then msg = msg:gsub("%.$", "") .. ": " .. Dungeons(c) end
+  Print(msg)
   Rebuild()
 end
 
