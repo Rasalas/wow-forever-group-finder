@@ -226,7 +226,7 @@ do
     r.hl:SetColorTexture(1, 1, 1, 0.05)
     r.icon = r:CreateTexture(nil, "ARTWORK")
     r.icon:SetSize(18, 18)
-    r.time = Label(r, "", "GameFontDisableSmall", "LEFT", r, "LEFT", 14, 0)
+    r.time = Label(r, "", "GameFontDisableSmall", "LEFT", r, "LEFT", 8, 0)
     r.text = Label(r, "", "GameFontHighlight", "LEFT", r, "LEFT", 60, 0)
     r.text:SetJustifyH("LEFT")
     r.text:SetWordWrap(false)
@@ -249,7 +249,7 @@ do
     -- Beute wie in den Taschen: Symbol mit Rahmen in Qualitätsfarbe
     r.item = r:CreateTexture(nil, "ARTWORK")
     r.item:SetSize(22, 22)
-    r.item:SetPoint("LEFT", r, "LEFT", 60, 0)
+    r.item:SetPoint("LEFT", r, "LEFT", 44, 0)
     r.itemBorder = r:CreateTexture(nil, "OVERLAY")
     r.itemBorder:SetTexture("Interface\\Common\\WhiteIconFrame")
     r.itemBorder:SetAllPoints(r.item)
@@ -309,7 +309,7 @@ do
       for _, b in ipairs(r.sort) do b:SetShown(kind == "cols") end
       r.time:SetText("") r.c1:SetText("") r.c2:SetText("") r.c3:SetText("")
       r.text:ClearAllPoints()
-      r.text:SetPoint("LEFT", r, "LEFT", kind == "section" and 12 or 60, 0)
+      r.text:SetPoint("LEFT", r, "LEFT", kind == "section" and 8 or kind == "member" and 30 or 44, 0)
       r.text:SetPoint("RIGHT", r, "RIGHT", kind == "loot" and -130 or (kind == "member" or kind == "fight") and -170 or -12, 0)
       r.text:SetFontObject(kind == "section" and "GameFontNormal" or "GameFontHighlight")
       r:Show()
@@ -360,7 +360,7 @@ do
       local qc = quality and quality >= 2 and ITEM_QUALITY_COLORS and ITEM_QUALITY_COLORS[quality]
       if qc then r.itemBorder:SetVertexColor(qc.r, qc.g, qc.b) end
       r.itemBorder:SetShown(qc and true or false)
-      r.text:SetPoint("LEFT", r, "LEFT", 88, 0)
+      r.text:SetPoint("LEFT", r, "LEFT", 72, 0)
       r.text:SetText(l.link)
       r.link, r.rolls = l.link, l.rolls
       r.c1:SetText(Colored(l.who, l.c) .. (l.s and ("  |cff999999" .. RollText(l.s, l.r) .. "|r") or ""))
@@ -413,7 +413,7 @@ do
         if m.role then
           SetRoleTexture(r.icon, m.role, false)
           r.icon:ClearAllPoints()
-          r.icon:SetPoint("LEFT", 30, 0)
+          r.icon:SetPoint("LEFT", 8, 0)
           r.icon:Show()
         end
         local early = LeftEarly(e, m)
@@ -424,7 +424,7 @@ do
         if me.role then
           SetRoleTexture(r.icon, me.role, false)
           r.icon:ClearAllPoints()
-          r.icon:SetPoint("LEFT", 30, 0)
+          r.icon:SetPoint("LEFT", 8, 0)
           r.icon:Show()
         end
         r.text:SetText(Colored(p.name, me.class or (p.v and p.v.c))
