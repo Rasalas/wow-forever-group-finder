@@ -131,8 +131,7 @@ function History.Exit(r)
   if not r or r.exit then return end
   r.exit = time()
   LearnFinal(r)
-  if History.MeterUpdate then History.MeterUpdate(r) end
-  r.meterBase, r.meterLast, r.meterAcc = nil, nil, nil -- nur das Ergebnis aufheben
+  if History.MeterFinish then History.MeterFinish(r) end
 end
 
 function History.Run(e)
@@ -145,14 +144,31 @@ function History.Boss(id, name, ok)
   if ok then r.kills = r.kills + 1 else r.wipes = r.wipes + 1 end
   r.bosses[#r.bosses + 1] = { id = Readable(id) and id or nil, n = Readable(name) and name or "?", t = time(), ok = ok or nil }
 end
--- Besiegte Bosse von allen laut Spieldaten (Encounters.lua); nil, wenn der Dungeon unbekannt ist
-function History.Progress(r)
+-- Besiegte Bosse von allen laut Spieldaten (Encounters.lua); mit e zählen alle Läufe der Gruppe
+-- in diesem Dungeon (nach Wipe und Neubetreten). nil, wenn der Dungeon unbekannt ist.
+function History.Progress(r, e)
   local list = r and r.map and ENCOUNTERS[r.map]
   if not list then return nil end
   local dead, n = {}, 0
-  for _, b in ipairs(r.bosses) do if b.ok and b.id then dead[b.id] = true end end
+  for _, x in ipairs(e and e.runs or { r }) do
+    if x.map == r.map then for _, b in ipairs(x.bosses) do if b.ok and b.id then dead[b.id] = true end end end
+  end
   for _, id in ipairs(list) do if dead[id] then n = n + 1 end end
   return n, #list
+end
+-- Ganze Gruppe: Bosse je Dungeon einmal gezählt; total nil, wenn ein Dungeon unbekannt ist
+function History.EntryProgress(e)
+  local kills, total, wipes, seen = 0, 0, 0, {}
+  for _, r in ipairs(e.runs or {}) do
+    wipes = wipes + (r.wipes or 0)
+    if not seen[r.map or r] then
+      seen[r.map or r] = true
+      local n, of = History.Progress(r, e)
+      kills = kills + (n or r.kills or 0)
+      total = total and of and total + of or nil
+    end
+  end
+  return kills, total, wipes
 end
 function History.Fight(start)
   local r = History.Run(state.historyEntry)

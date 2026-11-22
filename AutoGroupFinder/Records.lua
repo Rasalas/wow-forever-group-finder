@@ -52,17 +52,37 @@ local function Add(into, add)
   end
 end
 
--- Je Abschnitt: Stand beim Betreten (base), Gesammeltes vor einem Zurücksetzen (acc), Ergebnis (meter)
+-- Im Dungeon sind fremde Namen geheim; darum der Stand kurz vor dem Ladebildschirm als Basis
+local outside
 function History.MeterStart(r)
-  r.meterBase = ReadOverall() or {}
+  local fresh = outside and GetTime() - outside.t < 120 and outside.data
+  outside = nil -- nur für dieses Betreten
+  r.meterBase = fresh or ReadOverall() or {}
 end
+-- Je Abschnitt: Stand beim Betreten (base), Gesammeltes vor einem Zurücksetzen (acc), Ergebnis (meter)
 function History.MeterUpdate(r)
   if not (r and r.meterBase) then return end
   local now = ReadOverall()
   if not now then return end
   r.meterLast = now
-  r.meter = Diff(now, r.meterBase)
-  Add(r.meter, r.meterAcc)
+  local meter = Diff(now, r.meterBase)
+  Add(meter, r.meterAcc)
+  for name, v in pairs(r.meter or {}) do if not meter[name] then meter[name] = v end end -- gerade geheim
+  r.meter = meter
+end
+-- Ende eines Abschnitts; im Dungeon (Gruppe aufgelöst) erst draußen ablesen, wenn Namen lesbar sind
+function History.MeterFinish(r)
+  History.MeterUpdate(r)
+  if IsInInstance() then r.meterPending = true return end
+  r.meterPending, r.meterBase, r.meterLast, r.meterAcc = nil, nil, nil, nil
+end
+local function FinishPending()
+  if IsInInstance() or not char then return end
+  for i = 1, math.min(3, #char.history) do
+    for _, r in ipairs(char.history[i].runs or {}) do
+      if r.meterPending then r.meterPending = nil; History.MeterFinish(r) end
+    end
+  end
 end
 local function MeterReset()
   local r = History.Run(state.historyEntry)
@@ -80,12 +100,20 @@ local function LootDrop(encounterID, key)
   local ok, info = pcall(LH.GetSortedInfoForDrop, encounterID, key)
   local w = ok and info and info.winner
   if not (w and Readable(w.playerName) and Readable(info.itemHyperlink)) then return end
+  -- Würfe: state 0 Bedarf, 1 Zweitspez., 2 Transmog, 3 Gier, 4 kein Wurf, 5 Passen
+  local rolls = {}
+  for _, x in ipairs(info.rollInfos or {}) do
+    if AllReadable(x, "playerName", "state", "roll") and x.state ~= 4 then
+      rolls[#rolls + 1] = { n = x.playerName, c = x.playerClass, s = x.state, r = x.roll }
+    end
+  end
   r.loot = r.loot or {}
-  r.loot[encounterID .. ":" .. key] = { enc = encounterID, link = info.itemHyperlink, who = w.playerName, c = w.playerClass }
+  r.loot[encounterID .. ":" .. key] = { enc = encounterID, link = info.itemHyperlink, who = w.playerName, c = w.playerClass,
+    s = Readable(w.state) and w.state or nil, r = Readable(w.roll) and w.roll or nil, rolls = #rolls > 0 and rolls or nil }
 end
 
 local rec = CreateFrame("Frame")
-for _, e in ipairs({ "PLAYER_REGEN_ENABLED", "DAMAGE_METER_RESET", "LOOT_HISTORY_UPDATE_DROP" }) do
+for _, e in ipairs({ "PLAYER_REGEN_ENABLED", "DAMAGE_METER_RESET", "LOOT_HISTORY_UPDATE_DROP", "PLAYER_LEAVING_WORLD", "PLAYER_ENTERING_WORLD" }) do
   pcall(rec.RegisterEvent, rec, e)
 end
 rec:SetScript("OnEvent", function(_, event, a1, a2)
@@ -96,6 +124,10 @@ rec:SetScript("OnEvent", function(_, event, a1, a2)
     MeterReset()
   elseif event == "LOOT_HISTORY_UPDATE_DROP" then
     LootDrop(a1, a2)
+  elseif event == "PLAYER_LEAVING_WORLD" then
+    if not IsInInstance() then outside = { t = GetTime(), data = ReadOverall() } end
+  elseif event == "PLAYER_ENTERING_WORLD" then
+    FinishPending()
   end
 end)
 

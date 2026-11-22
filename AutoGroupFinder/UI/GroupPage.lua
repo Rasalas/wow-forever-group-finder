@@ -137,7 +137,7 @@ do
     if fill and time() - fill.t < 4 * 3600 then parts[#parts + 1] = T.GROUP_FILLED:format(math.max(1, math.floor(fill.s / 60 + 0.5))) end
     local run = inside and char.instanceSince and math.floor((time() - char.instanceSince) / 60)
     if run and run >= 1 then parts[#parts + 1] = T.GROUP_RUN:format(run) end
-    local done, total = History.Progress(inside and History.Run(state.historyEntry))
+    local done, total = History.Progress(inside and History.Run(state.historyEntry), state.historyEntry)
     if total then parts[#parts + 1] = SKULL .. " " .. done .. "/" .. total end
     local fit, known = GroupFit()
     if #fit > 1 or (fit[1] and fit[1].n < known) then
