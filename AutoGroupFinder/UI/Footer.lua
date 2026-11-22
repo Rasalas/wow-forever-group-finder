@@ -6,6 +6,7 @@ setfenv(1, ns.env) -- gemeinsamer, privater Namensraum aller Module (siehe Core.
 tabs = {}
 function ShowPage(i)
   if i == 4 and not (IsInGroup() and GroupPage) then i = 1 end -- Gruppenseite nur in einer Gruppe
+  if i ~= db.page or i == 3 then History.detail = nil end -- Reiter „Letzte Gruppen“ führt zur Liste
   db.page = i
   if i == 1 then state.here = HereDungeon() end
   for j, p in ipairs(pages) do p:SetShown(j == i) end
@@ -65,6 +66,7 @@ backBtn:SetSize(111, 28)
 backBtn:SetPoint("BOTTOMLEFT", win, "BOTTOMLEFT", 21, 16)
 backBtn:SetText(BACK or T.BACK)
 backBtn:SetScript("OnClick", function()
+  if db.page == 3 then History.Back() return end -- Verlauf: von den Details zurück zur Liste
   db.view = "categories"
   Rebuild()
 end)
@@ -157,8 +159,9 @@ UpdateUI = function()
   if win.SetTitle then
     win:SetTitle(({ T.TITLE, T.FOUND_TITLE:format(#candidates), T.TAB_HISTORY, T.TAB_GROUP })[db.page] or T.TITLE)
   end
-  backBtn:SetShown(db.page == 1)
-  backBtn:SetEnabled(db.view == "activities" and not state.queued)
+  local inDetail = db.page == 3 and History.detail ~= nil
+  backBtn:SetShown(db.page == 1 or inDetail)
+  backBtn:SetEnabled(inDetail or db.view == "activities" and not state.queued)
   UpdateNeed()
   mainBtn:SetText(GroupReady() and (READY_CHECK or T.READY_CHECK) or state.queued and T.LEAVE_QUEUE or T.FIND_GROUP)
   mainBtn:SetEnabled(BlockReason() == nil)

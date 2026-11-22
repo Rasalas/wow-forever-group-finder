@@ -200,17 +200,22 @@ check("7) verlassen:", h.runs[1].exit, clock)
 clock = clock + 60; party = {}; fire("GROUP_ROSTER_UPDATE")
 check("8) Gruppe zu Ende:", h.ended, clock)
 db.page = 3; f:Show(); E.History.Update()
-local head, dd, dateText
+local function txt(fr, key) local l = rawget(fr, key) return l and rawget(l, "_text") end
+local function plain(t) return t and (t:gsub("|T.-|t", "S"):gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", "")) end
+local card
+for _, fr in ipairs(frames) do if rawget(fr, "entry") == h then card = fr end end
+check("9) Karte mit Dauer, Bossen und Wipe:", plain(txt(card, "stats")), "38 Min · Bosse: 1 · 1× Wipe")
+check("11) Datum rechts:", txt(card, "date"):match("^%a+ %d%d:%d%d$") ~= nil or txt(card, "date"):match("^%d") ~= nil, true)
+rawget(card, "_scripts").OnClick(card, "LeftButton")
+check("10a) Detailseite offen:", E.History.detail, h)
+local dd
 for _, fr in ipairs(frames) do
-  local title, lvl, dt = rawget(fr, "title"), rawget(fr, "level"), rawget(fr, "date")
-  local t = title and rawget(title, "_text")
-  if type(t) == "string" and t:find("^Gnomeregan  ") then head, dateText = t, dt and rawget(dt, "_text") end
-  local l = lvl and rawget(lvl, "_text")
-  if type(l) == "string" and l:find("ging nach") then dd = l end
+  local m = rawget(fr, "member")
+  if m and m.name == "Dd" and fr:IsShown() then dd = txt(fr, "c1") end
 end
-check("9) Kopf mit Bossen und Wipe:", head and head:gsub("|T.-|t", "S"):gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", ""), "Gnomeregan  S1  1× Wipe")
 check("10) Abgang nach 8,5 Min:", dd and dd:match("ging nach %d+ Min"), "ging nach 9 Min")
-check("11) Dauer vor dem Datum:", dateText and dateText:match("^%d+ Min"), "38 Min")
+E.History.Back()
+check("10b) zurück zur Liste:", E.History.detail, nil)
 print("== Nach dem letzten Boss geht niemand früh")
 party = { "A", "B" }; fire("GROUP_ROSTER_UPDATE")
 local h2 = AutoGroupFinderCharDB.history[1]
@@ -223,13 +228,13 @@ local n, of = E.History.Progress(h2.runs[1])
 check("12b) Fortschritt aus den Spieldaten:", n .. "/" .. of, "2/11")
 clock = clock + 60; party = { "A" }; fire("GROUP_ROSTER_UPDATE")
 clock = clock + 1200; party = {}; fire("GROUP_ROSTER_UPDATE")
-E.History.Update()
+E.History.detail = h2; E.History.Update()
 local early2
 for _, fr in ipairs(frames) do
-  local lvl = rawget(fr, "level")
-  local l = lvl and rawget(lvl, "_text")
-  if rawget(fr, "member") and rawget(fr, "member").name == "B" and type(l) == "string" then early2 = l:find("ging nach") ~= nil end
+  local m = rawget(fr, "member")
+  if m and m.name == "B" and fr:IsShown() then early2 = (txt(fr, "c1") or ""):find("ging nach") ~= nil end
 end
+E.History.Back()
 check("13) B ging nach dem Boss: kein Vermerk:", early2, false)
 print("== Endboss lernen ohne Journal")
 db.finalBoss = {}
@@ -330,4 +335,56 @@ check("36) Tod:", m.Heal.x, 1)
 check("37) Beute beim Boss:", hm.runs[1].loot["2940:1"].who, "Tank")
 check("38) nur Ergebnis gespeichert:", hm.runs[1].meterBase, nil)
 time = os.time
+time = os.time
+print("== Zwei Läufe, Fremde im Messer, Würfe, Ablesen erst draußen")
+time = function() return clock end
+clock = clock + 7 * 3600 -- sonst setzt der Verlauf die letzte Gruppe fort
+party = {}; fire("GROUP_ROSTER_UPDATE"); INSTANCE = nil; fire("PLAYER_ENTERING_WORLD", false, false)
+overall[0] = { { name = "Tank", classFilename = "WARRIOR", totalAmount = 1000 }, { name = "Stranger", classFilename = "ROGUE", totalAmount = 500 } }
+overall[2], overall[9] = {}, {}
+party = { "Tank", "Heal" }; fire("GROUP_ROSTER_UPDATE")
+local h4 = AutoGroupFinderCharDB.history[1]
+fire("PLAYER_LEAVING_WORLD") -- draußen: Basis mit lesbaren Namen
+issecretvalue = function(v) return v == "Tank" or v == "Stranger" end -- drinnen geheim
+INSTANCE = "Gnomeregan"; fire("PLAYER_ENTERING_WORLD", false, false)
+issecretvalue = nil
+check("39) Basis von draußen:", h4.runs[1].meterBase.Tank.d, 1000)
+clock = clock + 600
+fire("ENCOUNTER_END", 2940, "Thermaplugg", 1, 5, 1)
+C_LootHistory.GetSortedInfoForDrop = function() return { itemHyperlink = "[Gear]",
+  winner = { playerName = "Heal", playerClass = "PRIEST", state = 0, roll = 87 },
+  rollInfos = { { playerName = "Heal", playerClass = "PRIEST", state = 0, roll = 87 },
+    { playerName = "Tank", playerClass = "WARRIOR", state = 3, roll = 50 }, { playerName = "Zed", playerClass = "MAGE", state = 4 } } } end
+fire("LOOT_HISTORY_UPDATE_DROP", 2940, 7)
+local drop = h4.runs[1].loot["2940:7"]
+check("40) Wurf des Gewinners:", drop.s .. ":" .. drop.r, "0:87")
+check("41) Würfe ohne „kein Wurf“:", #drop.rolls, 2)
+overall[0] = { { name = "Tank", classFilename = "WARRIOR", totalAmount = 4000 }, { name = "Stranger", classFilename = "ROGUE", totalAmount = 900 } }
+INSTANCE = nil; fire("PLAYER_ENTERING_WORLD", false, false) -- raus nach Wipe, wieder rein
+INSTANCE = "Gnomeregan"; fire("PLAYER_ENTERING_WORLD", false, false)
+fire("ENCOUNTER_END", 2768, "Grubbis", 1, 5, 1)
+overall[0] = { { name = "Tank", classFilename = "WARRIOR", totalAmount = 6000 }, { name = "Stranger", classFilename = "ROGUE", totalAmount = 900 } }
+issecretvalue = function(v) return v == "Tank" or v == "Stranger" end
+clock = clock + 600; party = {}; fire("GROUP_ROSTER_UPDATE") -- Gruppe löst sich im Dungeon auf
+issecretvalue = nil
+check("42) im Dungeon noch offen:", h4.runs[2].meterPending, true)
+INSTANCE = nil; fire("PLAYER_ENTERING_WORLD", false, false)
+check("43) draußen abgelesen:", h4.runs[2].meter.Tank and h4.runs[2].meter.Tank.d, 2000)
+check("44) danach aufgeräumt:", h4.runs[2].meterBase, nil)
+local kills, total = E.History.EntryProgress(h4)
+check("45) Bosse über beide Läufe:", kills .. "/" .. total, "2/11")
+E.History.detail = h4; E.History.Update()
+local stranger, tankRow, rollText = false, false, nil
+for _, fr in ipairs(frames) do
+  if fr:IsShown() and rawget(fr, "kind") then
+    local t = txt(fr, "text") or ""
+    if t:find("Stranger") then stranger = true end
+    if rawget(fr, "kind") == "meter" and t:find("Tank") then tankRow = true end
+    if rawget(fr, "link") == "[Gear]" then rollText = plain(txt(fr, "c1")) end
+  end
+end
+check("46) Fremde nicht im Schadensmesser:", stranger, false)
+check("47) Mitglied im Schadensmesser:", tankRow, true)
+check("48) Gewinner mit Wurf:", rollText, "Heal  Bedarf 87")
+E.History.Back()
 time = os.time
