@@ -241,6 +241,21 @@ do
     r.itemBorder:SetTexture("Interface\\Common\\WhiteIconFrame")
     r.itemBorder:SetAllPoints(r.item)
     r:SetScript("OnEnter", function(self)
+      if self.fightM then
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:SetText(self.fightTitle)
+        local list = {}
+        for name, v in pairs(self.fightM) do list[#list + 1] = { name = name, v = v } end
+        table.sort(list, function(a, b) return (a.v.d or 0) > (b.v.d or 0) end)
+        if #list > 0 then GameTooltip:AddDoubleLine(" ", T.H_DMG .. "  |cff60ff60" .. T.H_HEAL .. "|r", 1, 1, 1, 0.6, 0.6, 0.6) end
+        for _, x in ipairs(list) do
+          local right = Num(x.v.d or 0) .. "  |cff60ff60" .. Num(x.v.h or 0) .. "|r"
+            .. ((x.v.x and x.v.x > 0) and ("  |cffff6060† " .. x.v.x .. "|r") or "")
+          GameTooltip:AddDoubleLine(Colored(x.name, x.v.c), right, 1, 1, 1, 1, 1, 1)
+        end
+        GameTooltip:Show()
+        return
+      end
       if self.link then
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
         if not pcall(GameTooltip.SetHyperlink, GameTooltip, self.link) then GameTooltip:SetText(self.link) end
@@ -274,14 +289,14 @@ do
       r:SetHeight(h)
       r:SetPoint("TOPLEFT", 0, -y)
       y = y + h
-      r.kind, r.link, r.rolls, r.member = kind, nil, nil, nil
+      r.kind, r.order, r.link, r.rolls, r.member, r.fightM = kind, n, nil, nil, nil, nil
       r.bg:SetShown(kind == "section")
-      r.hl:SetShown(kind == "member" or kind == "loot")
+      r.hl:SetShown(kind == "member" or kind == "loot" or kind == "fight")
       r.icon:Hide() r.item:Hide() r.itemBorder:Hide()
       r.time:SetText("") r.c1:SetText("") r.c2:SetText("") r.c3:SetText("")
       r.text:ClearAllPoints()
       r.text:SetPoint("LEFT", r, "LEFT", kind == "section" and 12 or 60, 0)
-      r.text:SetPoint("RIGHT", r, "RIGHT", kind == "loot" and -130 or kind == "meter" and -170 or -12, 0)
+      r.text:SetPoint("RIGHT", r, "RIGHT", kind == "loot" and -130 or (kind == "meter" or kind == "fight") and -110 or -12, 0)
       r.text:SetFontObject(kind == "section" and "GameFontNormal" or "GameFontHighlight")
       r:Show()
       return r
@@ -297,6 +312,31 @@ do
       local r = add("event", 18)
       r.time:SetText(Clock(t))
       r.text:SetText(text)
+    end
+    -- Ein Kampf oder mehrere zusammen: Dauer, Schaden der Gruppe, Tote in Rot; Überfahren zeigt je Spieler
+    local function fight(t, label, list, inGroup)
+      local m, dur, dmg, dead = {}, 0, 0, {}
+      for _, f in ipairs(list) do
+        dur = dur + (f.dur or 0)
+        for name, v in pairs(f.m or {}) do
+          if inGroup[Short(name)] then
+            local x = m[name] or { c = v.c }
+            m[name] = x
+            for _, k in ipairs({ "d", "h", "x" }) do if v[k] then x[k] = (x[k] or 0) + v[k] end end
+            dmg = dmg + (v.d or 0)
+            if v.x and v.x > 0 then dead[Short(name)] = true end
+          end
+        end
+      end
+      local r = add("fight", 20)
+      r.time:SetText(t and Clock(t) or "")
+      local names = {}
+      for name in pairs(dead) do names[#names + 1] = "† " .. name end
+      table.sort(names)
+      r.text:SetText(label .. (#names > 0 and ("  |cffff6060" .. table.concat(names, ", ") .. "|r") or ""))
+      r.c2:SetText(dur > 0 and ("|cff999999" .. ("%d:%02d"):format(math.floor(dur / 60), dur % 60) .. "|r") or "")
+      r.c1:SetText(dmg > 0 and Num(dmg) or "")
+      r.fightM, r.fightTitle = m, label
     end
     local function loot(l)
       local r = add("loot", 26)
@@ -347,11 +387,40 @@ do
         table.sort(drops, function(a, b) return (a.link or "") < (b.link or "") end)
         for _, l in ipairs(drops) do loot(l) end
       end
+      -- Kämpfe: Bosse einzeln, Trash zwischen zwei Bossen (oder Ausflügen nach draußen) zusammengefasst
+      local fights, bossFight = {}, {}
+      for k, f in pairs(run.fights or {}) do fights[#fights + 1] = { k = k, f = f } end
+      table.sort(fights, function(a, b) return a.k < b.k end)
+      for _, b in ipairs(run.bosses or {}) do if b.sid then bossFight[b.sid] = true end end
+      local marks = {}
+      for _, b in ipairs(run.bosses or {}) do marks[#marks + 1] = { t = b.t or 0, boss = b } end
+      for _, g in ipairs(run.gaps or {}) do marks[#marks + 1] = { t = g.out or 0, gap = g } end
+      table.sort(marks, function(a, b) return a.t < b.t end)
+      local trash = {}
+      for _, x in ipairs(fights) do
+        if not bossFight[x.k] then
+          local i = #marks + 1
+          for j, mk in ipairs(marks) do if (x.f.t or 0) <= mk.t then i = j break end end
+          trash[i] = trash[i] or {}
+          table.insert(trash[i], x.f)
+        end
+      end
+
       event(run.enter, T.H_ENTER)
-      event(run.first, T.H_FIRST)
-      for _, b in ipairs(run.bosses or {}) do
-        event(b.t, b.ok and (SKULL .. " " .. b.n) or ("|cffff6060" .. T.H_WIPE:format(b.n) .. "|r"))
-        if b.ok and b.id then lootFor(b.id) end
+      if #fights == 0 then event(run.first, T.H_FIRST) end
+      for i = 1, #marks + 1 do
+        if trash[i] then fight(trash[i][1].t, T.H_TRASH:format(#trash[i]), trash[i], inGroup) end
+        local mk = marks[i]
+        if mk and mk.boss then
+          local b = mk.boss
+          local label = b.ok and (SKULL .. " " .. b.n) or ("|cffff6060" .. T.H_WIPE:format(b.n) .. "|r")
+          local f = b.sid and run.fights and run.fights[b.sid]
+          if f then fight(b.t, label, { f }, inGroup) else event(b.t, label) end
+          if b.ok and b.id then lootFor(b.id) end
+        elseif mk and mk.gap then
+          local g = mk.gap
+          event(g.out, g.dead and ("|cffff6060† " .. T.H_GHOST:format(Clock(g.back)) .. "|r") or T.H_OUTSIDE:format(Clock(g.back)))
+        end
       end
       for k in pairs(run.loot or {}) do -- Beute ohne erkannten Boss
         if not used[k] then
@@ -361,8 +430,8 @@ do
           break
         end
       end
-      event(run.last, T.H_LAST)
-      event(run.exit, T.H_EXIT)
+      if #fights == 0 then event(run.last, T.H_LAST) end
+      event(run.exit, run.exitDead and ("|cffff6060† " .. T.H_EXIT_DEAD .. "|r") or T.H_EXIT)
 
       local meter = {}
       for name, v in pairs(run.meter or {}) do
@@ -381,7 +450,7 @@ do
           r.text:SetText(Colored(x.name, x.v.c))
           r.c3:SetText(Num(x.v.d or 0))
           r.c2:SetText("|cff60ff60" .. Num(x.v.h or 0) .. "|r")
-          r.c1:SetText((x.v.x and x.v.x > 0) and tostring(x.v.x) or "|cff666666–|r")
+          r.c1:SetText((x.v.x and x.v.x > 0) and ("|cffff6060† " .. x.v.x .. "|r") or "|cff666666–|r")
         end
       end
     end

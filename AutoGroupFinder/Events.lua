@@ -115,7 +115,8 @@ function LearnFinal(r)
     if not b.ok then return end -- danach noch gewipt: abgebrochen, nicht fertig
     last = b break
   end
-  if not (last and r.map and r.exit and r.exit - last.t <= 900) then return end
+  if r.learned or not (last and r.map and r.exit and r.exit - last.t <= 900) then return end
+  r.learned = true
   local c = db.finalBoss[r.map] or {}
   db.finalBoss[r.map] = c
   c[last.n] = (c[last.n] or 0) + 1
@@ -129,7 +130,10 @@ function FinalBossName(mapID)
 end
 function History.Exit(r)
   if not r or r.exit then return end
+  if History.MeterUpdate then History.MeterUpdate(r) end -- letzte Kämpfe drinnen noch aufnehmen
   r.exit = time()
+  local dead = UnitIsDeadOrGhost and UnitIsDeadOrGhost("player")
+  r.exitDead = (Readable(dead) and dead) and true or nil -- freigelassen: Geisterlauf
   LearnFinal(r)
   if History.MeterFinish then History.MeterFinish(r) end
 end
@@ -142,7 +146,8 @@ function History.Boss(id, name, ok)
   local r = History.Run(state.historyEntry)
   if not r then return end
   if ok then r.kills = r.kills + 1 else r.wipes = r.wipes + 1 end
-  r.bosses[#r.bosses + 1] = { id = Readable(id) and id or nil, n = Readable(name) and name or "?", t = time(), ok = ok or nil }
+  r.bosses[#r.bosses + 1] = { id = Readable(id) and id or nil, n = Readable(name) and name or "?", t = time(), ok = ok or nil,
+    sid = History.CurrentFight and History.CurrentFight(r) }
 end
 -- Besiegte Bosse von allen laut Spieldaten (Encounters.lua); mit e zählen alle Läufe der Gruppe
 -- in diesem Dungeon (nach Wipe und Neubetreten). nil, wenn der Dungeon unbekannt ist.
@@ -221,6 +226,14 @@ function History.Track()
     e.runs = e.runs or {}
     local r = History.Run(e)
     if r and r.name ~= name then History.Exit(r) r = nil end
+    -- Zurück nach Tod (Geisterlauf) oder kurz draußen, Endboss noch nicht besiegt: derselbe Lauf
+    local prev = e.runs[#e.runs]
+    if not r and prev and prev.name == name and prev.exit and not prev.done and time() - prev.exit < 1800 then
+      prev.gaps = prev.gaps or {}
+      prev.gaps[#prev.gaps + 1] = { out = prev.exit, back = time(), dead = prev.exitDead }
+      prev.exit, prev.exitDead, prev.meterPending = nil, nil, nil
+      r = prev
+    end
     if not r then
       -- nach /reload drinnen ist das Betreten unbekannt (instanceSince fehlt dann)
       e.runs[#e.runs + 1] = { name = name, map = select(8, GetInstanceInfo()), enter = char.instanceSince,
@@ -383,6 +396,9 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4, arg5)
     for i = #char.history, 1, -1 do -- leere Einträge aus älteren Versionen
       if #(char.history[i].members or {}) == 0 then table.remove(char.history, i) end
     end
+    for i = 21, #char.history do -- Einzelkämpfe nur für die letzten 20 Gruppen aufheben
+      for _, r in ipairs(char.history[i].runs or {}) do r.fights = nil end
+    end
     db.myRoles, db.myRole = nil, nil
     -- Auswahl pro Charakter (activityID -> true/false, nil = nach Stufe); die alte Account-Auswahl passte nicht zu jedem
     char.activities = char.activities or {}
@@ -427,6 +443,8 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4, arg5)
     if won and final then
       state.runDone = true
       if state.historyEntry then state.historyEntry.done = time() end -- wer danach geht, ging nicht früh
+      local r = History.Run(state.historyEntry)
+      if r then r.done = time() end -- danach wieder rein: neuer Lauf
     end
     if Readable(arg5) then History.Boss(arg1, arg2, arg5 == 1 or arg5 == true) end
   elseif event == "LFG_LIST_AVAILABILITY_UPDATE" then

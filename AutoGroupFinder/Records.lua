@@ -44,56 +44,64 @@ local function Add(into, add)
   end
 end
 
--- Ein Lauf zählt genau die Abschnitte seit dem Betreten (from) bis zum Verlassen (to), jeden einmal
--- nach Nummer. Der Stand vor dem Ladebildschirm legt den Anfang fest, falls drinnen noch nichts lesbar ist.
+-- Jeder Kampf ist ein Abschnitt mit fortlaufender Nummer. Ein Lauf hebt die Abschnitte seit dem Betreten
+-- einzeln auf (fights), neue nur drinnen; draußen werden bekannte nur noch fertig gelesen.
+-- Nach einem Zurücksetzen beginnen die Nummern neu, darum epoch im Schlüssel.
 local outside
+local function FightKey(r, id) return (r.meterEpoch or 0) * 100000 + id end
 function History.MeterStart(r)
   local dm = Meter()
   local fresh = outside and GetTime() - outside.t < 120 and outside.last
   outside = nil -- nur für dieses Betreten
   local last = fresh or (dm and LastSession(dm))
-  if last then r.meterFrom, r.meterSessions = last + 1, {} end
+  if last then r.meterFrom, r.fights = last + 1, {} end
 end
 function History.MeterUpdate(r)
   local dm = Meter()
   if not (dm and r and r.meterFrom) then return end
+  local adding = not r.exit and IsInInstance()
   local _, list = LastSession(dm)
   for _, s in ipairs(list) do
     local id = s.sessionID
-    if id >= r.meterFrom and (not r.meterTo or id <= r.meterTo) then
-      local have = r.meterSessions[id] or {}
-      for name, v in pairs(ReadSession(dm, id)) do have[name] = v end
-      r.meterSessions[id] = have
+    local k = FightKey(r, id)
+    local f = r.fights[k]
+    if id >= r.meterFrom and (f or adding) then
+      f = f or { t = time() } -- erstmals gelesen, kurz nach Kampfende
+      if Readable(s.name) and s.name ~= "" then f.n = s.name end
+      if Readable(s.durationSeconds) and s.durationSeconds then f.dur = math.floor(s.durationSeconds + 0.5) end
+      f.m = f.m or {}
+      for name, v in pairs(ReadSession(dm, id)) do f.m[name] = v end
+      r.fights[k] = f
     end
   end
   local meter = {}
-  for _, data in pairs(r.meterSessions) do Add(meter, data) end
-  Add(meter, r.meterBank)
+  for _, f in pairs(r.fights) do Add(meter, f.m) end
   r.meter = meter
+end
+-- Schlüssel des laufenden Kampfes (für den Boss bei ENCOUNTER_END)
+function History.CurrentFight(r)
+  local dm = Meter()
+  if not (dm and r and r.meterFrom) then return nil end
+  local last = LastSession(dm)
+  return last >= r.meterFrom and FightKey(r, last) or nil
 end
 -- Ende eines Abschnitts; im Dungeon erst draußen fertig ablesen (dort ist nichts mehr geheim)
 function History.MeterFinish(r)
-  local dm = Meter()
-  if r and r.meterFrom and not r.meterTo and dm then r.meterTo = LastSession(dm) end
   History.MeterUpdate(r)
-  if IsInInstance() and r and r.meterFrom then r.meterPending = true return end
-  if r then r.meterPending, r.meterFrom, r.meterTo, r.meterSessions, r.meterBank = nil, nil, nil, nil, nil end
+  if r then r.meterPending = (IsInInstance() and r.meterFrom) and true or nil end
 end
 local function FinishPending()
   if IsInInstance() or not char then return end
   for i = 1, math.min(3, #char.history) do
     for _, r in ipairs(char.history[i].runs or {}) do
-      if r.meterPending then r.meterPending = nil; History.MeterFinish(r) end
+      if r.meterPending then History.MeterFinish(r) end
     end
   end
 end
--- Zurückgesetzt: Nummern können neu beginnen; Gesammeltes beiseitelegen
 local function MeterReset()
   local r = History.Run(state.historyEntry)
   if not (r and r.meterFrom) then return end
-  r.meterBank = r.meterBank or {}
-  for _, data in pairs(r.meterSessions) do Add(r.meterBank, data) end
-  r.meterSessions, r.meterFrom = {}, 0
+  r.meterEpoch, r.meterFrom = (r.meterEpoch or 0) + 1, 0
 end
 
 -- Beute: wer bei welchem Boss was bekommen hat

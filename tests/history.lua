@@ -345,7 +345,8 @@ check("34) nur Kämpfe im Dungeon, über Zurücksetzen hinweg:", m.Tank.d, 5000 
 check("35) Heilung:", m.Heal.h, 8000)
 check("36) Tod:", m.Heal.x, 1)
 check("37) Beute beim Boss:", hm.runs[1].loot["2940:1"].who, "Tank")
-check("38) nur Ergebnis gespeichert:", hm.runs[1].meterSessions, nil)
+local nf = 0; for _ in pairs(hm.runs[1].fights) do nf = nf + 1 end
+check("38) Kämpfe einzeln, auch nach dem Zurücksetzen:", nf, 2)
 
 print("== Zwei Läufe, Fremde im Messer, Würfe, Ablesen erst draußen")
 clock = clock + 7 * 3600 -- sonst setzt der Verlauf die letzte Gruppe fort
@@ -384,7 +385,7 @@ check("42) im Dungeon noch offen:", h4.runs[2].meterPending, true)
 fight(8, { src("Tank", "WARRIOR", 9999) }) -- danach allein weitergekämpft: zählt nicht
 INSTANCE = nil; fire("PLAYER_ENTERING_WORLD", false, false)
 check("43) draußen abgelesen:", h4.runs[2].meter.Tank and h4.runs[2].meter.Tank.d, 2000)
-check("44) danach aufgeräumt:", h4.runs[2].meterSessions, nil)
+check("44) danach fertig:", h4.runs[2].meterPending, nil)
 local kills, total = E.History.EntryProgress(h4)
 check("45) Bosse über beide Läufe:", kills .. "/" .. total, "2/11")
 E.History.detail = h4; E.History.Update()
@@ -400,5 +401,43 @@ end
 check("46) Fremde nicht im Schadensmesser:", stranger, false)
 check("47) Mitglied im Schadensmesser:", tankRow, true)
 check("48) Gewinner mit Wurf:", rollText, "Heal  Bedarf 87")
+E.History.Back()
+
+print("== Tod: Geisterlauf bleibt derselbe Lauf; Kämpfe einzeln")
+time = function() return clock end
+clock = clock + 7 * 3600
+sessions = {}
+party = {}; fire("GROUP_ROSTER_UPDATE"); INSTANCE = nil; fire("PLAYER_ENTERING_WORLD", false, false)
+fight(20, { src("Tank", "WARRIOR", 100) })
+party = { "Tank", "Heal" }; fire("GROUP_ROSTER_UPDATE")
+local h5 = AutoGroupFinderCharDB.history[1]
+fire("PLAYER_LEAVING_WORLD"); INSTANCE = "Gnomeregan"; fire("PLAYER_ENTERING_WORLD", false, false)
+clock = clock + 60; fight(21, { src("Tank", "WARRIOR", 3000), src("Heal", "PRIEST", 500) }); fire("PLAYER_REGEN_ENABLED"); flush()
+clock = clock + 60; fight(22, { src("Tank", "WARRIOR", 4000) }, {}, { src("Heal", "PRIEST", 1) }); fire("PLAYER_REGEN_ENABLED"); flush()
+clock = clock + 60; fight(23, { src("Tank", "WARRIOR", 9000), src("Heal", "PRIEST", 1000) })
+fire("ENCOUNTER_END", 2768, "Grubbis", 1, 5, 1); fire("PLAYER_REGEN_ENABLED"); flush()
+UnitIsDeadOrGhost = function() return true end -- gestorben, freigelassen
+clock = clock + 30; INSTANCE = nil; fire("PLAYER_ENTERING_WORLD", false, false)
+UnitIsDeadOrGhost = function() return false end
+clock = clock + 120; fire("PLAYER_LEAVING_WORLD"); INSTANCE = "Gnomeregan"; fire("PLAYER_ENTERING_WORLD", false, false)
+check("49) derselbe Lauf nach dem Geisterlauf:", #h5.runs, 1)
+check("50) Ausflug als Tod vermerkt:", h5.runs[1].gaps and h5.runs[1].gaps[1].dead, true)
+clock = clock + 60; fight(24, { src("Tank", "WARRIOR", 1000) }); fire("PLAYER_REGEN_ENABLED"); flush()
+local nf5 = 0; for _ in pairs(h5.runs[1].fights) do nf5 = nf5 + 1 end
+check("51) Kämpfe einzeln:", nf5, 4)
+local b5 = h5.runs[1].bosses[1]
+check("52) Boss mit seinem Kampf:", b5.sid and h5.runs[1].fights[b5.sid].m.Tank.d, 9000)
+E.History.detail = h5; E.History.Update()
+local rowsSeen = {}
+for _, fr in ipairs(frames) do
+  local k = rawget(fr, "kind")
+  if fr:IsShown() and (k == "fight" or k == "event") then
+    rowsSeen[#rowsSeen + 1] = { o = rawget(fr, "order"), t = plain(txt(fr, "text")), c1 = txt(fr, "c1") }
+  end
+end
+table.sort(rowsSeen, function(a, b) return a.o < b.o end)
+local seq = {}
+for _, r in ipairs(rowsSeen) do seq[#seq + 1] = (r.t or ""):gsub(" bis %d+:%d+", "") end
+check("53) Ablauf:", table.concat(seq, " | "), "Betreten | Trash (2)  † Heal | S Grubbis | † Gestorben, Geisterlauf | Trash (1)")
 E.History.Back()
 time = os.time
