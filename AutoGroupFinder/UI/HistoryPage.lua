@@ -117,6 +117,21 @@ do
     if n >= 1e3 then return ("%.1fk"):format(n / 1e3) end
     return tostring(math.floor(n))
   end
+  -- Symbol und Qualität sofort aus dem Link (ohne auf den Server zu warten)
+  local function ItemLook(link)
+    local icon, quality
+    local instant = (C_Item and C_Item.GetItemInfoInstant) or GetItemInfoInstant
+    if instant then
+      local ok, _, _, _, _, ic = pcall(instant, link)
+      if ok then icon = ic end
+    end
+    local q = C_Item and C_Item.GetItemQualityByID
+    if q then
+      local ok, v = pcall(q, link)
+      if ok then quality = v end
+    end
+    return icon, quality
+  end
   local ROLL = { [0] = T.H_ROLL_NEED, [1] = T.H_ROLL_OFF, [2] = T.H_ROLL_MOG, [3] = T.H_ROLL_GREED, [5] = T.H_ROLL_PASS }
   local function RollText(s, r)
     local name = s and ROLL[s]
@@ -124,7 +139,7 @@ do
     return name .. (r and (" " .. r) or "")
   end
 
-  -- Kurzfassung beim Überfahren eines Eintrags
+  -- Beim Überfahren: was nicht schon in der Liste steht (Dauer, Bosse, Beute)
   local function SummaryTooltip(owner, e)
     GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
     GameTooltip:SetText(e.name or "?", 1, 0.82, 0)
@@ -132,57 +147,68 @@ do
     local stats = History.Stats(e)
     if stats ~= "" then GameTooltip:AddLine(stats, 1, 1, 1) end
     if e.wait then GameTooltip:AddLine(T.H_FULL:format(Mins(e.wait)), 0.8, 0.8, 0.8) end
-    if #(e.members or {}) > 0 then GameTooltip:AddLine(" ") end
-    for _, m in ipairs(e.members or {}) do
-      local left = (m.role and (RoleIconText(m.role, 14) .. " ") or "") .. Colored(m.name, m.class)
-        .. ((m.level and m.level > 0) and ("  |cff999999" .. m.level .. "|r") or "")
-      GameTooltip:AddDoubleLine(left, LeftEarly(e, m) or "", 1, 1, 1, 0.6, 0.6, 0.6)
+    local items, bosses = 0, false
+    for _, r in ipairs(e.runs or {}) do
+      for _, b in ipairs(r.bosses or {}) do
+        if b.ok then
+          if not bosses then GameTooltip:AddLine(" ") bosses = true end
+          GameTooltip:AddDoubleLine(SKULL .. " " .. b.n, b.t and Clock(b.t) or "", 0.9, 0.9, 0.9, 0.6, 0.6, 0.6)
+        end
+      end
+      for _ in pairs(r.loot or {}) do items = items + 1 end
     end
+    if items > 0 then GameTooltip:AddLine(T.H_ITEMS:format(items), 0.8, 0.8, 0.8) end
     GameTooltip:AddLine(" ")
     GameTooltip:AddLine(T.H_DETAILS, 0.1, 1, 0.1)
     GameTooltip:Show()
   end
 
-  -- Liste: je Gruppe eine Karte mit zwei Zeilen
-  local cards = {}
-  local CARD = 44
-  local function Card(i)
-    if cards[i] then return cards[i] end
-    local c = CreateFrame("Button", nil, list.child)
-    c:SetHeight(CARD)
-    c:SetPoint("RIGHT", list.child, "RIGHT")
-    c:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-    c.bg = c:CreateTexture(nil, "BACKGROUND")
-    c.bg:SetAllPoints()
-    if not Atlas(c.bg, "common-button-list-collapseExpand") then c.bg:SetColorTexture(0.3, 0.2, 0.1, 0.6) end
-    c.hl = c:CreateTexture(nil, "HIGHLIGHT")
-    c.hl:SetAllPoints()
-    c.hl:SetColorTexture(1, 1, 1, 0.06)
-    c.kind = c:CreateTexture(nil, "ARTWORK")
-    c.kind:SetSize(16, 16)
-    c.kind:SetPoint("TOPLEFT", 10, -7)
-    c.title = Label(c, "", "GameFontNormal", "TOPLEFT", c, "TOPLEFT", 30, -8)
-    c.date = Label(c, "", "GameFontDisableSmall", "TOPRIGHT", c, "TOPRIGHT", -12, -9)
-    c.title:SetPoint("RIGHT", c.date, "LEFT", -8, 0)
-    c.title:SetJustifyH("LEFT")
-    c.title:SetWordWrap(false)
-    c.stats = Label(c, "", "GameFontHighlightSmall", "BOTTOMLEFT", c, "BOTTOMLEFT", 30, 8)
-    c.stats:SetTextColor(0.75, 0.75, 0.75)
-    c.classes = Label(c, "", "GameFontHighlightSmall", "BOTTOMRIGHT", c, "BOTTOMRIGHT", -12, 7)
-    c:SetScript("OnEnter", function(self) if self.entry then SummaryTooltip(self, self.entry) end end)
-    c:SetScript("OnLeave", GameTooltip_Hide)
-    c:SetScript("OnClick", function(self, button)
-      if not self.entry then return end
-      if IsShiftKeyDown() then InsertChat(self.entry.name)
-      elseif button == "RightButton" then EntryMenu(self, self.entry)
-      else
-        GameTooltip:Hide()
-        History.detail = self.entry
-        Rebuild() -- auch die Fußleiste (Zurück)
+  local function OpenDetail(e)
+    GameTooltip:Hide()
+    History.detail = e
+    Rebuild() -- auch die Fußleiste (Zurück)
+  end
+
+  -- Liste: Kopfzeile je Gruppe, darunter die Mitspieler
+  local rows = {}
+  local HEAD, MEMBER = 28, 24
+  local function Row(i)
+    if rows[i] then return rows[i] end
+    local row = CreateFrame("Button", nil, list.child)
+    row:SetPoint("RIGHT", list.child, "RIGHT")
+    row:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+    row.headBg = row:CreateTexture(nil, "BACKGROUND")
+    row.headBg:SetAllPoints()
+    if not Atlas(row.headBg, "common-button-list-collapseExpand") then row.headBg:SetColorTexture(0.3, 0.2, 0.1, 0.6) end
+    row.hl = row:CreateTexture(nil, "HIGHLIGHT")
+    row.hl:SetAllPoints()
+    row.hl:SetColorTexture(1, 1, 1, 0.05)
+    row.kind = row:CreateTexture(nil, "ARTWORK")
+    row.kind:SetSize(16, 16)
+    row.kind:SetPoint("LEFT", 10, 0)
+    row.title = Label(row, "", "GameFontNormal", "LEFT", row, "LEFT", 30, 0)
+    row.date = Label(row, "", "GameFontDisableSmall", "RIGHT", row, "RIGHT", -12, 0)
+    row.icon = row:CreateTexture(nil, "ARTWORK")
+    row.icon:SetSize(18, 18)
+    row.icon:SetPoint("LEFT", 30, 0)
+    row.name = Label(row, "", "GameFontHighlight", "LEFT", row.icon, "RIGHT", 6, 0)
+    row.level = Label(row, "", "GameFontDisableSmall", "LEFT", row.name, "RIGHT", 6, 0)
+    row.note = Label(row, "", "GameFontDisableSmall", "RIGHT", row, "RIGHT", -12, 0)
+    row:SetScript("OnEnter", function(self) if self.head and self.entry then SummaryTooltip(self, self.entry) end end)
+    row:SetScript("OnLeave", GameTooltip_Hide)
+    row:SetScript("OnClick", function(self, button)
+      if self.member then
+        if IsShiftKeyDown() then InsertChat(Short(self.member.name))
+        elseif button == "RightButton" then MemberMenu(self, self.member)
+        else OpenDetail(self.entry) end
+      elseif self.entry then
+        if IsShiftKeyDown() then InsertChat(self.entry.name)
+        elseif button == "RightButton" then EntryMenu(self, self.entry)
+        else OpenDetail(self.entry) end
       end
     end)
-    cards[i] = c
-    return c
+    rows[i] = row
+    return row
   end
 
   -- Detailseite: Zeilen verschiedener Art (Abschnitt, Mitglied, Ablauf, Beute, Schadensmesser)
@@ -207,6 +233,13 @@ do
     r.c1 = Label(r, "", "GameFontHighlightSmall", "RIGHT", r, "RIGHT", -12, 0)
     r.c2 = Label(r, "", "GameFontHighlightSmall", "RIGHT", r, "RIGHT", -60, 0)
     r.c3 = Label(r, "", "GameFontHighlightSmall", "RIGHT", r, "RIGHT", -120, 0)
+    -- Beute wie in den Taschen: Symbol mit Rahmen in Qualitätsfarbe
+    r.item = r:CreateTexture(nil, "ARTWORK")
+    r.item:SetSize(22, 22)
+    r.item:SetPoint("LEFT", r, "LEFT", 60, 0)
+    r.itemBorder = r:CreateTexture(nil, "OVERLAY")
+    r.itemBorder:SetTexture("Interface\\Common\\WhiteIconFrame")
+    r.itemBorder:SetAllPoints(r.item)
     r:SetScript("OnEnter", function(self)
       if self.link then
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
@@ -244,7 +277,7 @@ do
       r.kind, r.link, r.rolls, r.member = kind, nil, nil, nil
       r.bg:SetShown(kind == "section")
       r.hl:SetShown(kind == "member" or kind == "loot")
-      r.icon:Hide()
+      r.icon:Hide() r.item:Hide() r.itemBorder:Hide()
       r.time:SetText("") r.c1:SetText("") r.c2:SetText("") r.c3:SetText("")
       r.text:ClearAllPoints()
       r.text:SetPoint("LEFT", r, "LEFT", kind == "section" and 12 or 60, 0)
@@ -266,8 +299,14 @@ do
       r.text:SetText(text)
     end
     local function loot(l)
-      local r = add("loot", 18)
-      r.text:SetPoint("LEFT", r, "LEFT", 78, 0)
+      local r = add("loot", 26)
+      local icon, quality = ItemLook(l.link)
+      r.item:SetTexture(icon or "Interface\\Icons\\INV_Misc_QuestionMark")
+      r.item:Show()
+      local qc = quality and quality >= 2 and ITEM_QUALITY_COLORS and ITEM_QUALITY_COLORS[quality]
+      if qc then r.itemBorder:SetVertexColor(qc.r, qc.g, qc.b) end
+      r.itemBorder:SetShown(qc and true or false)
+      r.text:SetPoint("LEFT", r, "LEFT", 88, 0)
       r.text:SetText(l.link)
       r.link, r.rolls = l.link, l.rolls
       r.c1:SetText(Colored(l.who, l.c) .. (l.s and ("  |cff999999" .. RollText(l.s, l.r) .. "|r") or ""))
@@ -375,24 +414,45 @@ do
       if History.Matches(x, query) then
         shown = shown + 1
         n = n + 1
-        local c = Card(n)
-        c:SetPoint("TOPLEFT", 0, -y)
-        y = y + CARD + 4
-        c.entry = x
+        local row = Row(n)
+        row:SetHeight(HEAD)
+        row:SetPoint("TOPLEFT", 0, -y)
+        y = y + HEAD + 2
+        row.entry, row.member, row.head = x, nil, true
+        row.headBg:Show()
         local icon = x.instance and (x.kind == "raid" and "Raid" or "Dungeon")
-        if icon and not Atlas(c.kind, icon) then c.kind:SetTexture("Interface\\Minimap\\Dungeon") end
-        c.kind:SetShown(icon and true or false)
-        c.title:SetFontObject(x.instance and "GameFontNormal" or "GameFontHighlight")
-        c.title:SetText(x.name or "?")
-        c.date:SetText(History.When(x.t))
-        c.stats:SetText(History.Stats(x))
-        local icons = {}
-        for _, m in ipairs(x.members or {}) do icons[#icons + 1] = ClassIconText(m.class, 14) end
-        c.classes:SetText(table.concat(icons, " "))
-        c:Show()
+        if icon and not Atlas(row.kind, icon) then row.kind:SetTexture("Interface\\Minimap\\Dungeon") end
+        row.kind:SetShown(icon and true or false)
+        row.title:SetFontObject(x.instance and "GameFontNormal" or "GameFontHighlight")
+        row.title:SetText(x.name or "?")
+        row.title:Show()
+        local s = (x.ended or x.last or x.t) - x.t
+        row.date:SetText((s >= 60 and (T.H_MIN:format(Mins(s)) .. " · ") or "") .. History.When(x.t))
+        row.date:Show()
+        row.icon:Hide() row.name:Hide() row.level:Hide() row.note:Hide()
+        row:Show()
+        for _, m in ipairs(x.members or {}) do
+          n = n + 1
+          local r = Row(n)
+          r:SetHeight(MEMBER)
+          r:SetPoint("TOPLEFT", 0, -y)
+          y = y + MEMBER
+          r.entry, r.member, r.head = x, m, nil
+          r.headBg:Hide() r.title:Hide() r.date:Hide() r.kind:Hide()
+          if m.role then SetRoleTexture(r.icon, m.role, false) end
+          r.icon:SetShown(m.role ~= nil)
+          r.name:SetText(Colored(m.name, m.class))
+          r.name:Show()
+          r.level:SetText(((m.level and m.level > 0) and m.level or "") .. "  " .. RateTag(Rating(m.name)))
+          r.level:Show()
+          r.note:SetText(LeftEarly(x, m) or "")
+          r.note:Show()
+          r:Show()
+        end
+        y = y + 6
       end
     end
-    for i = n + 1, #cards do cards[i]:Hide() end
+    for i = n + 1, #rows do rows[i]:Hide() end
     list:SetContentHeight(y)
     empty:SetText(#char.history == 0 and T.HISTORY_EMPTY or T.H_NO_MATCH)
     empty:SetShown(shown == 0)

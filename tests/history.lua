@@ -202,10 +202,15 @@ check("8) Gruppe zu Ende:", h.ended, clock)
 db.page = 3; f:Show(); E.History.Update()
 local function txt(fr, key) local l = rawget(fr, key) return l and rawget(l, "_text") end
 local function plain(t) return t and (t:gsub("|T.-|t", "S"):gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", "")) end
-local card
-for _, fr in ipairs(frames) do if rawget(fr, "entry") == h then card = fr end end
-check("9) Karte mit Dauer, Bossen und Wipe:", plain(txt(card, "stats")), "38 Min · Bosse: 1 · 1× Wipe")
-check("11) Datum rechts:", txt(card, "date"):match("^%a+ %d%d:%d%d$") ~= nil or txt(card, "date"):match("^%d") ~= nil, true)
+local card, ddList
+for _, fr in ipairs(frames) do
+  if rawget(fr, "entry") == h and rawget(fr, "head") then card = fr end
+  local m = rawget(fr, "member")
+  if m and m.name == "Dd" and fr:IsShown() then ddList = txt(fr, "note") end
+end
+check("9) Kurzfassung mit Dauer, Bossen und Wipe:", plain(E.History.Stats(h)), "38 Min · Bosse: 1 · 1× Wipe")
+check("11) Dauer vor dem Datum:", txt(card, "date"):match("^%d+ Min") ~= nil, true)
+check("10c) Liste zeigt Namen mit Abgang:", ddList and ddList:match("ging nach %d+ Min"), "ging nach 9 Min")
 rawget(card, "_scripts").OnClick(card, "LeftButton")
 check("10a) Detailseite offen:", E.History.detail, h)
 local dd
@@ -304,51 +309,58 @@ party = { "Quester" }; fire("GROUP_ROSTER_UPDATE")
 clock = clock + 900; party = {}; fire("GROUP_ROSTER_UPDATE")
 check("33) längere Gruppe bleibt:", #AutoGroupFinderCharDB.history, n0 + 1)
 time = os.time
-print("== Schadensmesser und Beute")
+print("== Schadensmesser (Kampf-Abschnitte) und Beute")
 time = function() return clock end
-local overall = { [0] = {}, [2] = {}, [9] = {} }
+local sessions = {}
 C_DamageMeter = {
   IsDamageMeterAvailable = function() return true end,
-  GetCombatSessionFromType = function(_, kind) return { combatSources = overall[kind] } end,
+  GetAvailableCombatSessions = function()
+    local l = {}
+    for id in pairs(sessions) do l[#l + 1] = { sessionID = id, name = "Kampf " .. id } end
+    table.sort(l, function(a, b) return a.sessionID < b.sessionID end)
+    return l
+  end,
+  GetCombatSessionFromID = function(id, kind) return { combatSources = (sessions[id] or {})[kind] or {} } end,
 }
+local function fight(id, dmg, heal, deaths) sessions[id] = { [0] = dmg or {}, [2] = heal or {}, [9] = deaths or {} } end
+local function src(n, c, a) return { name = n, classFilename = c, totalAmount = a } end
+local function flush() local t = timers; for k = #t, 1, -1 do local x = table.remove(t, k); x.f() end end
 C_LootHistory = { GetSortedInfoForDrop = function(enc, key)
   return { itemHyperlink = "[Gnomish Gear]", winner = { playerName = "Tank", playerClass = "WARRIOR" } } end }
-overall[0] = { { name = "Tank", classFilename = "WARRIOR", totalAmount = 1000 } } -- vor dem Dungeon
+fight(1, { src("Tank", "WARRIOR", 1000) }) -- vor dem Dungeon
 party = {}; fire("GROUP_ROSTER_UPDATE"); INSTANCE = nil; fire("PLAYER_ENTERING_WORLD", false, false)
 party = { "Tank", "Heal" }; fire("GROUP_ROSTER_UPDATE")
 local hm = AutoGroupFinderCharDB.history[1]
 INSTANCE = "Gnomeregan"; fire("PLAYER_ENTERING_WORLD", false, false)
-overall[0] = { { name = "Tank", classFilename = "WARRIOR", totalAmount = 5000 }, { name = "Heal", classFilename = "PRIEST", totalAmount = 300 } }
-overall[2] = { { name = "Heal", classFilename = "PRIEST", totalAmount = 8000 } }
-fire("PLAYER_REGEN_ENABLED")
-fire("DAMAGE_METER_RESET") -- Spieler setzt den Messer zurück
-overall[0] = { { name = "Tank", classFilename = "WARRIOR", totalAmount = 2000 } }
-overall[2] = {}
-overall[9] = { { name = "Heal", classFilename = "PRIEST", totalAmount = 1 } }
+fight(2, { src("Tank", "WARRIOR", 5000), src("Heal", "PRIEST", 300) }, { src("Heal", "PRIEST", 8000) })
+fire("PLAYER_REGEN_ENABLED"); flush()
+sessions = {}; fire("DAMAGE_METER_RESET") -- Spieler setzt den Messer zurück, Nummern beginnen neu
+fight(1, { src("Tank", "WARRIOR", 2000) }, {}, { src("Heal", "PRIEST", 1) })
+fire("PLAYER_REGEN_ENABLED"); flush()
 fire("ENCOUNTER_END", 2940, "Thermaplugg", 1, 5, 1)
 fire("LOOT_HISTORY_UPDATE_DROP", 2940, 1)
 clock = clock + 60; INSTANCE = nil; fire("PLAYER_ENTERING_WORLD", false, false)
 local m = hm.runs[1].meter
-check("34) Schaden ab Betreten, über Zurücksetzen hinweg:", m.Tank.d, 4000 + 2000)
+check("34) nur Kämpfe im Dungeon, über Zurücksetzen hinweg:", m.Tank.d, 5000 + 2000)
 check("35) Heilung:", m.Heal.h, 8000)
 check("36) Tod:", m.Heal.x, 1)
 check("37) Beute beim Boss:", hm.runs[1].loot["2940:1"].who, "Tank")
-check("38) nur Ergebnis gespeichert:", hm.runs[1].meterBase, nil)
-time = os.time
-time = os.time
+check("38) nur Ergebnis gespeichert:", hm.runs[1].meterSessions, nil)
+
 print("== Zwei Läufe, Fremde im Messer, Würfe, Ablesen erst draußen")
-time = function() return clock end
 clock = clock + 7 * 3600 -- sonst setzt der Verlauf die letzte Gruppe fort
+sessions = {}
+fight(5, { src("Tank", "WARRIOR", 1000), src("Stranger", "ROGUE", 500) }) -- draußen
 party = {}; fire("GROUP_ROSTER_UPDATE"); INSTANCE = nil; fire("PLAYER_ENTERING_WORLD", false, false)
-overall[0] = { { name = "Tank", classFilename = "WARRIOR", totalAmount = 1000 }, { name = "Stranger", classFilename = "ROGUE", totalAmount = 500 } }
-overall[2], overall[9] = {}, {}
 party = { "Tank", "Heal" }; fire("GROUP_ROSTER_UPDATE")
 local h4 = AutoGroupFinderCharDB.history[1]
-fire("PLAYER_LEAVING_WORLD") -- draußen: Basis mit lesbaren Namen
-issecretvalue = function(v) return v == "Tank" or v == "Stranger" end -- drinnen geheim
+fire("PLAYER_LEAVING_WORLD") -- draußen: letzter Abschnitt vor dem Dungeon
 INSTANCE = "Gnomeregan"; fire("PLAYER_ENTERING_WORLD", false, false)
+check("39) Anfang nach dem letzten Kampf draußen:", h4.runs[1].meterFrom, 6)
+fight(6, { src("Tank", "WARRIOR", 3000), src("Stranger", "ROGUE", 400) })
+issecretvalue = function(v) return v == "Tank" or v == "Stranger" end -- noch geheim
+fire("PLAYER_REGEN_ENABLED"); flush()
 issecretvalue = nil
-check("39) Basis von draußen:", h4.runs[1].meterBase.Tank.d, 1000)
 clock = clock + 600
 fire("ENCOUNTER_END", 2940, "Thermaplugg", 1, 5, 1)
 C_LootHistory.GetSortedInfoForDrop = function() return { itemHyperlink = "[Gear]",
@@ -359,18 +371,20 @@ fire("LOOT_HISTORY_UPDATE_DROP", 2940, 7)
 local drop = h4.runs[1].loot["2940:7"]
 check("40) Wurf des Gewinners:", drop.s .. ":" .. drop.r, "0:87")
 check("41) Würfe ohne „kein Wurf“:", #drop.rolls, 2)
-overall[0] = { { name = "Tank", classFilename = "WARRIOR", totalAmount = 4000 }, { name = "Stranger", classFilename = "ROGUE", totalAmount = 900 } }
-INSTANCE = nil; fire("PLAYER_ENTERING_WORLD", false, false) -- raus nach Wipe, wieder rein
-INSTANCE = "Gnomeregan"; fire("PLAYER_ENTERING_WORLD", false, false)
+INSTANCE = nil; fire("PLAYER_ENTERING_WORLD", false, false) -- raus nach Wipe …
+check("41b) erster Lauf nach dem Geheimen nachgelesen:", h4.runs[1].meter.Tank.d, 3000)
+fire("PLAYER_LEAVING_WORLD")
+INSTANCE = "Gnomeregan"; fire("PLAYER_ENTERING_WORLD", false, false) -- … und wieder rein
 fire("ENCOUNTER_END", 2768, "Grubbis", 1, 5, 1)
-overall[0] = { { name = "Tank", classFilename = "WARRIOR", totalAmount = 6000 }, { name = "Stranger", classFilename = "ROGUE", totalAmount = 900 } }
-issecretvalue = function(v) return v == "Tank" or v == "Stranger" end
+fight(7, { src("Tank", "WARRIOR", 2000) })
+issecretvalue = function(v) return v == "Tank" end
 clock = clock + 600; party = {}; fire("GROUP_ROSTER_UPDATE") -- Gruppe löst sich im Dungeon auf
 issecretvalue = nil
 check("42) im Dungeon noch offen:", h4.runs[2].meterPending, true)
+fight(8, { src("Tank", "WARRIOR", 9999) }) -- danach allein weitergekämpft: zählt nicht
 INSTANCE = nil; fire("PLAYER_ENTERING_WORLD", false, false)
 check("43) draußen abgelesen:", h4.runs[2].meter.Tank and h4.runs[2].meter.Tank.d, 2000)
-check("44) danach aufgeräumt:", h4.runs[2].meterBase, nil)
+check("44) danach aufgeräumt:", h4.runs[2].meterSessions, nil)
 local kills, total = E.History.EntryProgress(h4)
 check("45) Bosse über beide Läufe:", kills .. "/" .. total, "2/11")
 E.History.detail = h4; E.History.Update()

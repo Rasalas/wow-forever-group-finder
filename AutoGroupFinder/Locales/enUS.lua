@@ -219,6 +219,7 @@ ns.L.enUS = {
   H_NO_MATCH = "No match.",
   H_METER = "Damage meter",
   H_DETAILS = "Click for details",
+  H_ITEMS = "Loot: %d items",
   H_GROUP = "Group",
   H_DMG = "Damage",
   H_HEAL = "Healing",

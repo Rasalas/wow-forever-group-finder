@@ -214,6 +214,7 @@ ns.L.itIT = {
   H_NO_MATCH = "Nessun risultato.",
   H_METER = "Misuratore danni",
   H_DETAILS = "Clicca per i dettagli",
+  H_ITEMS = "Bottino: %d oggetti",
   H_GROUP = "Gruppo",
   H_DMG = "Danni",
   H_HEAL = "Cure",

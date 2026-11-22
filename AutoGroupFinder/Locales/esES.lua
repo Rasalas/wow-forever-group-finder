@@ -215,6 +215,7 @@ ns.L.esES = {
   H_NO_MATCH = "Sin resultados.",
   H_METER = "Medidor de daño",
   H_DETAILS = "Clic para ver detalles",
+  H_ITEMS = "Botín: %d objetos",
   H_GROUP = "Grupo",
   H_DMG = "Daño",
   H_HEAL = "Sanación",

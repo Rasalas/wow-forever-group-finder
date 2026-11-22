@@ -214,6 +214,7 @@ ns.L.ptBR = {
   H_NO_MATCH = "Nada encontrado.",
   H_METER = "Medidor de dano",
   H_DETAILS = "Clique para ver detalhes",
+  H_ITEMS = "Saque: %d itens",
   H_GROUP = "Grupo",
   H_DMG = "Dano",
   H_HEAL = "Cura",

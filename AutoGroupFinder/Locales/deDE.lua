@@ -214,6 +214,7 @@ ns.L.deDE = {
   H_NO_MATCH = "Nichts gefunden.",
   H_METER = "Schadensmesser",
   H_DETAILS = "Klicken für Details",
+  H_ITEMS = "Beute: %d Items",
   H_GROUP = "Gruppe",
   H_DMG = "Schaden",
   H_HEAL = "Heilung",

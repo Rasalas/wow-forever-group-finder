@@ -214,6 +214,7 @@ ns.L.frFR = {
   H_NO_MATCH = "Aucun résultat.",
   H_METER = "Dégâts",
   H_DETAILS = "Cliquer pour les détails",
+  H_ITEMS = "Butin : %d objets",
   H_GROUP = "Groupe",
   H_DMG = "Dégâts",
   H_HEAL = "Soins",
