@@ -59,12 +59,16 @@ function GroupFit()
   return list, known
 end
 
+-- Nur mit Beleg: eingeladene Mitglieder, die eigene Suche für diese Gruppe oder der Gruppensuche-Eintrag
+-- der Gruppe (nur Dungeons und Raids). Sonst nil, z. B. bei einer Questgruppe, in die man eingeladen wurde.
 function GroupActivity()
   local fit = GroupFit()
   if fit[1] then return fit[1].id end
   if char.groupActivityID then return char.groupActivityID end
-  local _, ids = SearchActivities()
-  return ids[1]
+  local ok, entry = pcall(L.GetActiveEntryInfo)
+  local id = ok and entry and entry.activityIDs and entry.activityIDs[1]
+  local a = id and L.GetActivityInfoTable(id)
+  if a and a.mapID and ENCOUNTERS[a.mapID] then return id end
 end
 
 -- Wo ist ein Mitglied? 2 = im/am Dungeon, 1 = Zone des Eingangs, 0 = woanders, nil = offline
@@ -183,7 +187,7 @@ do
     end
     for i = #units + 1, #rows do rows[i]:Hide() end
     status:SetText(T.GROUP_AT_DUNGEON:format(there, #units))
-    status:SetShown(not inside)
+    status:SetShown(not inside and id ~= nil)
     wp:SetShown(not inside and id ~= nil)
   end
 end

@@ -133,9 +133,9 @@ local function check(label, got, want)
   print(label, got, got == want and "ok" or ("FEHLER, erwartet " .. want))
   if got ~= want then error(label .. ": " .. got .. " statt " .. want) end
 end
-AutoGroupFinderCharDB.groupActivityID = 11
 party = { "Gnomy", "Dwarfy" }
 fire("GROUP_ROSTER_UPDATE")
+AutoGroupFinderCharDB.groupActivityID = 11 -- Gruppe über die eigene Suche für Gnomeregan
 db.page = 4
 AutoGroupFinderFrame:Show(); E.UpdateUI()
 check("Gruppenseite offen:", db.page, 4)
@@ -256,6 +256,10 @@ check("Bibliothek passt für alle:", fit[1].name .. " " .. fit[1].n .. "/" .. kn
 check("Wegpunkt-Dungeon ist der häufigste:", E.GroupActivity(), 10)
 party = {}; fire("GROUP_ROSTER_UPDATE")
 check("Ohne Gruppe vergessen:", AutoGroupFinderCharDB.memberFor, nil)
+AutoGroupFinderCharDB.groupActivityID = 10
+party = { "Quester" }; fire("GROUP_ROSTER_UPDATE") -- eingeladen zum Questen, ohne eigene Suche
+check("Questgruppe ohne Beleg: kein Dungeon:", E.GroupActivity(), nil)
+party = {}; fire("GROUP_ROSTER_UPDATE")
 print("== Rückfall: Eintrag aus der Suche")
 E.state.listings.Fremd = { numMembers = 1, activityIDs = { 11 }, seenAt = 0 }
 party = { "Fremd" }; fire("GROUP_ROSTER_UPDATE")

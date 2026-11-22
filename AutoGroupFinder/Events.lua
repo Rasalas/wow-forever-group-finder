@@ -401,7 +401,14 @@ function RunDone()
 end
 
 function OnRoster()
-  if not IsInGroup() then state.selfRole, state.runDone, char.memberFor = nil, nil, nil else state.inGroupAt = GetTime() end
+  -- groupActivityID gehört nur zur Gruppe, für die gesucht wurde
+  if not IsInGroup() then
+    state.selfRole, state.runDone, char.memberFor, state.grouped = nil, nil, nil, nil
+    if not state.queued then char.groupActivityID = nil end
+  else
+    if not state.grouped and not state.queued then char.groupActivityID = nil end -- eingeladen, ohne zu suchen
+    state.grouped, state.inGroupAt = true, GetTime()
+  end
   if state.resume and IsInGroup() and not CanInvite() then state.resume = nil end
   local members = MemberKeys()
   for name in pairs(members) do
