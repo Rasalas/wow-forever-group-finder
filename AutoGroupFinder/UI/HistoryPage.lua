@@ -321,11 +321,13 @@ do
       r.text:SetText(text)
       r.c1:SetText(right or "")
     end
-    local function event(t, text)
+    -- meta: Rahmen des Laufs (Betreten, Verlassen …) grau wie die Uhrzeit; Bosse bleiben hell
+    local function event(t, text, meta)
       if not t then return end
       local r = add("event", 18)
       r.time:SetText(Clock(t))
       r.text:SetText(text)
+      if meta then r.text:SetFontObject("GameFontDisable") end
     end
     -- Ein Kampf oder mehrere zusammen: Dauer, Schaden der Gruppe, Tote in Rot; Überfahren zeigt je Spieler
     local function fight(t, label, list, inGroup)
@@ -469,10 +471,10 @@ do
         end
       end
 
-      event(run.enter, T.H_ENTER)
-      if #fights == 0 then event(run.first, T.H_FIRST) end
+      event(run.enter, T.H_ENTER, true)
+      if #fights == 0 then event(run.first, T.H_FIRST, true) end
       for i = 1, #marks + 1 do
-        if trash[i] then fight(trash[i][1].t, T.H_TRASH:format(#trash[i]), trash[i], inGroup) end
+        if trash[i] then fight(trash[i][1].t, "|cffb0b0b0" .. T.H_TRASH:format(#trash[i]) .. "|r", trash[i], inGroup) end
         local mk = marks[i]
         if mk and mk.boss then
           local b = mk.boss
@@ -482,7 +484,7 @@ do
           if b.ok and b.id then lootFor(b.id) end
         elseif mk and mk.gap then
           local g = mk.gap
-          event(g.out, g.dead and ("|cffff6060† " .. T.H_GHOST:format(Clock(g.back)) .. "|r") or T.H_OUTSIDE:format(Clock(g.back)))
+          event(g.out, g.dead and ("|cffff6060† " .. T.H_GHOST:format(Clock(g.back)) .. "|r") or T.H_OUTSIDE:format(Clock(g.back)), true)
         end
       end
       for k in pairs(run.loot or {}) do -- Beute ohne erkannten Boss
@@ -493,8 +495,8 @@ do
           break
         end
       end
-      if #fights == 0 then event(run.last, T.H_LAST) end
-      event(run.exit, run.exitDead and ("|cffff6060† " .. T.H_EXIT_DEAD .. "|r") or T.H_EXIT)
+      if #fights == 0 then event(run.last, T.H_LAST, true) end
+      event(run.exit, run.exitDead and ("|cffff6060† " .. T.H_EXIT_DEAD .. "|r") or T.H_EXIT, true)
 
     end
     for i = n + 1, #lines do lines[i]:Hide() end
