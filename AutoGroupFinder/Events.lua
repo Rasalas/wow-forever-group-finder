@@ -252,7 +252,17 @@ function History.Track()
   e.me = e.me or {}
   e.me.level = UnitLevel("player")
   e.me.class = select(2, UnitClass("player"))
-  if role == "TANK" or role == "HEALER" or role == "DAMAGER" then e.me.role = role end
+  if role ~= "TANK" and role ~= "HEALER" and role ~= "DAMAGER" then
+    -- ohne zugewiesene Rolle (Gruppe von Hand): die eine gewählte eigene Rolle, sonst offen
+    role = nil
+    for _, r in ipairs(ROLES) do
+      if char.myRoles and char.myRoles[r] then
+        if role then role = nil break end
+        role = r
+      end
+    end
+  end
+  e.me.role = role or e.me.role
   local inInstance, kind = IsInInstance()
   if inInstance and (kind == "party" or kind == "raid") then
     local name = GetInstanceInfo()
