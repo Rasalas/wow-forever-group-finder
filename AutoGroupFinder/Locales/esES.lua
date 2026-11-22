@@ -216,6 +216,7 @@ ns.L.esES = {
   H_METER = "Medidor de daño",
   H_DETAILS = "Clic para ver detalles",
   H_ITEMS = "Botín: %d objetos",
+  H_YOU = "tú",
   H_TRASH = "Bichos (%d)",
   H_GHOST = "Muerto, carrera fantasma hasta %s",
   H_OUTSIDE = "Fuera hasta %s",

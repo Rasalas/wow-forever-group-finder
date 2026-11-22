@@ -220,6 +220,7 @@ ns.L.enUS = {
   H_METER = "Damage meter",
   H_DETAILS = "Click for details",
   H_ITEMS = "Loot: %d items",
+  H_YOU = "you",
   H_TRASH = "Trash (%d)",
   H_GHOST = "Died, corpse run until %s",
   H_OUTSIDE = "Outside until %s",

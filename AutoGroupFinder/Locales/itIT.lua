@@ -215,6 +215,7 @@ ns.L.itIT = {
   H_METER = "Misuratore danni",
   H_DETAILS = "Clicca per i dettagli",
   H_ITEMS = "Bottino: %d oggetti",
+  H_YOU = "tu",
   H_TRASH = "Trash (%d)",
   H_GHOST = "Morto, corsa fantasma fino alle %s",
   H_OUTSIDE = "Fuori fino alle %s",

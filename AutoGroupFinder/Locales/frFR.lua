@@ -215,6 +215,7 @@ ns.L.frFR = {
   H_METER = "Dégâts",
   H_DETAILS = "Cliquer pour les détails",
   H_ITEMS = "Butin : %d objets",
+  H_YOU = "vous",
   H_TRASH = "Trash (%d)",
   H_GHOST = "Mort, course du fantôme jusqu’à %s",
   H_OUTSIDE = "Dehors jusqu’à %s",

@@ -233,6 +233,19 @@ do
     r.c1 = Label(r, "", "GameFontHighlightSmall", "RIGHT", r, "RIGHT", -12, 0)
     r.c2 = Label(r, "", "GameFontHighlightSmall", "RIGHT", r, "RIGHT", -60, 0)
     r.c3 = Label(r, "", "GameFontHighlightSmall", "RIGHT", r, "RIGHT", -120, 0)
+    -- Spaltenköpfe zum Sortieren (Tode, Heilung, Schaden); erneuter Klick: wieder nach Rolle
+    r.sort = {}
+    for i, key in ipairs({ "x", "h", "d" }) do
+      local b = CreateFrame("Button", nil, r)
+      b:SetSize(56, 18)
+      b:SetPoint("RIGHT", r, "RIGHT", ({ -4, -52, -112 })[i], 0)
+      b:SetScript("OnClick", function()
+        History.sort = History.sort ~= key and key or nil
+        History.Update()
+      end)
+      b:Hide()
+      r.sort[i] = b
+    end
     -- Beute wie in den Taschen: Symbol mit Rahmen in Qualitätsfarbe
     r.item = r:CreateTexture(nil, "ARTWORK")
     r.item:SetSize(22, 22)
@@ -293,10 +306,11 @@ do
       r.bg:SetShown(kind == "section")
       r.hl:SetShown(kind == "member" or kind == "loot" or kind == "fight")
       r.icon:Hide() r.item:Hide() r.itemBorder:Hide()
+      for _, b in ipairs(r.sort) do b:SetShown(kind == "cols") end
       r.time:SetText("") r.c1:SetText("") r.c2:SetText("") r.c3:SetText("")
       r.text:ClearAllPoints()
       r.text:SetPoint("LEFT", r, "LEFT", kind == "section" and 12 or 60, 0)
-      r.text:SetPoint("RIGHT", r, "RIGHT", kind == "loot" and -130 or (kind == "meter" or kind == "fight") and -110 or -12, 0)
+      r.text:SetPoint("RIGHT", r, "RIGHT", kind == "loot" and -130 or (kind == "member" or kind == "fight") and -170 or -12, 0)
       r.text:SetFontObject(kind == "section" and "GameFontNormal" or "GameFontHighlight")
       r:Show()
       return r
@@ -355,27 +369,68 @@ do
     dTitle:SetText(e.name or "?")
     dWhen:SetText(History.When(e.t))
 
-    -- Gruppe
+    -- Gruppe mit Schaden, Heilung und Toden über alle Läufe; nur Mitspieler und du
+    local me = Short(MyName())
+    local inGroup = { [me] = true }
+    for _, m in ipairs(e.members or {}) do inGroup[Short(m.name)] = true end
+    local total = {}
+    for _, run in ipairs(e.runs or {}) do
+      for name, v in pairs(run.meter or {}) do
+        local k = Short(name)
+        if inGroup[k] then
+          local x = total[k] or { c = v.c }
+          total[k] = x
+          for _, key in ipairs({ "d", "h", "x" }) do if v[key] then x[key] = (x[key] or 0) + v[key] end end
+        end
+      end
+    end
+    local hasMeter = next(total) ~= nil
     local stats = History.Stats(e)
     section(T.H_GROUP, stats .. (e.wait and ((stats ~= "" and " · " or "") .. T.H_FULL:format(Mins(e.wait))) or ""))
-    for _, m in ipairs(e.members or {}) do
-      local r = add("member", 22)
-      r.member = m
-      if m.role then
-        SetRoleTexture(r.icon, m.role, false)
-        r.icon:ClearAllPoints()
-        r.icon:SetPoint("LEFT", 30, 0)
-        r.icon:Show()
+    local people = {}
+    for i, m in ipairs(e.members or {}) do people[#people + 1] = { m = m, i = i, v = total[Short(m.name)] } end
+    if total[me] then people[#people + 1] = { name = MyName(), i = 999, v = total[me] } end
+    if hasMeter then
+      local h = add("cols", 18)
+      local function col(key, label) return (History.sort == key and "|cffffd100" or "|cff999999") .. label .. "|r" end
+      h.c3:SetText(col("d", T.H_DMG))
+      h.c2:SetText(col("h", T.H_HEAL))
+      h.c1:SetText(col("x", T.H_DEATHS))
+    end
+    local key = History.sort
+    table.sort(people, function(a, b)
+      if key then
+        local va, vb = a.v and a.v[key] or 0, b.v and b.v[key] or 0
+        if va ~= vb then return va > vb end
       end
-      r.text:SetText(Colored(m.name, m.class) .. ((m.level and m.level > 0) and ("  |cff999999" .. m.level .. "|r") or "")
-        .. "  " .. RateTag(Rating(m.name)))
-      local early = LeftEarly(e, m)
-      r.c1:SetText(early and ("|cff999999" .. early .. "|r") or "")
+      return a.i < b.i
+    end)
+    for _, p in ipairs(people) do
+      local r = add("member", 22)
+      local m = p.m
+      if m then
+        r.member = m
+        if m.role then
+          SetRoleTexture(r.icon, m.role, false)
+          r.icon:ClearAllPoints()
+          r.icon:SetPoint("LEFT", 30, 0)
+          r.icon:Show()
+        end
+        local early = LeftEarly(e, m)
+        r.text:SetText(Colored(m.name, m.class) .. ((m.level and m.level > 0) and ("  |cff999999" .. m.level .. "|r") or "")
+          .. "  " .. RateTag(Rating(m.name)) .. (early and ("  |cff999999" .. early .. "|r") or ""))
+      else
+        r.text:SetText(Colored(p.name, p.v and p.v.c) .. "  |cff999999(" .. T.H_YOU .. ")|r")
+      end
+      if hasMeter then
+        local v = p.v or {}
+        r.c3:SetText(Num(v.d or 0))
+        r.c2:SetText("|cff60ff60" .. Num(v.h or 0) .. "|r")
+        r.c1:SetText((v.x and v.x > 0) and ("|cffff6060† " .. v.x .. "|r") or "|cff666666–|r")
+      end
     end
 
-    -- Je Dungeonlauf: Ablauf mit Beute unter dem Boss, dann der Schadensmesser
-    local inGroup = { [Short(MyName())] = true }
-    for _, m in ipairs(e.members or {}) do inGroup[Short(m.name)] = true end
+    -- Je Dungeonlauf: Ablauf mit Kämpfen und Beute unter dem Boss
     for _, run in ipairs(e.runs or {}) do
       section(run.name or "?", run.enter and (Clock(run.enter) .. " – " .. (run.exit and Clock(run.exit) or "…")) or nil)
       local used = {}
@@ -433,26 +488,6 @@ do
       if #fights == 0 then event(run.last, T.H_LAST) end
       event(run.exit, run.exitDead and ("|cffff6060† " .. T.H_EXIT_DEAD .. "|r") or T.H_EXIT)
 
-      local meter = {}
-      for name, v in pairs(run.meter or {}) do
-        if inGroup[Short(name)] then meter[#meter + 1] = { name = name, v = v } end
-      end
-      if #meter > 0 then
-        table.sort(meter, function(a, b) return (a.v.d or 0) > (b.v.d or 0) end)
-        y = y + 6
-        local h = add("meter", 18)
-        h.text:SetText("|cffffd100" .. T.H_METER .. "|r")
-        h.c3:SetText("|cff999999" .. T.H_DMG .. "|r")
-        h.c2:SetText("|cff999999" .. T.H_HEAL .. "|r")
-        h.c1:SetText("|cff999999" .. T.H_DEATHS .. "|r")
-        for _, x in ipairs(meter) do
-          local r = add("meter", 18)
-          r.text:SetText(Colored(x.name, x.v.c))
-          r.c3:SetText(Num(x.v.d or 0))
-          r.c2:SetText("|cff60ff60" .. Num(x.v.h or 0) .. "|r")
-          r.c1:SetText((x.v.x and x.v.x > 0) and ("|cffff6060† " .. x.v.x .. "|r") or "|cff666666–|r")
-        end
-      end
     end
     for i = n + 1, #lines do lines[i]:Hide() end
     detail:SetContentHeight(y + 6)

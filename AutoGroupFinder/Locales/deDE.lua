@@ -215,6 +215,7 @@ ns.L.deDE = {
   H_METER = "Schadensmesser",
   H_DETAILS = "Klicken für Details",
   H_ITEMS = "Beute: %d Items",
+  H_YOU = "du",
   H_TRASH = "Trash (%d)",
   H_GHOST = "Gestorben, Geisterlauf bis %s",
   H_OUTSIDE = "Draußen bis %s",

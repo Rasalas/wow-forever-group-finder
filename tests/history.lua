@@ -216,7 +216,7 @@ check("10a) Detailseite offen:", E.History.detail, h)
 local dd
 for _, fr in ipairs(frames) do
   local m = rawget(fr, "member")
-  if m and m.name == "Dd" and fr:IsShown() then dd = txt(fr, "c1") end
+  if m and m.name == "Dd" and fr:IsShown() and rawget(fr, "kind") == "member" then dd = txt(fr, "text") end
 end
 check("10) Abgang nach 8,5 Min:", dd and dd:match("ging nach %d+ Min"), "ging nach 9 Min")
 E.History.Back()
@@ -237,7 +237,7 @@ E.History.detail = h2; E.History.Update()
 local early2
 for _, fr in ipairs(frames) do
   local m = rawget(fr, "member")
-  if m and m.name == "B" and fr:IsShown() then early2 = (txt(fr, "c1") or ""):find("ging nach") ~= nil end
+  if m and m.name == "B" and fr:IsShown() and rawget(fr, "kind") == "member" then early2 = (txt(fr, "text") or ""):find("ging nach") ~= nil end
 end
 E.History.Back()
 check("13) B ging nach dem Boss: kein Vermerk:", early2, false)
@@ -394,12 +394,12 @@ for _, fr in ipairs(frames) do
   if fr:IsShown() and rawget(fr, "kind") then
     local t = txt(fr, "text") or ""
     if t:find("Stranger") then stranger = true end
-    if rawget(fr, "kind") == "meter" and t:find("Tank") then tankRow = true end
+    if rawget(fr, "kind") == "member" and t:find("Tank") and (txt(fr, "c3") or "") ~= "" then tankRow = true end
     if rawget(fr, "link") == "[Gear]" then rollText = plain(txt(fr, "c1")) end
   end
 end
 check("46) Fremde nicht im Schadensmesser:", stranger, false)
-check("47) Mitglied im Schadensmesser:", tankRow, true)
+check("47) Schaden oben bei der Gruppe:", tankRow, true)
 check("48) Gewinner mit Wurf:", rollText, "Heal  Bedarf 87")
 E.History.Back()
 
@@ -439,6 +439,20 @@ table.sort(rowsSeen, function(a, b) return a.o < b.o end)
 local seq = {}
 for _, r in ipairs(rowsSeen) do seq[#seq + 1] = (r.t or ""):gsub(" bis %d+:%d+", "") end
 check("53) Ablauf:", table.concat(seq, " | "), "Betreten | Trash (2)  † Heal | S Grubbis | † Gestorben, Geisterlauf | Trash (1)")
+local function memberOrder()
+  local l = {}
+  for _, fr in ipairs(frames) do
+    if fr:IsShown() and rawget(fr, "kind") == "member" then l[#l + 1] = { o = rawget(fr, "order"), t = plain(txt(fr, "text")):match("^(%a+)") } end
+  end
+  table.sort(l, function(a, b) return a.o < b.o end)
+  local out = {}
+  for _, x in ipairs(l) do out[#out + 1] = x.t end
+  return table.concat(out, ",")
+end
+check("57) Reihenfolge wie beigetreten:", memberOrder(), "Tank,Heal")
+E.History.sort = "x"; E.History.Update()
+check("58) nach Toden sortiert:", memberOrder(), "Heal,Tank")
+E.History.sort = nil
 E.History.Back()
 
 print("== Alte, beim Tod getrennte Läufe zusammenführen")

@@ -215,6 +215,7 @@ ns.L.ptBR = {
   H_METER = "Medidor de dano",
   H_DETAILS = "Clique para ver detalhes",
   H_ITEMS = "Saque: %d itens",
+  H_YOU = "você",
   H_TRASH = "Trash (%d)",
   H_GHOST = "Morreu, corrida do fantasma até %s",
   H_OUTSIDE = "Fora até %s",
