@@ -222,6 +222,8 @@ function Scroller(parent, anchor, left, top, right, bottom)
   end
   place(right)
   function sf:SetTopInset(t) top = t; place(self.barShown and right - 22 or right) end
+  -- Mausrad: Blizzards Vorlage springt sonst eine halbe Höhe weit
+  if type(sf.ScrollBar) == "table" then sf.ScrollBar.scrollStep = 48 end
   local child = CreateFrame("Frame", nil, sf)
   child:SetSize(WIN_W - 40, 10)
   sf:SetScrollChild(child)
