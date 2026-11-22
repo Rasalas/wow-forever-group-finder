@@ -449,9 +449,11 @@ local function memberOrder()
   for _, x in ipairs(l) do out[#out + 1] = x.t end
   return table.concat(out, ",")
 end
-check("57) Reihenfolge wie beigetreten:", memberOrder(), "Tank,Heal")
+check("57) standardmäßig nach Schaden:", memberOrder(), "Tank,Heal,Me")
 E.History.sort = "x"; E.History.Update()
-check("58) nach Toden sortiert:", memberOrder(), "Heal,Tank")
+check("58) nach Toden sortiert:", memberOrder(), "Heal,Me,Tank")
+E.History.sort = "join"; E.History.Update()
+check("59) wie beigetreten:", memberOrder(), "Me,Tank,Heal")
 E.History.sort = nil
 E.History.Back()
 

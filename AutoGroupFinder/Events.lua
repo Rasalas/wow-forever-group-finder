@@ -247,6 +247,12 @@ function History.Track()
     while #char.history > 100 do table.remove(char.history) end
   end
   state.historyEntry = e
+  -- du selbst: Rolle und Stufe wie bei den Mitspielern
+  local role = api.unitRole("player")
+  e.me = e.me or {}
+  e.me.level = UnitLevel("player")
+  e.me.class = select(2, UnitClass("player"))
+  if role == "TANK" or role == "HEALER" or role == "DAMAGER" then e.me.role = role end
   local inInstance, kind = IsInInstance()
   if inInstance and (kind == "party" or kind == "raid") then
     local name = GetInstanceInfo()

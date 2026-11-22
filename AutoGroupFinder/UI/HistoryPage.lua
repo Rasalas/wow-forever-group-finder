@@ -233,14 +233,14 @@ do
     r.c1 = Label(r, "", "GameFontHighlightSmall", "RIGHT", r, "RIGHT", -12, 0)
     r.c2 = Label(r, "", "GameFontHighlightSmall", "RIGHT", r, "RIGHT", -60, 0)
     r.c3 = Label(r, "", "GameFontHighlightSmall", "RIGHT", r, "RIGHT", -120, 0)
-    -- Spaltenköpfe zum Sortieren (Tode, Heilung, Schaden); erneuter Klick: wieder nach Rolle
+    -- Spaltenköpfe zum Sortieren (Tode, Heilung, Schaden); erneuter Klick: wie beigetreten
     r.sort = {}
     for i, key in ipairs({ "x", "h", "d" }) do
       local b = CreateFrame("Button", nil, r)
       b:SetSize(56, 18)
       b:SetPoint("RIGHT", r, "RIGHT", ({ -4, -52, -112 })[i], 0)
       b:SetScript("OnClick", function()
-        History.sort = History.sort ~= key and key or nil
+        History.sort = History.sort ~= key and key or "join"
         History.Update()
       end)
       b:Hide()
@@ -389,17 +389,17 @@ do
     section(T.H_GROUP, stats .. (e.wait and ((stats ~= "" and " · " or "") .. T.H_FULL:format(Mins(e.wait))) or ""))
     local people = {}
     for i, m in ipairs(e.members or {}) do people[#people + 1] = { m = m, i = i, v = total[Short(m.name)] } end
-    if total[me] then people[#people + 1] = { name = MyName(), i = 999, v = total[me] } end
+    if total[me] or e.me then people[#people + 1] = { name = MyName(), i = 0, v = total[me] } end -- du zuerst
     if hasMeter then
       local h = add("cols", 18)
-      local function col(key, label) return (History.sort == key and "|cffffd100" or "|cff999999") .. label .. "|r" end
+      local function col(k, label) return ((History.sort or "d") == k and "|cffffd100" or "|cff999999") .. label .. "|r" end
       h.c3:SetText(col("d", T.H_DMG))
       h.c2:SetText(col("h", T.H_HEAL))
       h.c1:SetText(col("x", T.H_DEATHS))
     end
-    local key = History.sort
+    local key = History.sort or "d" -- Standard: nach Schaden; "join": wie beigetreten
     table.sort(people, function(a, b)
-      if key then
+      if key ~= "join" then
         local va, vb = a.v and a.v[key] or 0, b.v and b.v[key] or 0
         if va ~= vb then return va > vb end
       end
@@ -420,7 +420,15 @@ do
         r.text:SetText(Colored(m.name, m.class) .. ((m.level and m.level > 0) and ("  |cff999999" .. m.level .. "|r") or "")
           .. "  " .. RateTag(Rating(m.name)) .. (early and ("  |cff999999" .. early .. "|r") or ""))
       else
-        r.text:SetText(Colored(p.name, p.v and p.v.c) .. "  |cff999999(" .. T.H_YOU .. ")|r")
+        local me = e.me or {}
+        if me.role then
+          SetRoleTexture(r.icon, me.role, false)
+          r.icon:ClearAllPoints()
+          r.icon:SetPoint("LEFT", 30, 0)
+          r.icon:Show()
+        end
+        r.text:SetText(Colored(p.name, me.class or (p.v and p.v.c))
+          .. ((me.level and me.level > 0) and ("  |cff999999" .. me.level .. "|r") or "") .. "  |cff999999(" .. T.H_YOU .. ")|r")
       end
       if hasMeter then
         local v = p.v or {}
