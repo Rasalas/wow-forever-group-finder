@@ -565,13 +565,14 @@ do
         end
       end
 
-      event(run.enter, T.H_ENTER, true)
-      if #fights == 0 then event(run.first, T.H_FIRST, true) end
+      -- draußen (Questgruppe): ohne Betreten und Verlassen, Kämpfe heißen nicht Trash
+      if not run.world then event(run.enter, T.H_ENTER, true) end
+      if #fights == 0 and not run.world then event(run.first, T.H_FIRST, true) end
       for i = 1, #marks + 1 do
         local lo, hi = marks[i - 1] and marks[i - 1].t or 0, marks[i] and marks[i].t or math.huge
         local tl = drops(nil, lo, hi)
         if trash[i] then
-          fight(trash[i][1].t, "|cffb0b0b0" .. T.H_TRASH:format(#trash[i]) .. "|r", trash[i], inGroup)
+          fight(trash[i][1].t, "|cffb0b0b0" .. (run.world and T.H_FIGHTS or T.H_TRASH):format(#trash[i]) .. "|r", trash[i], inGroup)
         elseif #tl > 0 then
           event(run.loot[tl[1]].t, T.H_OTHER_LOOT, true)
         end
@@ -599,8 +600,10 @@ do
         r.text:SetText("|cff999999" .. T.H_OTHER_LOOT .. "|r")
         lootRows(rest)
       end
-      if #fights == 0 then event(run.last, T.H_LAST, true) end
-      event(run.exit, run.exitDead and ("|cffff6060† " .. T.H_EXIT_DEAD .. "|r") or T.H_EXIT, true)
+      if not run.world then
+        if #fights == 0 then event(run.last, T.H_LAST, true) end
+        event(run.exit, run.exitDead and ("|cffff6060† " .. T.H_EXIT_DEAD .. "|r") or T.H_EXIT, true)
+      end
 
     end
     -- Für dich: Erfahrung, Gold, Haltbarkeit, erledigte Quests und deine Beute über alle Läufe

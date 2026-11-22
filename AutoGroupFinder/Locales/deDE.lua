@@ -236,6 +236,7 @@ ns.L.deDE = {
   CHAT_INSTANCES = "%d von %d Instanzen in der letzten Stunde – die nächste wird um %s frei.",
   H_YOU = "du",
   H_TRASH = "Trash (%d)",
+  H_FIGHTS = "Kämpfe (%d)",
   H_DIED = "Gestorben",
   H_REENTER = "Wieder betreten",
   H_EXIT_DEAD = "Verlassen (tot)",

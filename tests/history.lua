@@ -571,5 +571,30 @@ local recaps
 for _, fr in ipairs(frames) do if fr:IsShown() and rawget(fr, "kind") == "fight" then recaps = rawget(fr, "recaps") end end
 check("77) Todesbericht am Kampf:", recaps and recaps[1], 4242)
 E.History.Back()
+
+print("== Questgruppe draußen: Kämpfe, Beute, Erfahrung")
+time = function() return clock end
+clock = clock + 7 * 3600
+sessions = {}
+party = {}; fire("GROUP_ROSTER_UPDATE"); INSTANCE = nil; fire("PLAYER_ENTERING_WORLD", false, false)
+fight(40, { src("Tank", "WARRIOR", 50) }) -- vor der Gruppe
+party = { "Quester", "Tank" }; fire("GROUP_ROSTER_UPDATE")
+local hq = AutoGroupFinderCharDB.history[1]
+check("78) Abschnitt draußen:", hq.runs and hq.runs[1] and hq.runs[1].world, true)
+clock = clock + 120; fight(41, { src("Quester", "HUNTER", 700), src("Tank", "WARRIOR", 300) }); fire("PLAYER_REGEN_ENABLED"); flush()
+xp = 300; fire("PLAYER_XP_UPDATE"); xp = 500; fire("PLAYER_XP_UPDATE")
+C_LootHistory.GetSortedInfoForDrop = function() return { itemHyperlink = "[Iron Ore]", winner = { playerName = "Tank", playerClass = "WARRIOR" } } end
+fire("LOOT_HISTORY_UPDATE_DROP", 0, 3)
+clock = clock + 600; party = {}; fire("GROUP_ROSTER_UPDATE")
+local wr = hq.runs[1]
+check("79) Kampf draußen gezählt, der davor nicht:", wr.meter.Quester and wr.meter.Quester.d .. ":" .. (wr.meter.Tank and wr.meter.Tank.d or 0), "700:300")
+check("80) Erfahrung beim Questen:", wr.xp, 300)
+check("81) Beute draußen:", wr.loot["0:3"] and wr.loot["0:3"].who, "Tank")
+check("82) bleibt im Verlauf:", AutoGroupFinderCharDB.history[1], hq)
+E.History.detail = hq; E.History.Update()
+local fightLabel
+for _, fr in ipairs(frames) do if fr:IsShown() and rawget(fr, "kind") == "fight" then fightLabel = plain(txt(fr, "text")) end end
+check("83) Kämpfe statt Trash:", fightLabel, "Kämpfe (1)")
+E.History.Back()
 time = os.time
 

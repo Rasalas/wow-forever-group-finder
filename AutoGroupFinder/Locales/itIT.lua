@@ -236,6 +236,7 @@ ns.L.itIT = {
   CHAT_INSTANCES = "%d di %d istanze nell’ultima ora – la prossima si libera alle %s.",
   H_YOU = "tu",
   H_TRASH = "Trash (%d)",
+  H_FIGHTS = "Combattimenti (%d)",
   H_DIED = "Morto",
   H_REENTER = "Rientrato",
   H_EXIT_DEAD = "Uscito (morto)",

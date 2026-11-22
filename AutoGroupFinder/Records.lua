@@ -67,7 +67,7 @@ end
 function History.MeterUpdate(r)
   local dm = Meter()
   if not (dm and r and r.meterFrom) then return end
-  local adding = not r.exit and IsInInstance()
+  local adding = History.Counting(r)
   local _, list = LastSession(dm)
   for _, s in ipairs(list) do
     local id = s.sessionID
@@ -116,7 +116,13 @@ end
 -- Gezählt wird nur drinnen; draußen wird nur der Vergleichsstand nachgeführt.
 -------------------------------------------------------------------------
 local xpLast, moneyLast, bagsLast
-local function Inside(r) return r and not r.exit and IsInInstance() end
+-- Zählt gerade: Dungeon-Lauf drinnen, Abschnitt „world“ draußen
+local function Inside(r)
+  if not r or r.exit then return false end
+  local inside = IsInInstance() and true or false
+  return inside ~= (r.world or false)
+end
+History.Counting = Inside
 local function XP()
   if not (UnitXP and UnitXPMax) then return nil end
   return { lvl = UnitLevel("player"), xp = UnitXP("player"), max = UnitXPMax("player") }

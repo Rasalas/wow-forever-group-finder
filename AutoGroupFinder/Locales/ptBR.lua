@@ -236,6 +236,7 @@ ns.L.ptBR = {
   CHAT_INSTANCES = "%d de %d instâncias na última hora – a próxima libera às %s.",
   H_YOU = "você",
   H_TRASH = "Trash (%d)",
+  H_FIGHTS = "Lutas (%d)",
   H_DIED = "Morreu",
   H_REENTER = "Entrou de novo",
   H_EXIT_DEAD = "Saiu (morto)",

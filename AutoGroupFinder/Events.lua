@@ -167,7 +167,7 @@ function History.EntryProgress(e)
   local kills, total, wipes, seen = 0, 0, 0, {}
   for _, r in ipairs(e.runs or {}) do
     wipes = wipes + (r.wipes or 0)
-    if not seen[r.map or r] then
+    if not r.world and not seen[r.map or r] then
       seen[r.map or r] = true
       local n, of = History.Progress(r, e)
       kills = kills + (n or r.kills or 0)
@@ -359,10 +359,13 @@ function History.Track()
     end
     e.runs = e.runs or {}
     local r = History.Run(e)
-    if r and r.name ~= name then History.Exit(r) r = nil end
+    if r and (r.world or r.name ~= name) then History.Exit(r) r = nil end
+    -- Leerer Abschnitt draußen dazwischen (Geisterlauf): weg, damit der Dungeon-Lauf weitergehen kann
+    local last = e.runs[#e.runs]
+    if not r and last and last.world and History.Empty(last) then table.remove(e.runs) end
     -- Zurück nach Tod (Geisterlauf) oder kurz draußen, Endboss noch nicht besiegt: derselbe Lauf
     local prev = e.runs[#e.runs]
-    if not r and prev and prev.name == name and prev.exit and not prev.done and time() - prev.exit < 1800 then
+    if not r and prev and not prev.world and prev.name == name and prev.exit and not prev.done and time() - prev.exit < 1800 then
       prev.gaps = prev.gaps or {}
       prev.gaps[#prev.gaps + 1] = { out = prev.exit, back = time(), dead = prev.exitDead }
       prev.exit, prev.exitDead, prev.meterPending = nil, nil, nil
@@ -377,10 +380,30 @@ function History.Track()
       if History.PersonalStart then History.PersonalStart(e.runs[#e.runs]) end
     end
   else
-    History.Exit(History.Run(e))
+    -- Gruppe draußen (z. B. Questen): ein Abschnitt „world“ mit Kämpfen, Beute und eigenen Werten
+    e.runs = e.runs or {}
+    local r = History.Run(e)
+    if r and not r.world then History.Exit(r) r = nil end
+    local prev = e.runs[#e.runs]
+    if not r and prev and prev.world and prev.exit and time() - prev.exit < 1800 then
+      prev.exit, prev.exitDead, prev.meterPending = nil, nil, nil
+      if History.PersonalStart then History.PersonalStart(prev, true) end
+      r = prev
+    end
+    if not r then
+      local zone = GetRealZoneText and GetRealZoneText() or "?"
+      e.runs[#e.runs + 1] = { name = zone, world = true, enter = time(), kills = 0, wipes = 0, bosses = {} }
+      if History.MeterStart then History.MeterStart(e.runs[#e.runs]) end
+      if History.PersonalStart then History.PersonalStart(e.runs[#e.runs]) end
+    end
   end
   e.last = time()
   History.Merge(e)
+end
+-- Abschnitt ohne Kämpfe, Beute, Erfahrung oder Quests
+function History.Empty(r)
+  for _, f in pairs(r.fights or {}) do if next(f.m or {}) then return false end end
+  return not (next(r.loot or {}) or next(r.mine or {}) or next(r.quests or {}) or (r.xp or 0) > 0 or (r.money or 0) > 0)
 end
 
 SHORT_GROUP = 180 -- Sekunden; kürzere Gruppen ohne Dungeon kommen nicht in den Verlauf

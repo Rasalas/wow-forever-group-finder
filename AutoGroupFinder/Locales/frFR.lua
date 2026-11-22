@@ -236,6 +236,7 @@ ns.L.frFR = {
   CHAT_INSTANCES = "%d instances sur %d dans la dernière heure – la prochaine se libère à %s.",
   H_YOU = "vous",
   H_TRASH = "Trash (%d)",
+  H_FIGHTS = "Combats (%d)",
   H_DIED = "Mort",
   H_REENTER = "Revenu",
   H_EXIT_DEAD = "Parti (mort)",
