@@ -6,41 +6,33 @@ setfenv(1, ns.env) -- gemeinsamer, privater Namensraum aller Module (siehe Core.
 -------------------------------------------------------------------------
 local DMT = (Enum and Enum.DamageMeterType) or {}
 local METER = { d = DMT.DamageDone or 0, h = DMT.HealingDone or 2, x = DMT.Deaths or 9 }
-local OVERALL = (Enum and Enum.DamageMeterSessionType and Enum.DamageMeterSessionType.Overall) or 0
 
--- Gesamtsitzung des Schadensmessers: Name -> { d, h, x, c }
-local function ReadOverall()
-  local DM = _G.C_DamageMeter
-  if not (DM and DM.GetCombatSessionFromType) then return nil end
-  local okA, available = pcall(DM.IsDamageMeterAvailable)
-  if not (okA and available) then return nil end
+local function Meter()
+  local dm = _G.C_DamageMeter
+  if not (dm and dm.GetAvailableCombatSessions and dm.GetCombatSessionFromID) then return nil end
+  local ok, available = pcall(dm.IsDamageMeterAvailable)
+  return ok and available and dm or nil
+end
+-- Höchste Nummer der vorhandenen Kampf-Abschnitte (fortlaufend je Kampf)
+local function LastSession(dm)
+  local ok, list = pcall(dm.GetAvailableCombatSessions)
+  local max = 0
+  for _, s in ipairs(ok and list or {}) do if s.sessionID > max then max = s.sessionID end end
+  return max, ok and list or {}
+end
+-- Ein Abschnitt: Name -> { d, h, x, c }. Im Kampf geheime Einträge fehlen und kommen beim nächsten Lesen.
+local function ReadSession(dm, id)
   local out = {}
   for key, kind in pairs(METER) do
-    local ok, session = pcall(DM.GetCombatSessionFromType, OVERALL, kind)
+    local ok, session = pcall(dm.GetCombatSessionFromID, id, kind)
     for _, s in ipairs(ok and session and session.combatSources or {}) do
-      local name = Readable(s.name) and s.name
-      local amount = Readable(s.totalAmount) and s.totalAmount or nil
-      if name and name ~= "" and (amount or key == "x") then
-        local e = out[name] or { c = s.classFilename }
-        out[name] = e
+      if Readable(s.name) and Readable(s.totalAmount) and s.name ~= "" then
+        local e = out[s.name] or { c = s.classFilename }
+        out[s.name] = e
         -- Tode: je Quelle ein Eintrag pro Tod oder eine Anzahl, je nach Client
-        if key == "x" then e.x = (e.x or 0) + math.max(1, amount or 1) else e[key] = (e[key] or 0) + amount end
+        if key == "x" then e.x = (e.x or 0) + math.max(1, s.totalAmount or 1) else e[key] = (e[key] or 0) + (s.totalAmount or 0) end
       end
     end
-  end
-  return out
-end
-
-local function Diff(now, base)
-  local out = {}
-  for name, v in pairs(now or {}) do
-    local b = base and base[name] or {}
-    local e = { c = v.c }
-    for _, k in ipairs({ "d", "h", "x" }) do
-      local n = (v[k] or 0) - (b[k] or 0)
-      if n > 0 then e[k] = n end
-    end
-    if e.d or e.h or e.x then out[name] = e end
   end
   return out
 end
@@ -52,29 +44,40 @@ local function Add(into, add)
   end
 end
 
--- Im Dungeon sind fremde Namen geheim; darum der Stand kurz vor dem Ladebildschirm als Basis
+-- Ein Lauf zählt genau die Abschnitte seit dem Betreten (from) bis zum Verlassen (to), jeden einmal
+-- nach Nummer. Der Stand vor dem Ladebildschirm legt den Anfang fest, falls drinnen noch nichts lesbar ist.
 local outside
 function History.MeterStart(r)
-  local fresh = outside and GetTime() - outside.t < 120 and outside.data
+  local dm = Meter()
+  local fresh = outside and GetTime() - outside.t < 120 and outside.last
   outside = nil -- nur für dieses Betreten
-  r.meterBase = fresh or ReadOverall() or {}
+  local last = fresh or (dm and LastSession(dm))
+  if last then r.meterFrom, r.meterSessions = last + 1, {} end
 end
--- Je Abschnitt: Stand beim Betreten (base), Gesammeltes vor einem Zurücksetzen (acc), Ergebnis (meter)
 function History.MeterUpdate(r)
-  if not (r and r.meterBase) then return end
-  local now = ReadOverall()
-  if not now then return end
-  r.meterLast = now
-  local meter = Diff(now, r.meterBase)
-  Add(meter, r.meterAcc)
-  for name, v in pairs(r.meter or {}) do if not meter[name] then meter[name] = v end end -- gerade geheim
+  local dm = Meter()
+  if not (dm and r and r.meterFrom) then return end
+  local _, list = LastSession(dm)
+  for _, s in ipairs(list) do
+    local id = s.sessionID
+    if id >= r.meterFrom and (not r.meterTo or id <= r.meterTo) then
+      local have = r.meterSessions[id] or {}
+      for name, v in pairs(ReadSession(dm, id)) do have[name] = v end
+      r.meterSessions[id] = have
+    end
+  end
+  local meter = {}
+  for _, data in pairs(r.meterSessions) do Add(meter, data) end
+  Add(meter, r.meterBank)
   r.meter = meter
 end
--- Ende eines Abschnitts; im Dungeon (Gruppe aufgelöst) erst draußen ablesen, wenn Namen lesbar sind
+-- Ende eines Abschnitts; im Dungeon erst draußen fertig ablesen (dort ist nichts mehr geheim)
 function History.MeterFinish(r)
+  local dm = Meter()
+  if r and r.meterFrom and not r.meterTo and dm then r.meterTo = LastSession(dm) end
   History.MeterUpdate(r)
-  if IsInInstance() then r.meterPending = true return end
-  r.meterPending, r.meterBase, r.meterLast, r.meterAcc = nil, nil, nil, nil
+  if IsInInstance() and r and r.meterFrom then r.meterPending = true return end
+  if r then r.meterPending, r.meterFrom, r.meterTo, r.meterSessions, r.meterBank = nil, nil, nil, nil, nil end
 end
 local function FinishPending()
   if IsInInstance() or not char then return end
@@ -84,12 +87,13 @@ local function FinishPending()
     end
   end
 end
+-- Zurückgesetzt: Nummern können neu beginnen; Gesammeltes beiseitelegen
 local function MeterReset()
   local r = History.Run(state.historyEntry)
-  if not (r and r.meterBase) then return end
-  r.meterAcc = r.meterAcc or {}
-  Add(r.meterAcc, Diff(r.meterLast, r.meterBase))
-  r.meterBase, r.meterLast = {}, nil
+  if not (r and r.meterFrom) then return end
+  r.meterBank = r.meterBank or {}
+  for _, data in pairs(r.meterSessions) do Add(r.meterBank, data) end
+  r.meterSessions, r.meterFrom = {}, 0
 end
 
 -- Beute: wer bei welchem Boss was bekommen hat
@@ -119,13 +123,15 @@ end
 rec:SetScript("OnEvent", function(_, event, a1, a2)
   if not db then return end
   if event == "PLAYER_REGEN_ENABLED" then
-    History.MeterUpdate(History.Run(state.historyEntry))
+    -- kurz warten, bis der Abschnitt abgeschlossen und nicht mehr geheim ist
+    C_Timer.After(2, function() History.MeterUpdate(History.Run(state.historyEntry)) end)
   elseif event == "DAMAGE_METER_RESET" then
     MeterReset()
   elseif event == "LOOT_HISTORY_UPDATE_DROP" then
     LootDrop(a1, a2)
   elseif event == "PLAYER_LEAVING_WORLD" then
-    if not IsInInstance() then outside = { t = GetTime(), data = ReadOverall() } end
+    local dm = not IsInInstance() and Meter()
+    if dm then outside = { t = GetTime(), last = LastSession(dm) } end
   elseif event == "PLAYER_ENTERING_WORLD" then
     FinishPending()
   end
