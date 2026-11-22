@@ -125,6 +125,7 @@ DEFAULTS = {
   blocked = {},          -- key -> true: nie wieder einladen
   finalBoss = {},         -- Dungeon (Karte) -> { Bossname -> wie oft zuletzt besiegt } (Events.lua)
   allyNotes = false,      -- Bewertungen als Notiz in Recent Allies (AllyNote)
+  instanceLog = {},       -- betretene Instanzen (Account) für das Limit pro Stunde; Grenze in instanceLimit
   allyNoteText = {},      -- GUID -> von uns geschriebene Notiz
   groupSetup = {},       -- Kategorie -> { size, any } außerhalb von Dungeons (GROUP_SETUP)
   preferLang = "none",   -- bevorzugte Spielsprache (WowLocale) oder "none"

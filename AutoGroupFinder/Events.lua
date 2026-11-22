@@ -135,6 +135,7 @@ function History.Exit(r)
   local dead = UnitIsDeadOrGhost and UnitIsDeadOrGhost("player")
   r.exitDead = (Readable(dead) and dead) and true or nil -- freigelassen: Geisterlauf
   LearnFinal(r)
+  if History.PersonalExit then History.PersonalExit(r) end
   if History.MeterFinish then History.MeterFinish(r) end
 end
 
@@ -198,7 +199,7 @@ function History.MergeSplitRuns(e)
       for name, v in pairs(b.meter or {}) do
         local x = a.meter[name] or { c = v.c }
         a.meter[name] = x
-        for _, k in ipairs({ "d", "h", "x" }) do if v[k] then x[k] = (x[k] or 0) + v[k] end end
+        for _, k in ipairs(METER_KEYS) do if v[k] then x[k] = (x[k] or 0) + v[k] end end
       end
       a.last, a.exit, a.exitDead, a.done = b.last or a.last, b.exit, b.exitDead, b.done
       a.meterPending = b.meterPending
@@ -208,6 +209,78 @@ function History.MergeSplitRuns(e)
     end
   end
 end
+-- Instanzen der letzten Stunde (Blizzard begrenzt neue Instanzen pro Stunde und Account).
+-- Derselbe Dungeon innerhalb von 30 Minuten nach dem Verlassen gilt als dieselbe Instanz.
+function History.NoteInstance()
+  local log = db.instanceLog
+  local inside, kind = IsInInstance()
+  local last = log[#log]
+  while log[1] and time() - log[1].t > 86400 do table.remove(log, 1) end
+  if not (inside and (kind == "party" or kind == "raid")) then
+    if last and not last.out then last.out = time() end
+    return
+  end
+  local map = select(8, GetInstanceInfo())
+  if last and last.map == map and (not last.out or time() - last.out < 1800) then last.out = nil return end
+  log[#log + 1] = { t = time(), map = map }
+  local n, limit, free = History.InstanceCount()
+  if limit and n >= limit - 1 then Print(T.CHAT_INSTANCES:format(n, limit, date("%H:%M", free))) end
+end
+-- Anzahl der letzten Stunde, gelernte Grenze (oder nil), Zeitpunkt, ab dem wieder eine frei wird
+function History.InstanceCount()
+  local n, oldest = 0, nil
+  for _, x in ipairs(db.instanceLog or {}) do
+    if time() - x.t < 3600 then
+      n = n + 1
+      oldest = oldest and math.min(oldest, x.t) or x.t
+    end
+  end
+  return n, db.instanceLimit, oldest and oldest + 3600 or nil
+end
+-- „Too many instances“: die Grenze ist die Zahl der letzten Stunde
+function History.LimitHit()
+  local n = History.InstanceCount()
+  if n > 0 then db.instanceLimit = n end
+end
+
+-- Wie oft schon in einer Gruppe mit diesem Spieler (Verlauf dieses Charakters), und wann zuletzt
+local together, togetherKey = nil, nil
+function History.Together(name)
+  if not (char and name) then return 0 end
+  local first = char.history[1]
+  local key = #char.history .. ":" .. tostring(first) .. ":" .. #(first and first.members or {})
+  if key ~= togetherKey then
+    together, togetherKey = {}, key
+    for _, e in ipairs(char.history) do
+      for _, m in ipairs(e.members or {}) do
+        local x = together[Key(m.name)] or { n = 0, last = 0 }
+        together[Key(m.name)] = x
+        x.n, x.last = x.n + 1, math.max(x.last, e.t or 0)
+      end
+    end
+  end
+  local x = together[Key(name)]
+  return x and x.n or 0, x and x.last
+end
+-- Kurzer Vermerk „3×“; min: ab wie vielen Gruppen (in der eigenen Gruppe zählt sie selbst schon mit)
+function TogetherTag(name, min)
+  local n = History.Together(name)
+  return n >= (min or 2) and ("|cff999999" .. n .. "×|r") or ""
+end
+
+-- Bisherige Läufe in einem Dungeon: Anzahl (mit Endboss), typische und beste Dauer in Sekunden
+function History.DungeonStats(map)
+  local times = {}
+  for _, e in ipairs(char.history) do
+    for _, r in ipairs(e.runs or {}) do
+      if r.map == map and r.done and r.enter then times[#times + 1] = r.done - r.enter end
+    end
+  end
+  if #times == 0 then return 0 end
+  table.sort(times)
+  return #times, times[math.floor((#times + 1) / 2)], times[1]
+end
+
 function History.Fight(start)
   local r = History.Run(state.historyEntry)
   if not r then return end
@@ -215,37 +288,50 @@ function History.Fight(start)
 end
 
 -- Nach /reload: den letzten Eintrag fortsetzen, wenn er frisch ist und jemand von damals dabei ist
-function ContinuesLast()
+function ContinuesLast(solo)
   local last = char.history[1]
   if not last or time() - (last.last or last.t) > 6 * 3600 then return nil end
+  -- allein: derselbe Eintrag nach Tod oder kurz draußen (30 Min)
+  if solo then return last.solo and time() - (last.last or last.t) < 1800 and last or nil end
+  if last.solo then return nil end
   local now = MemberKeys()
   for _, m in ipairs(last.members) do
     if now[Key(m.name)] then return last end
   end
 end
 
-function History.Track()
-  if not IsInGroup() then
-    local e = state.historyEntry
-    if e then
-      e.ended = time()
-      History.Exit(History.Run(e))
-      -- Kurze Gruppen ohne Dungeon (z. B. Layer-Wechsel per Einladung) nicht aufheben,
-      -- außer das Add-on hat sie selbst gefüllt
-      if e.ended - e.t < SHORT_GROUP and not e.instance and not e.wait then
-        for i, x in ipairs(char.history) do if x == e then table.remove(char.history, i) break end end
-      end
-    end
-    state.historyEntry = nil
-    return
+local function EndEntry(e)
+  e.ended = time()
+  History.Exit(History.Run(e))
+  -- Kurze Gruppen ohne Dungeon (z. B. Layer-Wechsel per Einladung) nicht aufheben, außer das Add-on
+  -- hat sie selbst gefüllt; allein nur Dungeons mit Boss oder ab 3 Minuten
+  local short = e.ended - e.t < SHORT_GROUP
+  local kills = 0
+  for _, r in ipairs(e.runs or {}) do kills = kills + (r.kills or 0) end
+  if short and (e.solo and kills == 0 or not e.solo and not e.instance and not e.wait) then
+    for i, x in ipairs(char.history) do if x == e then table.remove(char.history, i) break end end
   end
-  local e = state.historyEntry or ContinuesLast()
-  if not e and #History.Snapshot() == 0 then return end -- noch niemand da (Einladung läuft)
+end
+
+function History.Track()
+  local inInstance, kind = IsInInstance()
+  local dungeon = inInstance and (kind == "party" or kind == "raid")
+  local solo = not IsInGroup() and dungeon
+  local cur = state.historyEntry
+  -- Gruppe vorbei, oder allein draußen, oder Wechsel zwischen allein und Gruppe: Eintrag abschließen
+  if cur and (not IsInGroup() and not solo or (cur.solo or false) ~= (solo or false)) then
+    EndEntry(cur)
+    state.historyEntry, cur = nil, nil
+  end
+  if not IsInGroup() and not solo then return end
+  local e = cur or ContinuesLast(solo)
+  if not e and not solo and #History.Snapshot() == 0 then return end -- noch niemand da (Einladung läuft)
   if not e then
-    e = { t = time(), name = GetRealZoneText and GetRealZoneText() or "?", members = {} }
+    e = { t = time(), name = GetRealZoneText and GetRealZoneText() or "?", members = {}, solo = solo or nil }
     table.insert(char.history, 1, e)
     while #char.history > 100 do table.remove(char.history) end
   end
+  e.ended = nil
   state.historyEntry = e
   -- du selbst: Rolle und Stufe wie bei den Mitspielern
   local role = api.unitRole("player")
@@ -263,7 +349,6 @@ function History.Track()
     end
   end
   e.me.role = role or e.me.role
-  local inInstance, kind = IsInInstance()
   if inInstance and (kind == "party" or kind == "raid") then
     local name = GetInstanceInfo()
     e.kind = kind
@@ -281,6 +366,7 @@ function History.Track()
       prev.gaps = prev.gaps or {}
       prev.gaps[#prev.gaps + 1] = { out = prev.exit, back = time(), dead = prev.exitDead }
       prev.exit, prev.exitDead, prev.meterPending = nil, nil, nil
+      if History.PersonalStart then History.PersonalStart(prev, true) end
       r = prev
     end
     if not r then
@@ -288,6 +374,7 @@ function History.Track()
       e.runs[#e.runs + 1] = { name = name, map = select(8, GetInstanceInfo()), enter = char.instanceSince,
         kills = 0, wipes = 0, bosses = {} }
       if History.MeterStart then History.MeterStart(e.runs[#e.runs]) end
+      if History.PersonalStart then History.PersonalStart(e.runs[#e.runs]) end
     end
   else
     History.Exit(History.Run(e))
@@ -412,7 +499,8 @@ for _, e in ipairs({ "ADDON_LOADED", "PLAYER_LOGIN", "PLAYER_LEVEL_UP", "PLAYER_
     "PARTY_INVITE_REQUEST", "QUEST_LOG_UPDATE", "LFG_LIST_APPLICATION_STATUS_UPDATED",
     "PLAYER_ENTERING_WORLD", "ZONE_CHANGED", "ZONE_CHANGED_INDOORS", "ZONE_CHANGED_NEW_AREA", "ENCOUNTER_END",
     "LFG_LIST_SEARCH_RESULTS_RECEIVED", "LFG_LIST_SEARCH_RESULT_UPDATED", "LFG_LIST_SEARCH_FAILED",
-    "LFG_LIST_AVAILABILITY_UPDATE", "LFG_LIST_ACTIVE_ENTRY_UPDATE", "GROUP_ROSTER_UPDATE", "CHAT_MSG_SYSTEM" }) do
+    "LFG_LIST_AVAILABILITY_UPDATE", "LFG_LIST_ACTIVE_ENTRY_UPDATE", "GROUP_ROSTER_UPDATE", "CHAT_MSG_SYSTEM",
+    "UI_ERROR_MESSAGE", "UI_INFO_MESSAGE" }) do
   pcall(ev.RegisterEvent, ev, e)
 end
 ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4, arg5)
@@ -443,7 +531,7 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4, arg5)
       db.history = nil -- gehört ab jetzt dem Charakter, der zuerst eingeloggt hat
     end
     for i = #char.history, 1, -1 do -- leere Einträge aus älteren Versionen
-      if #(char.history[i].members or {}) == 0 then table.remove(char.history, i) end
+      if #(char.history[i].members or {}) == 0 and not char.history[i].solo then table.remove(char.history, i) end
     end
     for _, x in ipairs(char.history) do History.MergeSplitRuns(x) end
     for i = 21, #char.history do -- Einzelkämpfe nur für die letzten 20 Gruppen aufheben
@@ -545,14 +633,19 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4, arg5)
     if not inInstance then char.instanceSince = nil
     elseif not char.instanceSince and not (arg1 or arg2) then char.instanceSince = time() end
     History.Track()
+    History.NoteInstance()
     if state.queued and inInstance and (kind == "party" or kind == "raid") then
       StopQueue(T.CHAT_IN_INSTANCE)
     end
   elseif event == "GROUP_ROSTER_UPDATE" then
     History.Track()
     OnRoster()
-  elseif event == "CHAT_MSG_SYSTEM" then
-    if Readable(arg1) then OnSystem(arg1) end -- in Instanzen und im Kampf oft geheim
+  elseif event == "CHAT_MSG_SYSTEM" or event == "UI_ERROR_MESSAGE" or event == "UI_INFO_MESSAGE" then
+    local msg = event == "CHAT_MSG_SYSTEM" and arg1 or arg2
+    if not Readable(msg) or type(msg) ~= "string" then return end -- in Instanzen und im Kampf oft geheim
+    local tooMany = TRANSFER_ABORT_TOO_MANY_INSTANCES or ERR_TOO_MANY_INSTANCES
+    if tooMany and msg == tooMany then History.LimitHit() end
+    if event == "CHAT_MSG_SYSTEM" then OnSystem(msg) end
   else
     Rebuild()
   end

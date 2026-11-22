@@ -496,5 +496,80 @@ local s3 = {}
 for _, x in ipairs(all) do s3[#s3 + 1] = x.t end
 check("61) Trash-Beute an ihrer Stelle:", table.concat(s3, " | "):match("^Betreten | Trash%-Beute | %[Trash Item%] | S Grubbis") ~= nil, true)
 E.History.Back()
+
+print("== Allein im Dungeon: Erfahrung, Gold, Beute, Haltbarkeit, Quests")
+time = function() return clock end
+clock = clock + 7 * 3600
+sessions = {}
+local xp, money, bags, dura, complete = 100, 5000, { [1] = { itemID = 11, stackCount = 1, quality = 2, hyperlink = "[Sword]" } }, 100, {}
+UnitXP = function() return xp end
+UnitXPMax = function() return 1000 end
+GetMoney = function() return money end
+GetInventoryItemDurability = function(slot) if slot == 1 then return dura, 100 end end
+C_Container = { GetContainerNumSlots = function(bag) return bag == 0 and 4 or 0 end,
+  GetContainerItemInfo = function(bag, slot) return bags[slot] end }
+C_QuestLog = C_QuestLog or {}
+C_QuestLog.GetNumQuestLogEntries = function() return 1 end
+C_QuestLog.GetInfo = function() return { questID = 77, title = "Gnomer Quest" } end
+C_QuestLog.IsComplete = function(id) return complete[id] or false end
+party = {}; fire("GROUP_ROSTER_UPDATE"); INSTANCE = nil; fire("PLAYER_ENTERING_WORLD", false, false)
+local before = #AutoGroupFinderCharDB.history
+INSTANCE = "Gnomeregan"; fire("PLAYER_ENTERING_WORLD", false, false)
+local solo = AutoGroupFinderCharDB.history[1]
+check("62) allein im Dungeon: eigener Eintrag:", #AutoGroupFinderCharDB.history == before + 1 and solo.solo, true)
+xp = 900; fire("PLAYER_XP_UPDATE")
+xp = 200; UnitLevel = function() return 35 end; fire("PLAYER_XP_UPDATE") -- Stufenaufstieg
+money = 7500; fire("PLAYER_MONEY")
+bags[2] = { itemID = 12, stackCount = 3, quality = 1, hyperlink = "[Gnome Bits]" }
+bags[3] = { itemID = 13, stackCount = 1, quality = 0, hyperlink = "[Grey Junk]" }
+fire("BAG_UPDATE_DELAYED")
+complete[77] = true
+fight(30, { src("Me", "MAGE", 500) })
+fire("ENCOUNTER_END", 2768, "Grubbis", 1, 1, 1)
+dura = 80
+clock = clock + 900; INSTANCE = nil; fire("PLAYER_ENTERING_WORLD", false, false)
+UnitLevel = function() return 34 end
+local sr = solo.runs[1]
+check("63) Erfahrung über den Aufstieg:", sr.xp, 800 + 300)
+check("64) Stufe:", sr.lvlFrom .. "→" .. sr.lvlTo, "34→35")
+check("65) Gold:", sr.money, 2500)
+check("66) eigene Beute ohne Graues:", sr.mine[12] and sr.mine[12].n or 0, 3)
+check("67) Graues nicht:", sr.mine[13], nil)
+check("68) Haltbarkeit:", sr.durStart .. "→" .. sr.durEnd, "100→80")
+check("69) Quest erledigt:", sr.quests and sr.quests[77], "Gnomer Quest")
+check("70) Eintrag bleibt nach dem Verlassen:", AutoGroupFinderCharDB.history[1], solo)
+E.History.detail = solo; E.History.Update()
+local icons = 0
+for _, fr in ipairs(frames) do if fr:IsShown() and rawget(fr, "kind") == "icons" then icons = icons + 1 end end
+check("70b) Für dich mit Beute-Symbolen:", icons, 1)
+E.History.Back()
+INSTANCE = "Gnomeregan"; fire("PLAYER_ENTERING_WORLD", false, false); clock = clock + 30
+INSTANCE = nil; fire("PLAYER_ENTERING_WORLD", false, false)
+print("== Instanzen pro Stunde")
+local n = E.History.InstanceCount()
+check("71) wieder rein gilt als dieselbe Instanz:", n >= 1, true)
+local n0 = n
+clock = clock + 3600 * 2
+INSTANCE = "Gnomeregan"; fire("PLAYER_ENTERING_WORLD", false, false); INSTANCE = nil; fire("PLAYER_ENTERING_WORLD", false, false)
+INSTANCE = "Scarlet Library"; fire("PLAYER_ENTERING_WORLD", false, false); INSTANCE = nil; fire("PLAYER_ENTERING_WORLD", false, false)
+check("72) zwei neue in der letzten Stunde:", (E.History.InstanceCount()), 2)
+fire("UI_ERROR_MESSAGE", 1, TRANSFER_ABORT_TOO_MANY_INSTANCES or "You have entered too many instances recently.")
+TRANSFER_ABORT_TOO_MANY_INSTANCES = TRANSFER_ABORT_TOO_MANY_INSTANCES or "You have entered too many instances recently."
+fire("UI_ERROR_MESSAGE", 1, TRANSFER_ABORT_TOO_MANY_INSTANCES)
+check("73) Grenze gelernt:", AutoGroupFinderDB.instanceLimit, 2)
+print("== Zusammen gespielt, Statistik, Todesbericht")
+check("74) Tank schon mehrfach dabei:", E.History.Together("Tank") >= 3, true)
+check("75) Fremder nie:", E.History.Together("Nobody"), 0)
+local runsDone = E.History.DungeonStats(90)
+check("76) Gnomeregan-Läufe mit Endboss gezählt:", runsDone >= 1, true)
+local f6 = { t = 1, m = { Tank = { d = 10, x = 1, r = 4242, c = "WARRIOR" } } }
+local h6 = { t = clock, name = "Gnomeregan", members = { { name = "Tank" } }, runs = { { name = "Gnomeregan", map = 90, enter = clock - 60,
+  bosses = { { id = 2768, n = "Grubbis", ok = true, t = clock - 30, sid = 1 } }, fights = { [1] = f6 }, kills = 1, wipes = 0 } } }
+table.insert(AutoGroupFinderCharDB.history, 1, h6)
+E.History.detail = h6; E.History.Update()
+local recaps
+for _, fr in ipairs(frames) do if fr:IsShown() and rawget(fr, "kind") == "fight" then recaps = rawget(fr, "recaps") end end
+check("77) Todesbericht am Kampf:", recaps and recaps[1], 4242)
+E.History.Back()
 time = os.time
 

@@ -161,7 +161,9 @@ do
       local role = unit == "player" and select(2, Filled()) or MemberRole(Key(name), unit)
       if not Readable(role) or (role ~= "TANK" and role ~= "HEALER") then role = "DAMAGER" end
       SetRoleTexture(row.role, role, false)
-      row.name:SetText(color and color:WrapTextInColorCode(Short(name)) or Short(name))
+      -- „3×“: schon so oft zusammen (diese Gruppe zählt mit)
+      row.name:SetText((color and color:WrapTextInColorCode(Short(name)) or Short(name))
+        .. (unit ~= "player" and ("  " .. TogetherTag(name)) or ""))
       local lvl = UnitLevel(unit)
       if not Readable(lvl) then lvl = nil end
       local low = a and a.minLevelSuggestion and lvl and lvl > 0 and lvl < a.minLevelSuggestion

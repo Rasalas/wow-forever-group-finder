@@ -19,6 +19,21 @@ do
   search:HookScript("OnTextChanged", function() if History.Update then History.Update() end end)
   search:SetScript("OnEscapePressed", function(self) self:SetText("") self:ClearFocus() end)
   History.search = search
+  -- Instanzen der letzten Stunde (Blizzards Limit pro Stunde)
+  local inst = CreateFrame("Button", nil, page)
+  inst:SetSize(120, 20)
+  inst:SetPoint("TOPRIGHT", win, "TOPRIGHT", -20, -38)
+  inst.text = Label(inst, "", "GameFontDisableSmall", "RIGHT", inst, "RIGHT", 0, 0)
+  inst:SetScript("OnEnter", function(self)
+    local n, limit, free = History.InstanceCount()
+    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+    GameTooltip:SetText(T.H_INST_TITLE)
+    GameTooltip:AddLine(T.H_INST_TIP:format(n), 1, 1, 1, true)
+    if free then GameTooltip:AddLine(T.H_INST_FREE:format(date("%H:%M", free)), 0.8, 0.8, 0.8) end
+    if not limit then GameTooltip:AddLine(T.H_INST_LEARN, 0.6, 0.6, 0.6, true) end
+    GameTooltip:Show()
+  end)
+  inst:SetScript("OnLeave", GameTooltip_Hide)
   local empty = Label(page, T.HISTORY_EMPTY, "GameFontDisable", "TOP", win, "TOP", 0, -120)
   empty:SetWidth(WIN_W - 60)
   -- Kopf der Detailseite an der Stelle der Suche
@@ -159,6 +174,14 @@ do
       for _ in pairs(r.loot or {}) do items = items + 1 end
     end
     if items > 0 then GameTooltip:AddLine(T.H_ITEMS:format(items), 0.8, 0.8, 0.8) end
+    local seen = {}
+    for _, r in ipairs(e.runs or {}) do
+      if r.map and not seen[r.map] then
+        seen[r.map] = true
+        local n, typical, best = History.DungeonStats(r.map)
+        if n >= 2 then GameTooltip:AddLine(T.H_DUNGEON_STATS:format(r.name or "?", n, Mins(typical), Mins(best)), 0.6, 0.6, 0.6, true) end
+      end
+    end
     GameTooltip:AddLine(" ")
     GameTooltip:AddLine(T.H_DETAILS, 0.1, 1, 0.1)
     GameTooltip:Show()
@@ -234,12 +257,13 @@ do
     r.c1 = Label(r, "", "GameFontHighlightSmall", "RIGHT", r, "RIGHT", -12, 0)
     r.c2 = Label(r, "", "GameFontHighlightSmall", "RIGHT", r, "RIGHT", -60, 0)
     r.c3 = Label(r, "", "GameFontHighlightSmall", "RIGHT", r, "RIGHT", -120, 0)
-    -- Spaltenköpfe zum Sortieren (Tode, Heilung, Schaden); erneuter Klick: wie beigetreten
+    r.c4 = Label(r, "", "GameFontHighlightSmall", "RIGHT", r, "RIGHT", -180, 0)
+    -- Spaltenköpfe zum Sortieren (Tode, vermeidbar, Heilung, Schaden); erneuter Klick: wie beigetreten
     r.sort = {}
-    for i, key in ipairs({ "x", "h", "d" }) do
+    for i, key in ipairs({ "x", "a", "h", "d" }) do
       local b = CreateFrame("Button", nil, r)
       b:SetSize(56, 18)
-      b:SetPoint("RIGHT", r, "RIGHT", ({ -4, -52, -112 })[i], 0)
+      b:SetPoint("RIGHT", r, "RIGHT", ({ -4, -52, -112, -172 })[i], 0)
       b:SetScript("OnClick", function()
         History.sort = History.sort ~= key and key or "join"
         History.Update()
@@ -254,7 +278,28 @@ do
     r.itemBorder = r:CreateTexture(nil, "OVERLAY")
     r.itemBorder:SetTexture("Interface\\Common\\WhiteIconFrame")
     r.itemBorder:SetAllPoints(r.item)
+    r.grid = {} -- Beute als Symbole nebeneinander (GridButton)
     r:SetScript("OnEnter", function(self)
+      if self.stats then -- Mitspieler: alle Werte und wie oft schon zusammen
+        local v, x = self.stats.v or {}, self.stats
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:SetText(Colored(x.name, x.class))
+        local function line(label, val, r2, g2, b2) if val and val > 0 then GameTooltip:AddDoubleLine(label, Num(val), 0.8, 0.8, 0.8, r2 or 1, g2 or 1, b2 or 1) end end
+        line(T.H_DMG, v.d)
+        line(T.H_HEAL, v.h, 0.4, 1, 0.4)
+        line(T.H_TAKEN, v.t)
+        line(T.H_AVOID_LONG, v.a, 1, 0.6, 0.2)
+        line(T.H_KICKS, v.i)
+        line(T.H_DISPELS, v.p)
+        line(T.H_DEATHS, v.x, 1, 0.4, 0.4)
+        local n, last = History.Together(x.name)
+        if x.member and n >= 2 then
+          GameTooltip:AddLine(" ")
+          GameTooltip:AddLine(T.H_TOGETHER:format(n, History.When(last)), 0.6, 0.6, 0.6)
+        end
+        GameTooltip:Show()
+        return
+      end
       if self.fightM then
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
         GameTooltip:SetText(self.fightTitle)
@@ -266,7 +311,11 @@ do
           local right = Num(x.v.d or 0) .. "  |cff60ff60" .. Num(x.v.h or 0) .. "|r"
             .. ((x.v.x and x.v.x > 0) and ("  |cffff6060† " .. x.v.x .. "|r") or "")
           GameTooltip:AddDoubleLine(Colored(x.name, x.v.c), right, 1, 1, 1, 1, 1, 1)
+          if x.v.a and x.v.a > 0 then
+            GameTooltip:AddDoubleLine("   " .. T.H_AVOID_LONG, Num(x.v.a), 0.6, 0.6, 0.6, 1, 0.6, 0.2)
+          end
         end
+        if self.recaps then GameTooltip:AddLine(" ") GameTooltip:AddLine(T.H_RECAP, 0.1, 1, 0.1) end
         GameTooltip:Show()
         return
       end
@@ -284,7 +333,13 @@ do
     end)
     r:SetScript("OnLeave", GameTooltip_Hide)
     r:SetScript("OnClick", function(self, button)
-      if self.link then
+      if self.recaps and IsShiftKeyDown() then -- Blizzards Todesbericht als Link in den Chat
+        local DR = _G.C_DeathRecap
+        for _, id in ipairs(self.recaps) do
+          local ok, link = pcall(DR and DR.GetRecapLink or error, id)
+          if ok and link then InsertChat(link) end
+        end
+      elseif self.link then
         if IsShiftKeyDown() then InsertChat(self.link) end
       elseif self.member then
         if IsShiftKeyDown() then InsertChat(Short(self.member.name))
@@ -295,6 +350,29 @@ do
     return r
   end
 
+  local function GridButton(r, j)
+    if r.grid[j] then return r.grid[j] end
+    local b = CreateFrame("Button", nil, r)
+    b:SetSize(26, 26)
+    b:SetPoint("LEFT", r, "LEFT", 8 + (j - 1) * 30, 0)
+    b.icon = b:CreateTexture(nil, "ARTWORK")
+    b.icon:SetAllPoints()
+    b.border = b:CreateTexture(nil, "OVERLAY")
+    b.border:SetTexture("Interface\\Common\\WhiteIconFrame")
+    b.border:SetAllPoints()
+    b.count = Label(b, "", "NumberFontNormalSmall", "BOTTOMRIGHT", b, "BOTTOMRIGHT", 0, 1)
+    b:SetScript("OnEnter", function(self)
+      if not self.link then return end
+      GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+      if not pcall(GameTooltip.SetHyperlink, GameTooltip, self.link) then GameTooltip:SetText(self.link) end
+      GameTooltip:Show()
+    end)
+    b:SetScript("OnLeave", GameTooltip_Hide)
+    b:SetScript("OnClick", function(self) if self.link and IsShiftKeyDown() then InsertChat(self.link) end end)
+    r.grid[j] = b
+    return b
+  end
+
   local function BuildDetail(e)
     local n, y = 0, 0
     local function add(kind, h)
@@ -303,15 +381,16 @@ do
       r:SetHeight(h)
       r:SetPoint("TOPLEFT", 0, -y)
       y = y + h
-      r.kind, r.order, r.link, r.rolls, r.member, r.fightM = kind, n, nil, nil, nil, nil
+      r.kind, r.order, r.link, r.rolls, r.member, r.fightM, r.stats, r.recaps = kind, n, nil, nil, nil, nil, nil, nil
+      for _, b in ipairs(r.grid) do b:Hide() end
       r.bg:SetShown(kind == "section")
       r.hl:SetShown(kind == "member" or kind == "loot" or kind == "fight")
       r.icon:Hide() r.item:Hide() r.itemBorder:Hide()
       for _, b in ipairs(r.sort) do b:SetShown(kind == "cols") end
-      r.time:SetText("") r.c1:SetText("") r.c2:SetText("") r.c3:SetText("")
+      r.time:SetText("") r.c1:SetText("") r.c2:SetText("") r.c3:SetText("") r.c4:SetText("")
       r.text:ClearAllPoints()
       r.text:SetPoint("LEFT", r, "LEFT", kind == "section" and 8 or kind == "member" and 30 or 44, 0)
-      r.text:SetPoint("RIGHT", r, "RIGHT", kind == "loot" and -130 or (kind == "member" or kind == "fight") and -170 or -12, 0)
+      r.text:SetPoint("RIGHT", r, "RIGHT", kind == "loot" and -130 or kind == "member" and -230 or kind == "fight" and -170 or -12, 0)
       r.text:SetFontObject(kind == "section" and "GameFontNormal" or "GameFontHighlight")
       r:Show()
       return r
@@ -332,16 +411,17 @@ do
     end
     -- Ein Kampf oder mehrere zusammen: Dauer, Schaden der Gruppe, Tote in Rot; Überfahren zeigt je Spieler
     local function fight(t, label, list, inGroup)
-      local m, dur, dmg, dead = {}, 0, 0, {}
+      local m, dur, dmg, dead, recaps = {}, 0, 0, {}, {}
       for _, f in ipairs(list) do
         dur = dur + (f.dur or 0)
         for name, v in pairs(f.m or {}) do
           if inGroup[Short(name)] then
             local x = m[name] or { c = v.c }
             m[name] = x
-            for _, k in ipairs({ "d", "h", "x" }) do if v[k] then x[k] = (x[k] or 0) + v[k] end end
+            for _, k in ipairs(METER_KEYS) do if v[k] then x[k] = (x[k] or 0) + v[k] end end
             dmg = dmg + (v.d or 0)
             if v.x and v.x > 0 then dead[Short(name)] = true end
+            if v.r then recaps[#recaps + 1] = v.r end
           end
         end
       end
@@ -354,6 +434,7 @@ do
       r.c2:SetText(dur > 0 and ("|cff999999" .. ("%d:%02d"):format(math.floor(dur / 60), dur % 60) .. "|r") or "")
       r.c1:SetText(dmg > 0 and Num(dmg) or "")
       r.fightM, r.fightTitle = m, label
+      r.recaps = #recaps > 0 and recaps or nil
     end
     local function loot(l)
       local r = add("loot", 26)
@@ -383,7 +464,7 @@ do
         if inGroup[k] then
           local x = total[k] or { c = v.c }
           total[k] = x
-          for _, key in ipairs({ "d", "h", "x" }) do if v[key] then x[key] = (x[key] or 0) + v[key] end end
+          for _, key in ipairs(METER_KEYS) do if v[key] then x[key] = (x[key] or 0) + v[key] end end
         end
       end
     end
@@ -396,8 +477,9 @@ do
     if hasMeter then
       local h = add("cols", 18)
       local function col(k, label) return ((History.sort or "d") == k and "|cffffd100" or "|cff999999") .. label .. "|r" end
-      h.c3:SetText(col("d", T.H_DMG))
-      h.c2:SetText(col("h", T.H_HEAL))
+      h.c4:SetText(col("d", T.H_DMG))
+      h.c3:SetText(col("h", T.H_HEAL))
+      h.c2:SetText(col("a", T.H_AVOID))
       h.c1:SetText(col("x", T.H_DEATHS))
     end
     local key = History.sort or "d" -- Standard: nach Schaden; "join": wie beigetreten
@@ -421,7 +503,8 @@ do
         end
         local early = LeftEarly(e, m)
         r.text:SetText(Colored(m.name, m.class) .. ((m.level and m.level > 0) and ("  |cff999999" .. m.level .. "|r") or "")
-          .. "  " .. RateTag(Rating(m.name)) .. (early and ("  |cff999999" .. early .. "|r") or ""))
+          .. "  " .. RateTag(Rating(m.name)) .. " " .. TogetherTag(m.name) .. (early and ("  |cff999999" .. early .. "|r") or ""))
+        r.stats = { name = m.name, class = m.class, v = p.v, member = true }
       else
         local me = e.me or {}
         if me.role then
@@ -432,11 +515,13 @@ do
         end
         r.text:SetText(Colored(p.name, me.class or (p.v and p.v.c))
           .. ((me.level and me.level > 0) and ("  |cff999999" .. me.level .. "|r") or "") .. "  |cff999999(" .. T.H_YOU .. ")|r")
+        r.stats = { name = p.name, class = me.class or (p.v and p.v.c), v = p.v }
       end
       if hasMeter then
         local v = p.v or {}
-        r.c3:SetText(Num(v.d or 0))
-        r.c2:SetText("|cff60ff60" .. Num(v.h or 0) .. "|r")
+        r.c4:SetText(Num(v.d or 0))
+        r.c3:SetText("|cff60ff60" .. Num(v.h or 0) .. "|r")
+        r.c2:SetText((v.a and v.a > 0) and ("|cffff9933" .. Num(v.a) .. "|r") or "|cff666666–|r")
         r.c1:SetText((v.x and v.x > 0) and ("|cffff6060† " .. v.x .. "|r") or "|cff666666–|r")
       end
     end
@@ -518,6 +603,58 @@ do
       event(run.exit, run.exitDead and ("|cffff6060† " .. T.H_EXIT_DEAD .. "|r") or T.H_EXIT, true)
 
     end
+    -- Für dich: Erfahrung, Gold, Haltbarkeit, erledigte Quests und deine Beute über alle Läufe
+    local xp, money, lvlFrom, lvlTo, durLost, quests, mine = 0, 0, nil, nil, 0, {}, {}
+    for _, run in ipairs(e.runs or {}) do
+      xp, money = xp + (run.xp or 0), money + (run.money or 0)
+      if run.lvlFrom then lvlFrom, lvlTo = lvlFrom or run.lvlFrom, run.lvlTo end
+      if run.durStart and run.durEnd and run.durStart > run.durEnd then durLost = durLost + run.durStart - run.durEnd end
+      for id, title in pairs(run.quests or {}) do quests[id] = title end
+      for id, x in pairs(run.mine or {}) do
+        local have = mine[id] or { link = x.link, n = 0, t = x.t }
+        mine[id] = have
+        have.n = have.n + x.n
+      end
+    end
+    local parts = {}
+    if xp > 0 then parts[#parts + 1] = T.H_XP:format(BreakUpLargeNumbers and BreakUpLargeNumbers(xp) or tostring(xp)) end
+    if lvlFrom then parts[#parts + 1] = T.H_LEVELS:format(lvlFrom, lvlTo) end
+    if money > 0 then parts[#parts + 1] = GetCoinTextureString and GetCoinTextureString(money) or (math.floor(money / 10000) .. "g") end
+    if durLost > 0 then parts[#parts + 1] = "|cffff9933" .. T.H_DURABILITY:format(durLost) .. "|r" end
+    local items = {}
+    for id, x in pairs(mine) do items[#items + 1] = x end
+    table.sort(items, function(a, b) return (a.t or 0) < (b.t or 0) end)
+    if #parts > 0 or next(quests) or #items > 0 then
+      section(T.H_FOR_YOU)
+      if #parts > 0 then
+        local r = add("event", 20)
+        r.text:SetPoint("LEFT", r, "LEFT", 8, 0)
+        r.text:SetText(table.concat(parts, "  ·  "))
+      end
+      for id, title in pairs(quests) do
+        local r = add("event", 18)
+        r.text:SetPoint("LEFT", r, "LEFT", 8, 0)
+        r.text:SetText("|cffffd100?|r " .. (type(title) == "string" and title or ("#" .. id)))
+      end
+      local PER = 12
+      for start = 1, #items, PER do
+        local r = add("icons", 30)
+        for j = 1, PER do
+          local x = items[start + j - 1]
+          if not x then break end
+          local b = GridButton(r, j)
+          local icon, quality = ItemLook(x.link)
+          b.icon:SetTexture(icon or "Interface\\Icons\\INV_Misc_QuestionMark")
+          local qc = quality and quality >= 2 and ITEM_QUALITY_COLORS and ITEM_QUALITY_COLORS[quality]
+          if qc then b.border:SetVertexColor(qc.r, qc.g, qc.b) end
+          b.border:SetShown(qc and true or false)
+          b.count:SetText(x.n > 1 and x.n or "")
+          b.link = x.link
+          b:Show()
+        end
+      end
+    end
+
     for i = n + 1, #lines do lines[i]:Hide() end
     detail:SetContentHeight(y + 6)
   end
@@ -532,6 +669,9 @@ do
     end
     list:SetShown(not e)
     search:SetShown(not e)
+    inst:SetShown(not e)
+    local nInst, limit = History.InstanceCount()
+    inst.text:SetText(T.H_INST_SHORT:format(limit and (nInst .. "/" .. limit) or tostring(nInst)))
     detail:SetShown(e and true or false)
     dTitle:SetShown(e and true or false)
     dWhen:SetShown(e and true or false)
@@ -560,7 +700,7 @@ do
         row.title:SetText(x.name or "?")
         row.title:Show()
         local s = (x.ended or x.last or x.t) - x.t
-        row.date:SetText((s >= 60 and (T.H_MIN:format(Mins(s)) .. " · ") or "") .. History.When(x.t))
+        row.date:SetText((x.solo and (T.H_SOLO .. " · ") or "") .. (s >= 60 and (T.H_MIN:format(Mins(s)) .. " · ") or "") .. History.When(x.t))
         row.date:Show()
         row.icon:Hide() row.name:Hide() row.level:Hide() row.note:Hide()
         row:Show()
@@ -576,7 +716,7 @@ do
           r.icon:SetShown(m.role ~= nil)
           r.name:SetText(Colored(m.name, m.class))
           r.name:Show()
-          r.level:SetText(((m.level and m.level > 0) and m.level or "") .. "  " .. RateTag(Rating(m.name)))
+          r.level:SetText(((m.level and m.level > 0) and m.level or "") .. "  " .. RateTag(Rating(m.name)) .. " " .. TogetherTag(m.name))
           r.level:Show()
           r.note:SetText(LeftEarly(x, m) or "")
           r.note:Show()
