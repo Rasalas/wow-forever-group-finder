@@ -175,6 +175,39 @@ function History.EntryProgress(e)
   end
   return kills, total, wipes
 end
+-- Ältere Versionen trennten einen Lauf beim Tod (Geisterlauf): zusammenführen, wenn derselbe Dungeon
+-- ohne Endboss dazwischen nach höchstens 30 Minuten weiterging
+function History.MergeSplitRuns(e)
+  local runs = e.runs or {}
+  local i = 1
+  while i < #runs do
+    local a, b = runs[i], runs[i + 1]
+    local list = a.map and ENCOUNTERS[a.map]
+    local final = false
+    for _, x in ipairs(a.bosses or {}) do if x.ok and list and x.id == list[#list] then final = true end end
+    if a.map and a.map == b.map and a.exit and b.enter and b.enter - a.exit < 1800 and b.enter >= a.exit and not final and not a.done then
+      local lastBoss = a.bosses[#a.bosses]
+      a.gaps = a.gaps or {}
+      a.gaps[#a.gaps + 1] = { out = a.exit, back = b.enter, dead = (lastBoss and not lastBoss.ok) or nil }
+      for _, g in ipairs(b.gaps or {}) do a.gaps[#a.gaps + 1] = g end
+      for _, x in ipairs(b.bosses or {}) do a.bosses[#a.bosses + 1] = x end
+      a.kills, a.wipes = (a.kills or 0) + (b.kills or 0), (a.wipes or 0) + (b.wipes or 0)
+      for k, l in pairs(b.loot or {}) do a.loot = a.loot or {}; a.loot[k] = a.loot[k] or l end
+      for k, f in pairs(b.fights or {}) do a.fights = a.fights or {}; a.fights[k] = a.fights[k] or f end
+      a.meter = a.meter or {}
+      for name, v in pairs(b.meter or {}) do
+        local x = a.meter[name] or { c = v.c }
+        a.meter[name] = x
+        for _, k in ipairs({ "d", "h", "x" }) do if v[k] then x[k] = (x[k] or 0) + v[k] end end
+      end
+      a.last, a.exit, a.exitDead, a.done = b.last or a.last, b.exit, b.exitDead, b.done
+      a.meterPending = b.meterPending
+      table.remove(runs, i + 1)
+    else
+      i = i + 1
+    end
+  end
+end
 function History.Fight(start)
   local r = History.Run(state.historyEntry)
   if not r then return end
@@ -396,6 +429,7 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4, arg5)
     for i = #char.history, 1, -1 do -- leere Einträge aus älteren Versionen
       if #(char.history[i].members or {}) == 0 then table.remove(char.history, i) end
     end
+    for _, x in ipairs(char.history) do History.MergeSplitRuns(x) end
     for i = 21, #char.history do -- Einzelkämpfe nur für die letzten 20 Gruppen aufheben
       for _, r in ipairs(char.history[i].runs or {}) do r.fights = nil end
     end

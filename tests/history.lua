@@ -440,4 +440,20 @@ local seq = {}
 for _, r in ipairs(rowsSeen) do seq[#seq + 1] = (r.t or ""):gsub(" bis %d+:%d+", "") end
 check("53) Ablauf:", table.concat(seq, " | "), "Betreten | Trash (2)  † Heal | S Grubbis | † Gestorben, Geisterlauf | Trash (1)")
 E.History.Back()
+
+print("== Alte, beim Tod getrennte Läufe zusammenführen")
+local old = { runs = {
+  { name = "Gnomeregan", map = 90, enter = 1000, exit = 2000, kills = 1, wipes = 1,
+    bosses = { { id = 2768, n = "Grubbis", ok = true, t = 1500 }, { id = 2769, n = "Viscous", t = 1990 } },
+    meter = { Tank = { d = 100, c = "WARRIOR" }, Me = { d = 50 } }, loot = { ["2768:1"] = { enc = 2768 } } },
+  { name = "Gnomeregan", map = 90, enter = 2130, exit = 2900, kills = 2, wipes = 0,
+    bosses = { { id = 2769, n = "Viscous", ok = true, t = 2400 }, { id = 2940, n = "Thermaplugg", ok = true, t = 2800 } },
+    meter = { Me = { d = 20 } } },
+  { name = "Gnomeregan", map = 90, enter = 3000, exit = 3500, kills = 0, wipes = 0, bosses = {} }, -- nach dem Endboss: neuer Lauf
+} }
+E.History.MergeSplitRuns(old)
+check("54) zwei Teile zu einem Lauf:", #old.runs, 2)
+check("55) Ausflug als Tod (nach Wipe):", old.runs[1].gaps[1].dead, true)
+check("56) Bosse und Schaden zusammen:", #old.runs[1].bosses .. ":" .. old.runs[1].meter.Me.d .. ":" .. old.runs[1].exit, "4:70:2900")
 time = os.time
+
