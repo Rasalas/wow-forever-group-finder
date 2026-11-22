@@ -32,7 +32,8 @@ do
   local function Clock(t) return date("%H:%M", t) end
   local function Colored(name, class)
     local c = class and RAID_CLASS_COLORS[class]
-    return c and c:WrapTextInColorCode(Short(name)) or Short(name)
+    name = Short(name or "?")
+    return c and c:WrapTextInColorCode(name) or name
   end
 
   local function MemberMenu(owner, m)
@@ -444,14 +445,22 @@ do
     for _, run in ipairs(e.runs or {}) do
       section(run.name or "?", run.enter and (Clock(run.enter) .. " – " .. (run.exit and Clock(run.exit) or "…")) or nil)
       local used = {}
-      local function lootFor(enc)
-        local drops = {}
+      -- Beute eines Bosses; enc nil: Trash-Beute (Boss 0 oder nicht erkannt), mit lo/hi nur aus diesem Zeitraum
+      local killed = {}
+      for _, b in ipairs(run.bosses or {}) do if b.ok and b.id then killed[b.id] = true end end
+      local function drops(enc, lo, hi)
+        local out = {}
         for k, l in pairs(run.loot or {}) do
-          if not used[k] and (enc == nil or l.enc == enc) then used[k] = true; drops[#drops + 1] = l end
+          local mine = enc and l.enc == enc or not enc and not killed[l.enc]
+          if not used[k] and mine and (not lo or (l.t and l.t > lo and l.t <= hi)) then out[#out + 1] = k end
         end
-        table.sort(drops, function(a, b) return (a.link or "") < (b.link or "") end)
-        for _, l in ipairs(drops) do loot(l) end
+        table.sort(out, function(a, b) return (run.loot[a].link or "") < (run.loot[b].link or "") end)
+        return out
       end
+      local function lootRows(keys)
+        for _, k in ipairs(keys) do used[k] = true; loot(run.loot[k]) end
+      end
+      local function lootFor(enc) lootRows(drops(enc)) end
       -- Kämpfe: Bosse einzeln, Trash zwischen zwei Bossen (oder Ausflügen nach draußen) zusammengefasst
       local fights, bossFight = {}, {}
       for k, f in pairs(run.fights or {}) do fights[#fights + 1] = { k = k, f = f } end
@@ -474,7 +483,14 @@ do
       event(run.enter, T.H_ENTER, true)
       if #fights == 0 then event(run.first, T.H_FIRST, true) end
       for i = 1, #marks + 1 do
-        if trash[i] then fight(trash[i][1].t, "|cffb0b0b0" .. T.H_TRASH:format(#trash[i]) .. "|r", trash[i], inGroup) end
+        local lo, hi = marks[i - 1] and marks[i - 1].t or 0, marks[i] and marks[i].t or math.huge
+        local tl = drops(nil, lo, hi)
+        if trash[i] then
+          fight(trash[i][1].t, "|cffb0b0b0" .. T.H_TRASH:format(#trash[i]) .. "|r", trash[i], inGroup)
+        elseif #tl > 0 then
+          event(run.loot[tl[1]].t, T.H_OTHER_LOOT, true)
+        end
+        lootRows(tl)
         local mk = marks[i]
         if mk and mk.boss then
           local b = mk.boss
@@ -483,17 +499,20 @@ do
           if f then fight(b.t, label, { f }, inGroup) else event(b.t, label) end
           if b.ok and b.id then lootFor(b.id) end
         elseif mk and mk.gap then
-          local g = mk.gap
-          event(g.out, g.dead and ("|cffff6060† " .. T.H_GHOST:format(Clock(g.back)) .. "|r") or T.H_OUTSIDE:format(Clock(g.back)), true)
+          -- Raus und wieder rein; direkt nach einem Wipe sagt der rote Wipe schon alles
+          local g, prev = mk.gap, marks[i - 1]
+          local afterWipe = prev and prev.boss and not prev.boss.ok and g.out - prev.t < 300
+          if not afterWipe then
+            event(g.out, g.dead and ("|cffff6060† " .. T.H_DIED .. "|r") or T.H_EXIT, not g.dead)
+          end
+          event(g.back, T.H_REENTER, true)
         end
       end
-      for k in pairs(run.loot or {}) do -- Beute ohne erkannten Boss
-        if not used[k] then
-          local r = add("event", 18)
-          r.text:SetText("|cff999999" .. T.H_OTHER_LOOT .. "|r")
-          lootFor(nil)
-          break
-        end
+      local rest = drops(nil) -- ältere Trash-Beute ohne Zeit: am Ende
+      if #rest > 0 then
+        local r = add("event", 18)
+        r.text:SetText("|cff999999" .. T.H_OTHER_LOOT .. "|r")
+        lootRows(rest)
       end
       if #fights == 0 then event(run.last, T.H_LAST, true) end
       event(run.exit, run.exitDead and ("|cffff6060† " .. T.H_EXIT_DEAD .. "|r") or T.H_EXIT, true)

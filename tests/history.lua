@@ -437,8 +437,8 @@ for _, fr in ipairs(frames) do
 end
 table.sort(rowsSeen, function(a, b) return a.o < b.o end)
 local seq = {}
-for _, r in ipairs(rowsSeen) do seq[#seq + 1] = (r.t or ""):gsub(" bis %d+:%d+", "") end
-check("53) Ablauf:", table.concat(seq, " | "), "Betreten | Trash (2)  † Heal | S Grubbis | † Gestorben, Geisterlauf | Trash (1)")
+for _, r in ipairs(rowsSeen) do seq[#seq + 1] = r.t or "" end
+check("53) Ablauf:", table.concat(seq, " | "), "Betreten | Trash (2)  † Heal | S Grubbis | † Gestorben | Wieder betreten | Trash (1)")
 local function memberOrder()
   local l = {}
   for _, fr in ipairs(frames) do
@@ -471,5 +471,30 @@ E.History.MergeSplitRuns(old)
 check("54) zwei Teile zu einem Lauf:", #old.runs, 2)
 check("55) Ausflug als Tod (nach Wipe):", old.runs[1].gaps[1].dead, true)
 check("56) Bosse und Schaden zusammen:", #old.runs[1].bosses .. ":" .. old.runs[1].meter.Me.d .. ":" .. old.runs[1].exit, "4:70:2900")
+old.members = { { name = "Tank", role = "TANK" } }; old.t = 900
+table.insert(AutoGroupFinderCharDB.history, 1, old)
+E.History.detail = old; E.History.Update()
+local seq2 = {}
+for _, fr in ipairs(frames) do
+  local k = rawget(fr, "kind")
+  if fr:IsShown() and k == "event" then seq2[#seq2 + 1] = { o = rawget(fr, "order"), t = plain(txt(fr, "text")) } end
+end
+table.sort(seq2, function(a, b) return a.o < b.o end)
+local s2 = {}
+for _, x in ipairs(seq2) do s2[#s2 + 1] = x.t end
+check("60) nach dem Wipe kein doppelter Tod:", table.concat(s2, " | "):match("Wipe: Viscous | Wieder betreten") ~= nil, true)
+E.History.Back()
+old.runs[1].loot["0:5"] = { enc = 0, t = 1200, link = "[Trash Item]", who = "Tank" }
+E.History.detail = old; E.History.Update()
+local all = {}
+for _, fr in ipairs(frames) do
+  local k = rawget(fr, "kind")
+  if fr:IsShown() and (k == "event" or k == "loot" or k == "fight") then all[#all + 1] = { o = rawget(fr, "order"), t = plain(txt(fr, "text")) } end
+end
+table.sort(all, function(a, b) return a.o < b.o end)
+local s3 = {}
+for _, x in ipairs(all) do s3[#s3 + 1] = x.t end
+check("61) Trash-Beute an ihrer Stelle:", table.concat(s3, " | "):match("^Betreten | Trash%-Beute | %[Trash Item%] | S Grubbis") ~= nil, true)
+E.History.Back()
 time = os.time
 

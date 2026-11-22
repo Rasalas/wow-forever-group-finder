@@ -120,7 +120,9 @@ local function LootDrop(encounterID, key)
     end
   end
   r.loot = r.loot or {}
-  r.loot[encounterID .. ":" .. key] = { enc = encounterID, link = info.itemHyperlink, who = w.playerName, c = w.playerClass,
+  local k = encounterID .. ":" .. key
+  local seen = r.loot[k] and r.loot[k].t -- wann gefallen: für Trash-Beute (Boss 0) im Ablauf
+  r.loot[k] = { enc = encounterID, t = seen or time(), link = info.itemHyperlink, who = w.playerName, c = w.playerClass,
     s = Readable(w.state) and w.state or nil, r = Readable(w.roll) and w.roll or nil, rolls = #rolls > 0 and rolls or nil }
 end
 
