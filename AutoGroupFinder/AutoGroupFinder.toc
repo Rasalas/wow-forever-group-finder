@@ -2,7 +2,7 @@
 ## Title: Auto Group Finder
 ## Notes: Finds tanks, healers and damage for your group automatically – like the Retail dungeon finder.
 ## Notes-deDE: Sucht automatisch Tanks, Heiler und Schaden für deine Gruppe – wie der Dungeon-Finder in Retail.
-## Version: 0.8.1
+## Version: 0.9.0
 ## X-Curse-Project-ID: 1819867
 ## X-License: MIT
 ## SavedVariables: AutoGroupFinderDB
