@@ -143,10 +143,14 @@ LOCALE = "enUS"
 print("== row interactions")
 local inserted, told, menu
 ChatFrameUtil = { InsertLink = function(t) inserted = t return true end, SendTell = function(n) told = n end }
-MenuUtil = { CreateContextMenu = function(owner, gen)
+-- Rechtsklick öffnet AutoGroupFinders eigenes Menü (UI/PadMenu.lua): Zeilen mit Text und Klick
+local function menuRows()
   local items = {}
-  local root = setmetatable({}, { __index = function(_, k) return function(_, text, fn) items[#items + 1] = { text, fn } return {} end end })
-  gen(owner, root); menu = items end }
+  for _, r in ipairs(_G.AutoGroupFinderPadMenu and rawget(_G.AutoGroupFinderPadMenu, "rows") or {}) do
+    if rawget(r, "_shown") then items[#items + 1] = { rawget(r.label, "_text"), function() rawget(r, "_scripts").OnClick(r) end } end
+  end
+  return items
+end
 -- put a candidate on the found page
 party = {}; fire("GROUP_ROSTER_UPDATE")
 AutoGroupFinderDB.page = 2
@@ -164,6 +168,7 @@ row.sub.IsMouseOver = function() return true end
 rawget(row, "_scripts").OnClick(row, "LeftButton"); print("shift dungeon ->", inserted)
 IsShiftKeyDown = function() return false end
 rawget(row, "_scripts").OnClick(row, "RightButton")
+menu = menuRows()
 for _, it in ipairs(menu) do io.write("[", tostring(it[1]), "] ") end print()
 for _, it in ipairs(menu) do if it[1] == "Anflüstern" then it[2]() end end
 print("whisper ->", told)

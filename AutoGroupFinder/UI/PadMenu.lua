@@ -1,11 +1,12 @@
 local _, ns = ...
 setfenv(1, ns.env) -- gemeinsamer, privater Namensraum aller Module (siehe Core.lua)
 
--- Eigenes Menü für Forevers Controller-Oberfläche.
--- Dort tritt jedes Menü aus Blizzard_Menu der Controller-Steuerung (FrameControlsManager) bei. Öffnet ein
--- Add-on so ein Menü, befleckt es diese Steuerung (Taint): Beim Schließen blockiert Blizzard dann
--- SetPreferredGamepadInteractTarget und zeigt „AutoGroupFinder wurde geblockt“. Mit Controller zeichnet
--- AutoGroupFinder seine Menüs darum selbst; mit Maus bleiben es Blizzards. Die Menü-Generatoren bleiben
+-- Eigenes Menü statt Blizzard_Menu, mit Maus und Controller.
+-- Mit Forevers Controller-Oberfläche tritt jedes Menü aus Blizzard_Menu der Controller-Steuerung
+-- (FrameControlsManager) bei. Öffnet ein Add-on so ein Menü, befleckt es diese Steuerung (Taint): Beim
+-- Schließen blockiert Blizzard dann SetPreferredGamepadInteractTarget und zeigt „AutoGroupFinder wurde
+-- geblockt“. AutoGroupFinder zeichnet seine Menüs darum selbst – auch mit Maus, damit es nur einen Weg gibt
+-- und ein Wechsel zwischen Maus und Controller mitten in der Sitzung nichts ändert. Die Menü-Generatoren bleiben
 -- dieselben: Sie füllen hier eine Beschreibung mit denselben Aufrufen (CreateButton, CreateCheckbox,
 -- CreateRadio, CreateTitle, CreateDivider), die dieses Menü dann zeichnet. Untermenüs öffnen an Ort und
 -- Stelle, mit „Zurück“ als erster Zeile – mit dem Steuerkreuz einfacher als Menüs nebeneinander.
@@ -199,7 +200,7 @@ local function Layout()
   end
   frame:SetSize(cols * widest + (cols - 1) * INSET * 2 + INSET * 2, perCol * ROW + TOP + BOTTOM)
   -- Der Controller-Cursor beginnt auf der gewählten Zeile, wie in Blizzards Auswahlfeldern
-  if start and SmartNavigation and SmartNavigation.SetTargetButtonForFrame and not InCombatLockdown() then
+  if start and UsingGamepad() and SmartNavigation and SmartNavigation.SetTargetButtonForFrame and not InCombatLockdown() then
     pcall(SmartNavigation.SetTargetButtonForFrame, SmartNavigation, frame, start)
   end
 end
@@ -231,8 +232,9 @@ function PadMenu.Pick(d)
   if opener and opener.GenerateMenu then pcall(opener.GenerateMenu, opener) end
 end
 
--- Menü des Generators `gen(owner, root)` unter `owner` öffnen; ist es dort schon offen, schließen.
-function PadMenu.Open(anchor, gen)
+-- Menü des Generators `gen(owner, root)` unter `owner` (oder am Mauszeiger) öffnen; ist es dort schon
+-- offen, schließen.
+function PadMenu.Open(anchor, gen, atCursor)
   if not frame then Build() end
   if frame:IsShown() then
     local same = owner == anchor
@@ -246,7 +248,7 @@ function PadMenu.Open(anchor, gen)
   owner, stack = anchor, { root }
   Layout()
   frame:ClearAllPoints()
-  if anchor and anchor ~= UIParent then
+  if anchor and anchor ~= UIParent and not atCursor then
     frame:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", 0, -2)
   else
     local x, y = GetCursorPosition()
@@ -259,25 +261,19 @@ end
 
 function PadMenu.Close() if frame then frame:Hide() end end
 
--- Rechtsklick-Menü: mit Maus Blizzards, mit Controller das eigene
+-- Rechtsklick-Menü. Mit Maus am Mauszeiger wie Blizzards, mit Controller unter der Zeile (der Zeiger
+-- steht dort irgendwo).
 function ContextMenu(owner, gen)
-  if UsingGamepad() then PadMenu.Open(owner, gen) return true end
-  if not (MenuUtil and MenuUtil.CreateContextMenu) then return false end
-  MenuUtil.CreateContextMenu(owner, gen)
+  PadMenu.Open(owner, gen, not UsingGamepad())
   return true
 end
 
--- Auswahlfeld (DropdownButton): Blizzards eingebauter Klick ruft self:OpenMenu(). Mit Controller öffnet
--- stattdessen das eigene Menü; mit Maus bleibt es Blizzards.
+-- Auswahlfeld (DropdownButton): Blizzards eingebauter Klick ruft self:OpenMenu(); statt Blizzards Menü
+-- öffnet das eigene. Knopf und Auswahltext bleiben Blizzards.
 function PadMenu.Hook(button, gen)
-  local blizzardOpen = DropdownButtonMixin and DropdownButtonMixin.OpenMenu
-  button.OpenMenu = function(self, ...)
-    if UsingGamepad() then
-      if self.IsEnabled and self:IsEnabled() == false then return end
-      PadMenu.Open(self, gen)
-    elseif blizzardOpen then
-      return blizzardOpen(self, ...)
-    end
+  button.OpenMenu = function(self)
+    if self.IsEnabled and self:IsEnabled() == false then return end
+    PadMenu.Open(self, gen)
   end
   button:HookScript("OnHide", function(self) if frame and owner == self then frame:Hide() end end)
 end

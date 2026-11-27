@@ -156,7 +156,7 @@ menus = {}
 function SetupMenuLater(button, gen)
   local function generator(owner, root) if db then gen(owner, root) end end
   button:SetupMenu(generator)
-  PadMenu.Hook(button, generator) -- mit Controller das eigene Menü (UI/PadMenu.lua)
+  PadMenu.Hook(button, generator) -- das Menü selbst ist das eigene (UI/PadMenu.lua)
   menus[#menus + 1] = button
 end
 function RefreshMenus()
