@@ -181,6 +181,13 @@ function ActivityTree(catOverride)
   local anyQuest = false
   for _, e in ipairs(tree.all) do anyQuest = anyQuest or e.quests ~= nil end
   if anyQuest then for _, e in ipairs(tree.all) do e.default = e.quests ~= nil end end
+  -- Wer selbst etwas angehakt hat, bekommt nichts dazu: Was erst später passt (Stufenaufstieg),
+  -- war beim Auswählen ausgeblendet und bleibt aus, bis man es anhakt.
+  local own = false
+  for _, e in ipairs(tree.all) do own = own or char.activities[e.id] == true end
+  if own then
+    for _, e in ipairs(tree.all) do if char.activities[e.id] == nil then e.default = false end end
+  end
   state.trees[cat or 0] = { version = state.treeVersion, tree = tree }
   return tree
 end
