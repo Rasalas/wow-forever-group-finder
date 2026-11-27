@@ -192,6 +192,9 @@ ns.L.itIT = {
 
   CHAT_STARTED = "Ricerca avviata. Si cerca: %s.",
   CHAT_NEXT_CLICK = "La ricerca parte al prossimo clic nel mondo o con il tuo tasto.",
+  CHAT_NEXT_KEY = "La ricerca parte con il tuo tasto (Esc > Opzioni > Comandi > Auto Group Finder) o con il pulsante in alto sullo schermo.",
+  CHAT_WORLDCLICK_OFF = "Blizzard ha bloccato una ricerca partita da un clic nel mondo (capita spesso con il controller). Fino al ricaricamento cerca con il tuo tasto (Esc > Opzioni > Comandi > Auto Group Finder), il pulsante in alto sullo schermo o un clic destro sull'icona della minimappa.",
+  NUDGE_PENDING = "Continua",
   CHAT_STOPPED = "Ricerca interrotta.",
   CHAT_COMPLETE = "Gruppo completo!",
   EMPTY_NEXT = "Ancora niente per il tuo livello.\nDal livello %d: %s",

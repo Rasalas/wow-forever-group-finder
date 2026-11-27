@@ -193,6 +193,9 @@ ns.L.esES = {
 
   CHAT_STARTED = "Búsqueda iniciada. Se busca: %s.",
   CHAT_NEXT_CLICK = "Se busca con tu siguiente clic en el mundo o con tu tecla.",
+  CHAT_NEXT_KEY = "Se busca con tu tecla (Esc > Opciones > Asignación de teclas > Auto Group Finder) o con el botón de arriba de la pantalla.",
+  CHAT_WORLDCLICK_OFF = "Blizzard bloqueó una búsqueda desde un clic en el mundo (habitual con mando). Hasta recargar, busca con tu tecla (Esc > Opciones > Asignación de teclas > Auto Group Finder), el botón de arriba de la pantalla o un clic derecho en el icono del minimapa.",
+  NUDGE_PENDING = "Continuar",
   CHAT_STOPPED = "Búsqueda detenida.",
   CHAT_COMPLETE = "¡Grupo completo!",
   EMPTY_NEXT = "Aún nada para tu nivel.\nDesde nivel %d: %s",

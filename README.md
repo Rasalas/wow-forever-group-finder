@@ -34,7 +34,7 @@ From [CurseForge](https://www.curseforge.com/wow/addons/auto-group-finder) (Curs
 
 `/gf` opens the window. The first time, a small card asks about automatic invites and sharing wait times. Everything else is in the gear menu.
 
-Blizzard only lets add-ons search the group finder right after a click or key press. While a search is running, right-click the minimap icon, press your key binding (Key Bindings > Auto Group Finder) or click into the game world to search again.
+Blizzard only lets add-ons search the group finder right after a click or key press. While a search is running, right-click the minimap icon, press your key binding (Key Bindings > Auto Group Finder) or click into the game world to search again. With a controller, clicks into the world don't count as clicks for Blizzard; use the key binding, the button at the top of the screen or the minimap icon instead.
 
 | Command | |
 |---|---|

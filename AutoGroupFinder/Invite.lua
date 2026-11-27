@@ -9,7 +9,8 @@ function FoundPageOpen() return win and win:IsShown() and db.page == 2 end
 function DoSearch(force)
   if not db then return end
   -- Beiläufige Klicks erledigen erst Vorgemerktes; ausdrückliches Suchen (force) sucht sofort.
-  if not force and HardwareTick and HardwareTick() then return end
+  -- Ohne Weltklicks (Controller) bleibt nur der ausdrückliche Klick oder die Taste, also erst Vorgemerktes.
+  if (not force or not WorldClicks()) and HardwareTick and HardwareTick() then return end
   if InCombatLockdown() then return end
   if not force and not (state.queued or FoundPageOpen()) then return end
   -- Umwandeln ist ebenfalls nur nach Klick oder Taste erlaubt und verbraucht diesen Klick.

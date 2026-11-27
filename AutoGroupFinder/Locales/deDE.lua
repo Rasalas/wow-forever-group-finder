@@ -192,6 +192,9 @@ ns.L.deDE = {
 
   CHAT_STARTED = "Suche gestartet. Gesucht: %s.",
   CHAT_NEXT_CLICK = "Gesucht wird beim nächsten Klick in die Welt oder mit deiner Taste.",
+  CHAT_NEXT_KEY = "Gesucht wird mit deiner Taste (Esc > Optionen > Tastaturbelegung > Auto Group Finder) oder über den Knopf oben im Bild.",
+  CHAT_WORLDCLICK_OFF = "Blizzard hat eine Suche aus einem Klick in die Welt geblockt (häufig mit Controller). Bis zum Neuladen suchen deine Taste (Esc > Optionen > Tastaturbelegung > Auto Group Finder), der Knopf oben im Bild oder ein Rechtsklick aufs Minimap-Symbol.",
+  NUDGE_PENDING = "Weiter",
   CHAT_STOPPED = "Suche beendet.",
   CHAT_COMPLETE = "Gruppe komplett!",
   EMPTY_NEXT = "Noch nichts für deine Stufe.\nAb Stufe %d: %s",

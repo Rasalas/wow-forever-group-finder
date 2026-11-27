@@ -42,7 +42,7 @@ function StartQueue(resume)
   else
     CloseWindow()
     Print(T.CHAT_STARTED:format(NeedText(rem)))
-    Print(T.CHAT_NEXT_CLICK)
+    Print(WorldClicks() and T.CHAT_NEXT_CLICK or T.CHAT_NEXT_KEY)
   end
   UpdateMinimap()
 end
@@ -74,6 +74,8 @@ function GroupReady()
 end
 
 function _G.AutoGroupFinder_Next()
+  -- Ohne Weltklicks (Controller) erledigt die Taste zuerst Vorgemerktes, je Druck eine geschützte Aktion
+  if not WorldClicks() and HardwareTick() then return end
   if GroupReady() then
     api.readyCheck()
   elseif state.queued then

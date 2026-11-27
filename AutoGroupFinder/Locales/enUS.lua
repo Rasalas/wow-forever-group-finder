@@ -197,6 +197,9 @@ ns.L.enUS = {
 
   CHAT_STARTED = "Search started. Looking for: %s.",
   CHAT_NEXT_CLICK = "The search runs on your next click into the world or with your key.",
+  CHAT_NEXT_KEY = "The search runs with your key (Esc > Options > Key Bindings > Auto Group Finder) or the button at the top of the screen.",
+  CHAT_WORLDCLICK_OFF = "Blizzard blocked a search from a click into the world (common with a controller). Until you reload, search with your key (Esc > Options > Key Bindings > Auto Group Finder), the button at the top of the screen or a right-click on the minimap icon.",
+  NUDGE_PENDING = "Continue",
   CHAT_STOPPED = "Search stopped.",
   CHAT_COMPLETE = "Group complete!",
   EMPTY_NEXT = "Nothing for your level yet.\nFrom level %d: %s",

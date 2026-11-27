@@ -57,6 +57,62 @@ local function NextRestricted()
   end
 end
 
+-- Vorgemerktes da, das nur ein Klick oder eine Taste erledigen kann?
+function PendingRestricted()
+  if state.unlist or next(roleQueue) ~= nil then return true end
+  local now = GetTime()
+  for _, w in ipairs(whisperQueue) do if now - w.t < 20 then return true end end
+  return false
+end
+
+-- Forevers Controller-Modus: Klicks in die Spielwelt kommen dort ohne Hardware-Ereignis an, eine Suche
+-- daraus blockiert Blizzard mit „AutoGroupFinder wurde geblockt“. Mit Controller suchen Taste und Knopf.
+function UsingGamepad()
+  local style = C_InputInterfaceStyle and C_InputInterfaceStyle.GetCurrentStyle
+  if style then
+    local gamepad = Enum and Enum.InputDeviceInterfaceType and Enum.InputDeviceInterfaceType.Gamepad or 1
+    local ok, current = pcall(style)
+    if ok and current == gamepad then return true end
+  end
+  return IsUsingGamepad and IsUsingGamepad() == true or false
+end
+
+-- Taugen Klicks in die Welt als Hardware-Ereignis? Nicht mit Controller und nicht mehr, nachdem Blizzard
+-- einen daraus geblockt hat (dann für diese Sitzung aus, damit der Dialog nicht bei jedem Klick kommt).
+function WorldClicks() return not state.worldClickOff and not UsingGamepad() end
+
+local function WorldClick()
+  if db.keySearch then DoSearch(false) else HardwareTick() end -- je Klick nur eine geschützte Aktion
+end
+
+function OnWorldMouseDown()
+  if not db or not WorldClicks() then return end
+  state.inWorldClick = true
+  local ok, err = pcall(WorldClick)
+  state.inWorldClick = nil
+  if not ok then geterrorhandler()(err) end
+end
+
+-- Blizzard hat einen Aufruf von uns blockiert: für /gf diag festhalten; kam er aus einem Weltklick,
+-- den Weg abschalten und einmal erklären, wie es weitergeht.
+function OnActionBlocked(event, func)
+  local via = state.inWorldClick and "world click" or "click/key"
+  if #errors < 30 then
+    errors[#errors + 1] = date("%H:%M:%S ") .. ("%s %s (%s%s)"):format(event, tostring(func), via,
+      UsingGamepad() and ", gamepad" or "")
+  end
+  if state.inWorldClick and not state.worldClickOff then
+    state.worldClickOff = true
+    Print(T.CHAT_WORLDCLICK_OFF)
+  end
+end
+local blockedEv = CreateFrame("Frame")
+blockedEv:RegisterEvent("ADDON_ACTION_FORBIDDEN")
+blockedEv:RegisterEvent("ADDON_ACTION_BLOCKED")
+blockedEv:SetScript("OnEvent", function(_, event, addon, func)
+  if addon == ADDON then OnActionBlocked(event, func) end
+end)
+
 -- true = dieser Klick ist verbraucht
 HardwareTick = function()
   if not db or InCombatLockdown() then return false end
@@ -587,9 +643,7 @@ ev:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4, arg5)
     if L.RequestAvailableActivities then pcall(L.RequestAvailableActivities) end
     PlaceMinimap()
     UpdateMinimap()
-    WorldFrame:HookScript("OnMouseDown", function()
-      if db.keySearch then DoSearch(false) else HardwareTick() end -- je Klick nur eine geschützte Aktion
-    end)
+    WorldFrame:HookScript("OnMouseDown", OnWorldMouseDown)
     C_Timer.NewTicker(1, Tick)
     History.Track() -- nach /reload in der laufenden Gruppe weitermachen
     if C_ChatInfo and C_ChatInfo.RegisterAddonMessagePrefix then pcall(C_ChatInfo.RegisterAddonMessagePrefix, COMM_PREFIX) end

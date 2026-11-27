@@ -65,6 +65,9 @@ function UpdateNudge()
   local first = state.lastSearchAt == 0 -- direkt nach dem Eintragen: noch nie gesucht
   local want = db.nudge and state.queued and not InCombatLockdown() and not state.searching
     and AnyLeft((Slots())) and (first or now - state.lastSearchAt > NUDGE_AFTER)
+  -- Ohne Weltklicks (Controller) erledigt der Knopf auch Vorgemerktes (Rollen, Flüstern, Austragen)
+  local pending = not want and db.nudge and not InCombatLockdown() and not WorldClicks() and PendingRestricted()
+  if pending then want = true end
   -- Abgang oder Auflösung: „Weitersuchen“ anbieten
   if state.resume and not state.queued and not InCombatLockdown() then
     nudge.text:SetText(T.NUDGE_RESUME)
@@ -73,7 +76,7 @@ function UpdateNudge()
   end
   if want then
     local active = first or (IsPlayerMoving and IsPlayerMoving()) or now - lastMove < 60
-    nudge.text:SetText(active and T.NUDGE_FIRST or T.NUDGE)
+    nudge.text:SetText(pending and T.NUDGE_PENDING or active and T.NUDGE_FIRST or T.NUDGE)
   end
   nudge:SetShown(want and true or false)
 end
