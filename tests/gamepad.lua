@@ -109,9 +109,10 @@ end
 -- Hardware-Ereignisse wie im Client: eingeschränkte Funktionen nur während eines echten Klicks oder
 -- Tastendrucks. Ohne einen feuert ADDON_ACTION_FORBIDDEN (der Dialog „… wurde geblockt“) und nichts passiert.
 -- Controller (Forevers Gamepad-Modus): Klicks in die Welt kommen ohne Hardware-Ereignis an.
-local HW, GAMEPAD = false, false
+local HW, GAMEPAD, PAD_CONNECTED = false, false, false
 local calls, forbidden, chat = {}, {}, {}
-function IsUsingGamepad() return GAMEPAD end
+-- Was IsUsingGamepad genau meldet, ist undokumentiert; Blizzard selbst entscheidet nur über den Oberflächenstil.
+function IsUsingGamepad() return GAMEPAD or PAD_CONNECTED end
 C_InputInterfaceStyle = { GetCurrentStyle = function() return GAMEPAD and 1 or 0 end }
 local function restricted(tbl, key, name)
   local orig = tbl[key] or function() return true end
@@ -166,15 +167,22 @@ check("Suche nach Weltklick", count(calls, "C_LFGList.Search"), 1)
 check("nichts geblockt", #forbidden, 0)
 fire("LFG_LIST_SEARCH_RESULTS_RECEIVED")
 
+print("== Maus, Controller angeschlossen, aber nicht benutzt: Weltklick sucht weiter")
+PAD_CONNECTED = true
+advance(60); worldClick(true)
+check("Suche nach Weltklick", count(calls, "C_LFGList.Search"), 2)
+fire("LFG_LIST_SEARCH_RESULTS_RECEIVED")
+PAD_CONNECTED = false
+
 print("== Controller: Klick in die Welt kommt ohne Hardware-Ereignis")
 GAMEPAD = true
 advance(60); worldClick(false)
 check("kein geblockter Aufruf", #forbidden, 0)
-check("keine weitere Suche", count(calls, "C_LFGList.Search"), 1)
+check("keine weitere Suche", count(calls, "C_LFGList.Search"), 2)
 
 print("== Controller: Taste „Nächste Aktion“ sucht")
 hardware(AutoGroupFinder_Next)
-check("Suche per Taste", count(calls, "C_LFGList.Search"), 2)
+check("Suche per Taste", count(calls, "C_LFGList.Search"), 3)
 fire("LFG_LIST_SEARCH_RESULTS_RECEIVED")
 
 print("== Controller: Vorgemerktes erledigt die Taste zuerst")
@@ -182,9 +190,9 @@ advance(60)
 env.whisperQueue[#env.whisperQueue + 1] = { name = "Heal", text = "hi", t = GetTime() }
 hardware(AutoGroupFinder_Next)
 check("Flüstern per Taste gesendet", count(calls, "C_ChatInfo.SendChatMessage"), 1)
-check("dieser Tastendruck sucht nicht zusätzlich", count(calls, "C_LFGList.Search"), 2)
+check("dieser Tastendruck sucht nicht zusätzlich", count(calls, "C_LFGList.Search"), 3)
 hardware(AutoGroupFinder_Next)
-check("nächster Tastendruck sucht", count(calls, "C_LFGList.Search"), 3)
+check("nächster Tastendruck sucht", count(calls, "C_LFGList.Search"), 4)
 fire("LFG_LIST_SEARCH_RESULTS_RECEIVED")
 check("nichts geblockt", #forbidden, 0)
 
@@ -202,7 +210,7 @@ local logged = false
 for _, e in ipairs(env.errors) do if e:find("ADDON_ACTION_FORBIDDEN", 1, true) and e:find("C_LFGList.Search", 1, true) then logged = true end end
 check("in /gf diag vermerkt", logged, true)
 hardware(AutoGroupFinder_Next)
-check("Taste sucht weiterhin", count(calls, "C_LFGList.Search"), 4)
+check("Taste sucht weiterhin", count(calls, "C_LFGList.Search"), 5)
 
 print("== Controller: Austragen ohne Klick wartet, der Knopf oben bietet es an")
 GAMEPAD = true
