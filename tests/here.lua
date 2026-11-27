@@ -185,3 +185,21 @@ AutoGroupFinderCharDB.activities[10] = true
 E.state.treeVersion = E.state.treeVersion + 1; E.UpdateUI()
 check("Eigene Auswahl bleibt sichtbar:", rawget(E.emptyText, "_text"), "")
 UnitLevel = was
+
+print("== Eigene Auswahl bleibt beim Stufenaufstieg")
+-- Fall aus dem Spiel: Krol'dok gewählt, Zul'Farrak passte noch nicht zur Stufe (ausgeblendet, nie abgewählt).
+-- Nach dem Aufstieg war Zul'Farrak plötzlich mitgewählt und ein DPS wurde dafür eingeladen.
+local act = AutoGroupFinderCharDB.activities
+local function level(n) UnitLevel = function() return n end; E.state.treeVersion = E.state.treeVersion + 1 end
+for k in pairs(act) do act[k] = nil end
+level(30)
+check("Ohne eigene Auswahl gilt die Stufe:", picked(), "11,13")
+level(33)
+check("… und wandert mit:", picked(), "10,11,13")
+for k in pairs(act) do act[k] = nil end
+level(30)
+act[11], act[13] = true, false -- nur Gnomeregan angehakt; Scarlet Library (ab 33) war noch nicht zu sehen
+check("Eigene Auswahl:", picked(), "11")
+level(33)
+check("Nach dem Aufstieg nichts dazu:", picked(), "11")
+UnitLevel = was
