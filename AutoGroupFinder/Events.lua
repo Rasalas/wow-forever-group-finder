@@ -67,12 +67,15 @@ end
 
 -- Forevers Controller-Modus: Klicks in die Spielwelt kommen dort ohne Hardware-Ereignis an, eine Suche
 -- daraus blockiert Blizzard mit „AutoGroupFinder wurde geblockt“. Mit Controller suchen Taste und Knopf.
+-- Maßgeblich ist der Oberflächenstil, nach dem auch Blizzard zwischen Maus- und Controller-UI umschaltet;
+-- ein angeschlossener, aber unbenutzter Controller ändert ihn nicht. IsUsingGamepad (undokumentiert,
+-- von Blizzard nirgends benutzt) nur, falls es den Stil nicht gibt.
 function UsingGamepad()
   local style = C_InputInterfaceStyle and C_InputInterfaceStyle.GetCurrentStyle
   if style then
     local gamepad = Enum and Enum.InputDeviceInterfaceType and Enum.InputDeviceInterfaceType.Gamepad or 1
     local ok, current = pcall(style)
-    if ok and current == gamepad then return true end
+    if ok then return current == gamepad end
   end
   return IsUsingGamepad and IsUsingGamepad() == true or false
 end
