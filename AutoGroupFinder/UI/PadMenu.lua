@@ -75,8 +75,13 @@ local function Build()
   frame.SmartNavigationCloseHandler = function() frame:Hide() return true end
   -- Die Controller-Steuerung wechselt nur zwischen Fenstern, die sie kennt: wie Blizzards eigene
   -- Popups (ReadyCheck, Gildeneinladung) anmelden und beim Schließen wieder abmelden.
+  -- Knopf, der es geöffnet hat, zeigt seinen Zustand neu (Pfeil „offen“ bei Auswahlfeldern)
+  local function Refresh(button)
+    if button and type(button.OnButtonStateChanged) == "function" then pcall(button.OnButtonStateChanged, button) end
+  end
   frame:HookScript("OnShow", function(self)
     self:RegisterEvent("GLOBAL_MOUSE_DOWN")
+    Refresh(owner)
     local m = Manager()
     if m and m.HandlePopupShown and not InCombatLockdown() and not followed then
       followed = true
@@ -85,7 +90,9 @@ local function Build()
   end)
   frame:HookScript("OnHide", function(self)
     self:UnregisterEvent("GLOBAL_MOUSE_DOWN")
+    local was = owner
     owner, stack = nil, nil
+    Refresh(was)
     if followed then
       followed = nil
       local m = GamepadMode and GamepadMode.FrameControlsManager
@@ -270,10 +277,15 @@ end
 
 -- Auswahlfeld (DropdownButton): Blizzards eingebauter Klick ruft self:OpenMenu(); statt Blizzards Menü
 -- öffnet das eigene. Knopf und Auswahltext bleiben Blizzards.
+-- IsMenuOpen/CloseMenu ebenfalls: Blizzards Klick schaltet über SetMenuOpen(not IsMenuOpen()) um, und der
+-- Pfeil des Auswahlfelds zeigt „offen“ nach IsMenuOpen().
+function PadMenu.IsOpenFor(button) return frame ~= nil and frame:IsShown() and owner == button end
 function PadMenu.Hook(button, gen)
   button.OpenMenu = function(self)
     if self.IsEnabled and self:IsEnabled() == false then return end
-    PadMenu.Open(self, gen)
+    if not PadMenu.IsOpenFor(self) then PadMenu.Open(self, gen) end
   end
+  button.CloseMenu = function(self) if PadMenu.IsOpenFor(self) then frame:Hide() end end
+  button.IsMenuOpen = function(self) return PadMenu.IsOpenFor(self) end
   button:HookScript("OnHide", function(self) if frame and owner == self then frame:Hide() end end)
 end
