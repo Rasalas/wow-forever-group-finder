@@ -34,6 +34,7 @@ Messages.lua
 Queue.lua
 UI\Stone.lua
 UI\Window.lua
+UI\PadMenu.lua
 UI\FinderPage.lua
 UI\FoundPage.lua
 UI\HistoryPage.lua

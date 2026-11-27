@@ -52,8 +52,7 @@ do
   end
 
   local function MemberMenu(owner, m)
-    if not (MenuUtil and MenuUtil.CreateContextMenu) then Whisper(m.name) return end
-    MenuUtil.CreateContextMenu(owner, function(_, root)
+    local shown = ContextMenu(owner, function(_, root)
       root:CreateTitle(Short(m.name))
       root:CreateButton(T.WHISPER, function() Whisper(m.name) end)
       root:CreateButton(T.INVITE, function()
@@ -66,11 +65,11 @@ do
       root:CreateCheckbox(RateTag(-1) .. " " .. T.RATE_BAD, function() return Rating(m.name) == -1 end, function() Rate(m.name, -1) end)
       root:CreateButton(db.blocked[Key(m.name)] and T.CTX_UNBLOCK or T.CTX_BLOCK, function() ToggleBlocked(m.name) end)
     end)
+    if not shown then Whisper(m.name) end
   end
 
   local function EntryMenu(owner, e)
-    if not (MenuUtil and MenuUtil.CreateContextMenu) then return end
-    MenuUtil.CreateContextMenu(owner, function(_, root)
+    ContextMenu(owner, function(_, root)
       root:CreateButton(T.HISTORY_DELETE, function()
         for i, x in ipairs(char.history) do if x == e then table.remove(char.history, i) break end end
         if History.detail == e then History.detail = nil end

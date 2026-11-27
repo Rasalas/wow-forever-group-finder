@@ -113,7 +113,7 @@ local blockedEv = CreateFrame("Frame")
 blockedEv:RegisterEvent("ADDON_ACTION_FORBIDDEN")
 blockedEv:RegisterEvent("ADDON_ACTION_BLOCKED")
 blockedEv:SetScript("OnEvent", function(_, event, addon, func)
-  if addon == ADDON then OnActionBlocked(event, func) end
+  if (event == "ADDON_ACTION_FORBIDDEN" or event == "ADDON_ACTION_BLOCKED") and addon == ADDON then OnActionBlocked(event, func) end
 end)
 
 -- true = dieser Klick ist verbraucht

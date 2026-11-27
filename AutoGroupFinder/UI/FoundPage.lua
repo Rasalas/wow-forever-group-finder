@@ -142,8 +142,7 @@ found:HookScript("OnHide", HideTargetButton)
 
 -- Rechtsklick auf einen Spieler: Aktionen wie bei Blizzard
 function ShowPlayerMenu(owner, c)
-  if not (MenuUtil and MenuUtil.CreateContextMenu) then Whisper(c.name) return end
-  MenuUtil.CreateContextMenu(owner, function(_, root)
+  local shown = ContextMenu(owner, function(_, root)
     root:CreateTitle(Short(c.name))
     root:CreateButton(T.WHISPER, function() Whisper(c.name) end)
     for _, r in ipairs(ROLES) do
@@ -162,6 +161,7 @@ function ShowPlayerMenu(owner, c)
     end)
     root:CreateButton(T.CTX_BLOCK, function() ToggleBlocked(c.name) end)
   end)
+  if not shown then Whisper(c.name) end
 end
 
 offerOf = {} -- Zeile -> Gruppe, um die gebeten werden kann

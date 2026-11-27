@@ -154,7 +154,9 @@ if portrait then portraitStone = Stone.Attach(portrait) end
 -- Nach dem Laden erzeugt Events.lua alle Menüs neu (RefreshMenus).
 menus = {}
 function SetupMenuLater(button, gen)
-  button:SetupMenu(function(owner, root) if db then gen(owner, root) end end)
+  local function generator(owner, root) if db then gen(owner, root) end end
+  button:SetupMenu(generator)
+  PadMenu.Hook(button, generator) -- mit Controller das eigene Menü (UI/PadMenu.lua)
   menus[#menus + 1] = button
 end
 function RefreshMenus()
