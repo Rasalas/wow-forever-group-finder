@@ -200,6 +200,19 @@ pressDropdown(dd)
 check("kein Blizzard-Menü", #blizzMenus, before)
 check("eigenes Menü offen", rawget(menu(), "_shown"), true)
 
+print("== Auswahlfeld zeigt „offen“, solange sein Menü offen ist (Pfeil wie bei Blizzard)")
+local states = 0
+dd.OnButtonStateChanged = function() states = states + 1 end
+menu():Hide()
+check("zu: IsMenuOpen", dd:IsMenuOpen() and true or false, false)
+pressDropdown(dd)
+check("offen: IsMenuOpen", dd:IsMenuOpen() and true or false, true)
+check("Pfeil aufgefrischt", states > 0, true)
+-- zweiter Druck: Blizzards eingebauter Klick ruft SetMenuOpen(not IsMenuOpen()) -> CloseMenu
+dd:CloseMenu()
+check("CloseMenu schließt das eigene Menü", rawget(menu(), "_shown"), false)
+check("zu: IsMenuOpen", dd:IsMenuOpen() and true or false, false)
+
 print("== zurück zur Maus: weiter das eigene Menü")
 menu():Hide()
 GAMEPAD = false
