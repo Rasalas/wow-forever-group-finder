@@ -109,7 +109,8 @@ end
 -- Controller-Oberfläche (Forever): Jedes Menü aus Blizzard_Menu tritt dort der Controller-Steuerung
 -- (FrameControlsManager) bei. Öffnet ein Add-on so ein Menü, befleckt es diese Steuerung; beim Schließen
 -- blockiert Blizzard SetPreferredGamepadInteractTarget und zeigt „AutoGroupFinder wurde geblockt“.
--- Darum: mit Controller kein Blizzard-Menü aus Add-on-Code, sondern ein eigenes.
+-- Darum: kein Blizzard-Menü aus Add-on-Code, sondern ein eigenes – mit Controller und, der Einheit halber,
+-- auch mit Maus (Forever wechselt die Oberfläche, sobald man das andere Gerät benutzt).
 local GAMEPAD = false
 C_InputInterfaceStyle = { GetCurrentStyle = function() return GAMEPAD and 1 or 0 end }
 local blizzMenus, popups = {}, {}
@@ -148,12 +149,16 @@ local function row(text)
 end
 local function click(r) rawget(r, "_scripts").OnClick(r, "LeftButton") end
 
-print("== Maus: Blizzards Menüs wie bisher")
-pressDropdown(env.gear)
-check("Zahnrad öffnet Blizzards Menü", blizzMenus[#blizzMenus], "dropdown")
-env.ShowPlayerMenu(UIParent, { name = "Heal", key = "Heal", roles = { HEALER = true } })
-check("Rechtsklick öffnet Blizzards Kontextmenü", blizzMenus[#blizzMenus], "context")
+print("== Maus: dasselbe eigene Menü")
 local before = #blizzMenus
+pressDropdown(env.gear)
+check("kein Blizzard-Menü", #blizzMenus, before)
+check("eigenes Menü offen", menu() and rawget(menu(), "_shown"), true)
+check("ohne Controller keine Anmeldung bei dessen Steuerung", #popups, 0)
+env.ShowPlayerMenu(UIParent, { name = "Heal", key = "Heal", roles = { HEALER = true } })
+check("Rechtsklick: kein Blizzard-Kontextmenü", #blizzMenus, before)
+check("Rechtsklick: eigenes Menü mit dem Namen", row("Heal") ~= nil, true)
+menu():Hide()
 
 print("== Controller: eigenes Menü statt Blizzards")
 GAMEPAD = true
@@ -195,9 +200,10 @@ pressDropdown(dd)
 check("kein Blizzard-Menü", #blizzMenus, before)
 check("eigenes Menü offen", rawget(menu(), "_shown"), true)
 
-print("== zurück zur Maus: wieder Blizzards Menüs")
+print("== zurück zur Maus: weiter das eigene Menü")
 menu():Hide()
 GAMEPAD = false
 pressDropdown(env.gear)
-check("Zahnrad öffnet Blizzards Menü", blizzMenus[#blizzMenus], "dropdown")
+check("kein Blizzard-Menü", #blizzMenus, before)
+check("eigenes Menü offen", rawget(menu(), "_shown"), true)
 print("gamepad menus ok")
